@@ -28,7 +28,7 @@ class OptionTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: Material(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-        child: RadioListTile(
+        child: RadioListTile<int>(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
             // ignore: deprecated_member_use
             groupValue: ref.watch(selectedOptionProvider),
@@ -45,7 +45,7 @@ class OptionTile extends StatelessWidget {
             secondary: _trailingIcon(isSelected, isCorrectOption),
             contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
             // ignore: deprecated_member_use
-            onChanged: selectedOption != null ? null : (int? value) => _onChanged(value, ref, questionIndex, isCorrectOption)),
+            onChanged: selectedOption != null ? null : (value) => _onChanged(value, ref, questionIndex, isCorrectOption)),
       ),
     );
   }

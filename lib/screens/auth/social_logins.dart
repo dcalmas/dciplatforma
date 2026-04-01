@@ -101,7 +101,7 @@ class _SocialLoginsState extends State<SocialLogins> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(FontAwesomeIcons.google, color: Colors.white),
+              const FaIcon(FontAwesomeIcons.google, color: Colors.white, size: 20),
               const SizedBox(width: 15),
               Text(
                 'Sign In With Google',
@@ -126,7 +126,7 @@ class _SocialLoginsState extends State<SocialLogins> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(FontAwesomeIcons.facebook, color: Colors.white),
+                  const FaIcon(FontAwesomeIcons.facebook, color: Colors.white, size: 20),
                   const SizedBox(width: 15),
                   Text(
                     'Sign In With Facebook',
@@ -151,7 +151,7 @@ class _SocialLoginsState extends State<SocialLogins> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(FontAwesomeIcons.apple, color: Colors.white),
+                    const FaIcon(FontAwesomeIcons.apple, color: Colors.white, size: 20),
                     const SizedBox(width: 15),
                     Text(
                       'Sign In With Apple',

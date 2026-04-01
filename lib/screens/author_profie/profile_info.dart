@@ -48,7 +48,7 @@ class AuthorProfileInfo extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   child: IconButton(
-                    icon: Icon(
+                    icon: FaIcon(
                       FontAwesomeIcons.globe,
                       color: Theme.of(context).primaryColor,
                     ),
@@ -62,7 +62,7 @@ class AuthorProfileInfo extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   child: IconButton(
-                    icon: Icon(
+                    icon: FaIcon(
                       FontAwesomeIcons.facebook,
                       color: Theme.of(context).primaryColor,
                     ),
@@ -76,7 +76,7 @@ class AuthorProfileInfo extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   child: IconButton(
-                    icon: Icon(
+                    icon: FaIcon(
                       FontAwesomeIcons.twitter,
                       color: Theme.of(context).primaryColor,
                     ),
