@@ -49,7 +49,7 @@ dependencies:
   firebase_storage: ^11.6.9
   material_dialogs: ^1.1.4
   path_provider: ^2.1.2
-  app_settings: ^5.1.1
+  app_settings: ^6.1.3
   loading_indicator: ^3.1.1
   smooth_page_indicator: ^1.1.0
   store_redirect: ^2.0.1
@@ -60,7 +60,7 @@ dependencies:
   firebase_analytics: ^10.8.9
   screen_protector: ^1.4.2+1
   rounded_loading_button_plus: ^3.0.1
-  youtube_player_flutter: ^9.1.1
+  youtube_player_flutter: ^9.0.4
 
 
 dev_dependencies:
