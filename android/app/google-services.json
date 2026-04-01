@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "63012545079",
+    "project_id": "dciplatforma",
+    "storage_bucket": "dciplatforma.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:63012545079:android:4eb5418a6b5e4c29e9d5b2",
+        "android_client_info": {
+          "package_name": "com.dcplatforma.edu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "63012545079-4h2nvplfq12rb4q51hidleeq9p94lgvc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dcplatforma.edu",
+            "certificate_hash": "20d06112de6b0c01891c06376a1ad48ac3ac6d9f"
+          }
+        },
+        {
+          "client_id": "63012545079-j2brnamvdakiuk5bsirhjek7nevr11ls.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dcplatforma.edu",
+            "certificate_hash": "97062c3ccc266b4a0888f8369657311fcdc8f7eb"
+          }
+        },
+        {
+          "client_id": "63012545079-3og4h9am6js234sfreu9k1v4c1fg2ovl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH-oVk7alMDl2-c_TYcNTL67O-rYzWpzo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "63012545079-3og4h9am6js234sfreu9k1v4c1fg2ovl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "63012545079-cjg99rrmfdbik0umasl6r6m174bu8egi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dcplaforma.edu"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
