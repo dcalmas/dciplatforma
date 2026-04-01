@@ -73,10 +73,18 @@ class NotificationService {
       announcement: false,
       badge: true,
       carPlay: false,
-      criticalAlert: false,
+      criticalAlert: true, // Critical alert қосылды
       provisional: false,
       sound: true,
     );
+    
+    // iOS үшін дыбыс шығуын мәжбүрлеу
+    await _fcm.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       debugPrint('User granted permission');
       ref.read(nProvider.notifier).update((state) => true);

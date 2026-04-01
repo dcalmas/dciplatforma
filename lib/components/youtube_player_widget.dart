@@ -30,7 +30,10 @@ class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
       flags: const YoutubePlayerFlags(
         autoPlay: true,
         mute: false,
-        loop: true,
+        loop: false,
+        forceHD: true, // HD сапасына басымдық беру
+        enableCaption: true,
+        controlsVisibleAtStart: true,
       ),
     );
     super.initState();
@@ -53,7 +56,20 @@ class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
       },
       player: YoutubePlayer(
         controller: _controller,
-        // thumbnail: CustomCacheImage(imageUrl: widget.thumbnailUrl, radius: 0),
+        showVideoProgressIndicator: true,
+        progressIndicatorColor: Colors.blueAccent,
+        bottomActions: [
+          const SizedBox(width: 14.0),
+          CurrentPosition(),
+          const SizedBox(width: 8.0),
+          ProgressBar(isExpanded: true),
+          RemainingDuration(),
+          const PlaybackSpeedButton(),
+          FullScreenButton(),
+        ],
+        onReady: () {
+          debugPrint('Player is ready.');
+        },
       ),
       builder: (context, player) {
         return Scaffold(
