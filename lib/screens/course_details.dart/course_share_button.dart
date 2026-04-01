@@ -25,7 +25,7 @@ class CourseShareButton extends StatelessWidget {
 
           final String shareText = Platform.isAndroid ? shareTextAndroid : shareTextiOS;
 
-          SharePlus.instance.share(ShareParams(text: shareText));
+          Share.share(shareText);
         },
         icon: const Icon(LineIcons.share));
   }
