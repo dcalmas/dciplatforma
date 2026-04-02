@@ -23,11 +23,12 @@ class _IFrameLessonState extends State<IFrameLesson> {
       <!DOCTYPE html>
       <html>
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
           <style>
-            body { margin: 0; padding: 0; background-color: black; }
-            .container { position: relative; padding-top: 56.25%; width: 100%; }
-            iframe { position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: 0; }
+            body { margin: 0; padding: 0; background-color: black; overflow: hidden; }
+            .container { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
+            iframe { width: 100%; height: 100%; border: 0; }
           </style>
         </head>
         <body>
@@ -41,15 +42,18 @@ class _IFrameLessonState extends State<IFrameLesson> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.black)
+      ..setUserAgent("Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Mobile Safari/537.36") // User-Agent қосылды
       ..setNavigationDelegate(
         NavigationDelegate(
-          onProgress: (int progress) {},
-          onPageStarted: (String url) {},
-          onPageFinished: (String url) {},
-          onWebResourceError: (WebResourceError error) {},
+          onProgress: (int progress) => debugPrint('Loading: \$progress%'),
+          onPageStarted: (String url) => debugPrint('Page started: \$url'),
+          onPageFinished: (String url) => debugPrint('Page finished: \$url'),
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('WebResourceError: \${error.description}');
+          },
         ),
       )
-      ..loadHtmlString(htmlContent); // HTML кодын тікелей жүктейді
+      ..loadHtmlString(htmlContent, baseUrl: 'https://kinescope.io/'); // baseUrl қосылды
   }
 
   @override
@@ -65,7 +69,10 @@ class _IFrameLessonState extends State<IFrameLesson> {
           // Видео бөлімі (WebView)
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: WebViewWidget(controller: _controller),
+            child: Container(
+              color: Colors.black,
+              child: WebViewWidget(controller: _controller),
+            ),
           ),
           
           // Сипаттамасы

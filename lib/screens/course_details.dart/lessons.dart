@@ -13,7 +13,6 @@ import 'package:lms_app/screens/article_lesson.dart';
 import 'package:lms_app/screens/auth/login.dart';
 import 'package:lms_app/screens/quiz_lesson/quiz_screen.dart';
 import 'package:lms_app/screens/video_lesson.dart';
-import 'package:lms_app/screens/iframe_lesson.dart'; // Импорт қосылды
 import 'package:lms_app/services/firebase_service.dart';
 import 'package:lms_app/utils/loading_widget.dart';
 import 'package:lms_app/utils/next_screen.dart';
@@ -90,10 +89,9 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
   }
 
   void _openLesson(BuildContext context, Lesson lesson, WidgetRef ref) {
-    if (lesson.contentType == 'video' && lesson.videoUrl != null) {
+    // Егер видео немесе iframe болса - VideoLesson-ға жібереміз
+    if ((lesson.contentType == 'video' && lesson.videoUrl != null) || lesson.contentType == 'iframe') {
       NextScreen.iOS(context, VideoLesson(course: course, lesson: lesson));
-    } else if (lesson.contentType == 'iframe') { // Iframe түрі қосылды
-      NextScreen.iOS(context, IFrameLesson(lesson: lesson));
     } else if (lesson.contentType == 'article') {
       NextScreen.iOS(context, ArticleLesson(lesson: lesson, course: course));
     } else {
