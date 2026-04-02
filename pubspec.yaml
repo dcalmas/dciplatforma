@@ -2,7 +2,7 @@ name: lms_app
 description: A new Flutter project.
 publish_to: 'none'
 
-version: 1.0.6+29
+version: 1.0.6+30
 
 environment:
   sdk: '>=3.1.0 <4.0.0'
@@ -62,6 +62,7 @@ dependencies:
   rounded_loading_button_plus: ^3.0.1
   youtube_player_flutter: ^9.0.4
   lottie: ^3.1.2
+  webview_flutter: ^4.10.0 # WebView қосылды
 
 
 dev_dependencies:
