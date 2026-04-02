@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:math';
+import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,27 +22,52 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> {
-  bool _isDotMoved = false;
+class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProviderStateMixin {
+  late AnimationController _bgController;
+  late AnimationController _mainController;
+  late Animation<Alignment> _logoAlignment;
+  late Animation<double> _contentOpacity;
+
+  final List<Blob> _blobs = List.generate(6, (index) => Blob());
 
   @override
   void initState() {
     super.initState();
-    _startAnimation();
+
+    // 1. Фондағы Liquid (Metaballs) анимациясы
+    _bgController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 10),
+    )..addListener(() {
+        for (var blob in _blobs) {
+          blob.update();
+        }
+      })..repeat();
+
+    // 2. Логотип пен контент анимациясы
+    _mainController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    );
+
+    _logoAlignment = AlignmentTween(
+      begin: Alignment.center,
+      end: const Alignment(0, -0.4),
+    ).animate(CurvedAnimation(
+      parent: _mainController,
+      curve: const Interval(0.2, 0.8, curve: Curves.easeInOutCubic),
+    ));
+
+    _contentOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _mainController,
+      curve: const Interval(0.7, 1.0, curve: Curves.easeIn),
+    ));
+
+    _startInitialization();
   }
 
-  // Анимацияны бастау және деректерді жүктеу
-  _startAnimation() async {
-    // 1. Азғантай кідірістен кейін нүктені жылжыту
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          _isDotMoved = true;
-        });
-      }
-    });
-
-    // 2. Деректерді жүктеу (Анимация жүріп жатқанда)
+  _startInitialization() async {
+    // Деректерді жүктеуді бастау
     final user = FirebaseAuth.instance.currentUser;
     if (ref.read(appSettingsProvider) == null) {
       await ref.read(appSettingsProvider.notifier).getData();
@@ -50,8 +77,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       ref.read(userDataProvider.notifier).getData();
     }
 
-    // 3. Анимация толық біткенше күту (жалпы 2.5 секунд)
-    Timer(const Duration(milliseconds: 2500), () {
+    // Анимацияны бастау
+    _mainController.forward();
+
+    // Барлығы дайын болғанша күту (кемінде 3 секунд)
+    Timer(const Duration(milliseconds: 3500), () {
       _navigateToNext();
     });
   }
@@ -83,44 +113,119 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   @override
+  void dispose() {
+    _bgController.dispose();
+    _mainController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 1. Логотип
-            Image.asset(
-              splash, // configs/app_assets.dart-тан алынады
-              height: 120,
-              width: 120,
-              fit: BoxFit.contain,
+      body: Stack(
+        children: [
+          // 1. Liquid Background Layer
+          RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _bgController,
+              builder: (context, child) {
+                return CustomPaint(
+                  painter: LiquidPainter(blobs: _blobs),
+                  child: Container(),
+                );
+              },
             ),
-            
-            const SizedBox(height: 20),
-            
-            // 2. Жылжымалы нүкте (JUZO стилінде)
-            SizedBox(
-              width: 100, // Нүкте қозғалатын жолдың ені
-              height: 10,
-              child: AnimatedAlign(
-                duration: const Duration(seconds: 1),
-                curve: Curves.easeInOut,
-                alignment: _isDotMoved ? Alignment.centerRight : Alignment.centerLeft,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: const BoxDecoration(
-                    color: Colors.blueAccent, // Нүктенің түсін қалауыңызша өзгертіңіз
-                    shape: BoxShape.circle,
-                  ),
+          ),
+
+          // 2. Logo Animation Layer
+          AnimatedBuilder(
+            animation: _mainController,
+            builder: (context, child) {
+              return Align(
+                alignment: _logoAlignment.value,
+                child: Image.asset(
+                  splash,
+                  height: 120,
+                  width: 120,
                 ),
+              );
+            },
+          ),
+
+          // 3. Welcome Text / Loading Layer
+          Align(
+            alignment: const Alignment(0, 0.2),
+            child: FadeTransition(
+              opacity: _contentOpacity,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Welcome",
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 10),
+                  const CircularProgressIndicator(strokeWidth: 2),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+}
+
+// CustomPainter for Liquid Morphing Effect
+class LiquidPainter extends CustomPainter {
+  final List<Blob> blobs;
+  LiquidPainter({required this.blobs});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.blueAccent.withOpacity(0.6);
+
+    // Metaballs effect magic: High Contrast + Heavy Blur
+    final layerPaint = Paint()
+      ..colorFilter = const ColorFilter.matrix([
+        1, 0, 0, 0, 0,
+        0, 1, 0, 0, 0,
+        0, 0, 1, 0, 0,
+        0, 0, 0, 60, -2000, 
+      ])
+      ..imageFilter = ImageFilter.blur(sigmaX: 40, sigmaY: 40);
+
+    canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), layerPaint);
+
+    for (var blob in blobs) {
+      canvas.drawCircle(
+        Offset(blob.x * size.width, blob.y * size.height),
+        blob.radius,
+        paint,
+      );
+    }
+
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(LiquidPainter oldDelegate) => true;
+}
+
+// Moving Blob (Circle) logic
+class Blob {
+  double x = Random().nextDouble();
+  double y = Random().nextDouble();
+  double speedX = (Random().nextDouble() - 0.5) * 0.003;
+  double speedY = (Random().nextDouble() - 0.5) * 0.003;
+  double radius = Random().nextDouble() * 60 + 40;
+
+  void update() {
+    x += speedX;
+    y += speedY;
+
+    if (x < 0 || x > 1) speedX *= -1;
+    if (y < 0 || y > 1) speedY *= -1;
   }
 }
