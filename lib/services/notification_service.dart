@@ -73,12 +73,12 @@ class NotificationService {
       announcement: false,
       badge: true,
       carPlay: false,
-      criticalAlert: true, // Critical alert қосылды
+      criticalAlert: true,
       provisional: false,
       sound: true,
     );
-    
-    // iOS үшін дыбыс шығуын мәжбүрлеу
+
+    // iOS үшін дыбыс шығуын мәжбүрлеу (Foreground)
     await _fcm.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
