@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
 
 class LanguageConfig {
-  //Initial Language
-  static const Locale startLocale = Locale('en', 'US');
+  //Initial Language (Орысша негізгі)
+  static const Locale startLocale = Locale('ru', 'RU');
 
   //Language if any error happens
-  static const Locale fallbackLocale = Locale('en', 'US');
+  static const Locale fallbackLocale = Locale('ru', 'RU');
 
   // Languages
   static const Map<String, List<String>> languages = {
     //language_name : [language_code, country_code(Capital format)]
+    "Русский": ['ru', 'RU'],
+    "Қазақша": ['kk', 'KZ'],
     "English": ['en', 'US'],
-    "Spanish": ['es', 'ES'],
-    "Arabic": ['ar', 'SA'],
-    "Hindi": ['hi', 'IN'],
-    "German": ['de', 'DE'],
-    "Portuguese": ['pt', 'BR'],
-    "French": ['fr', 'FR'],
-    "Indonesian": ['id', 'ID'],
-    "Chinese": ['zh', 'CN'],
   };
 
   // Don't edit this
