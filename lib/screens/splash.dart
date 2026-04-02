@@ -37,7 +37,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
   }
 
   // Анимация аяқталған соң деректерді тексеріп, келесі экранға өту
-  _navigateToNext(RemoteMessage? message) async {
+  _navigateToNext() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await ref.read(userDataProvider.notifier).getData();
@@ -81,15 +81,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Фон түсін қалауыңызша өзгертіңіз
+      backgroundColor: Colors.white,
       body: Center(
         child: Lottie.asset(
-          'assets/animations/splash.json', // Лотти файлының жолы
+          'assets/animations/splash.json',
           controller: _controller,
           onLoaded: (composition) {
             _controller
               ..duration = composition.duration
-              ..forward().then((value) => _navigateToNext(null));
+              ..forward().then((value) => _navigateToNext());
           },
         ),
       ),
