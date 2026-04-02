@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lottie/lottie.dart';
+import 'package:lms_app/configs/app_assets.dart';
 import 'package:lms_app/configs/features_config.dart';
 import 'package:lms_app/models/app_settings_model.dart';
 import 'package:lms_app/services/sp_service.dart';
@@ -19,57 +20,63 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProviderStateMixin {
-  late AnimationController _controller;
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _isDotMoved = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
+    _startAnimation();
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  // Анимацияны бастау және деректерді жүктеу
+  _startAnimation() async {
+    // 1. Азғантай кідірістен кейін нүктені жылжыту
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        setState(() {
+          _isDotMoved = true;
+        });
+      }
+    });
 
-  _navigateToNext() async {
+    // 2. Деректерді жүктеу (Анимация жүріп жатқанда)
     final user = FirebaseAuth.instance.currentUser;
-    
-    // 1. Баптауларды жүктейміз
     if (ref.read(appSettingsProvider) == null) {
       await ref.read(appSettingsProvider.notifier).getData();
     }
-    final settings = ref.read(appSettingsProvider);
-
     if (user != null) {
-      // 2. Пайдаланушы деректерін МІНДЕТТІ ТҮРДЕ күтеміз (Future)
-      final userData = await ref.read(userDataProvider.notifier).fetchUserData();
-      
-      // 3. Стримді іске қосамыз (артқы фонда жаңартып тұру үшін)
+      await ref.read(userDataProvider.notifier).fetchUserData();
       ref.read(userDataProvider.notifier).getData();
+    }
 
-      if (!mounted) return;
+    // 3. Анимация толық біткенше күту (жалпы 2.5 секунд)
+    Timer(const Duration(milliseconds: 2500), () {
+      _navigateToNext();
+    });
+  }
+
+  _navigateToNext() async {
+    if (!mounted) return;
+    final user = FirebaseAuth.instance.currentUser;
+    final settings = ref.read(appSettingsProvider);
+    final userData = ref.read(userDataProvider);
+
+    if (user != null && userData != null) {
       if (settings?.license != LicenseType.none) {
         NextScreen.replaceSlideAnimation(context, const Home());
       } else {
         NextScreen.openBottomSheet(context, const NoLicenseFound());
       }
     } else {
-      // Пайдаланушы жүйеден шыққан болса
       final bool isGuestUser = await SPService().isGuestUser();
-
       if (settings?.license != LicenseType.none) {
         if (isGuestUser || settings?.onBoarding == false) {
-          if (!mounted) return;
           NextScreen.replaceSlideAnimation(context, const Home());
         } else {
-          if (!mounted) return;
           NextScreen.replaceSlideAnimation(context, const IntroScreen());
         }
       } else {
-        if (!mounted) return;
         NextScreen.openBottomSheet(context, const NoLicenseFound());
       }
     }
@@ -80,14 +87,38 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Lottie.asset(
-          'assets/animations/splash.json',
-          controller: _controller,
-          onLoaded: (composition) {
-            _controller
-              ..duration = composition.duration
-              ..forward().then((value) => _navigateToNext());
-          },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 1. Логотип
+            Image.asset(
+              splash, // configs/app_assets.dart-тан алынады
+              height: 120,
+              width: 120,
+              fit: BoxFit.contain,
+            ),
+            
+            const SizedBox(height: 20),
+            
+            // 2. Жылжымалы нүкте (JUZO стилінде)
+            SizedBox(
+              width: 100, // Нүкте қозғалатын жолдың ені
+              height: 10,
+              child: AnimatedAlign(
+                duration: const Duration(seconds: 1),
+                curve: Curves.easeInOut,
+                alignment: _isDotMoved ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    color: Colors.blueAccent, // Нүктенің түсін қалауыңызша өзгертіңіз
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
