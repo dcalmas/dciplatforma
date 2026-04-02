@@ -12,6 +12,14 @@ class UserData extends StateNotifier<UserModel?> {
   UserData() : super(null);
   StreamSubscription? _subscription;
 
+  // Деректерді бір рет алу (Сплеш-скрин үшін)
+  Future<UserModel?> fetchUserData() async {
+    final user = await FirebaseService().getUserData();
+    state = user;
+    return user;
+  }
+
+  // Реалды уақытта жаңарту (Стрим)
   Future getData() async {
     _subscription?.cancel();
     _subscription = FirebaseService().userDataStream().listen((user) {

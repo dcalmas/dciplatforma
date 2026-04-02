@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:lms_app/configs/features_config.dart';
 import 'package:lms_app/models/app_settings_model.dart';
-import 'package:lms_app/screens/auth/no_user.dart';
-import 'package:lms_app/services/auth_service.dart';
 import 'package:lms_app/services/sp_service.dart';
 import '../core/home.dart';
 import '../providers/app_settings_provider.dart';
@@ -36,31 +34,30 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
     super.dispose();
   }
 
-  // Анимация аяқталған соң деректерді тексеріп, келесі экранға өту
   _navigateToNext() async {
     final user = FirebaseAuth.instance.currentUser;
+    
+    // 1. Баптауларды жүктейміз
+    if (ref.read(appSettingsProvider) == null) {
+      await ref.read(appSettingsProvider.notifier).getData();
+    }
+    final settings = ref.read(appSettingsProvider);
+
     if (user != null) {
-      await ref.read(userDataProvider.notifier).getData();
-      final userData = ref.read(userDataProvider);
-      if (userData != null) {
-        if (ref.read(appSettingsProvider) == null) {
-          await ref.read(appSettingsProvider.notifier).getData();
-        }
-        if (!mounted) return;
-        if (ref.read(appSettingsProvider)?.license != LicenseType.none) {
-          NextScreen.replaceSlideAnimation(context, const Home()); // Солдан оңға қарай
-        } else {
-          NextScreen.openBottomSheet(context, const NoLicenseFound());
-        }
+      // 2. Пайдаланушы деректерін МІНДЕТТІ ТҮРДЕ күтеміз (Future)
+      final userData = await ref.read(userDataProvider.notifier).fetchUserData();
+      
+      // 3. Стримді іске қосамыз (артқы фонда жаңартып тұру үшін)
+      ref.read(userDataProvider.notifier).getData();
+
+      if (!mounted) return;
+      if (settings?.license != LicenseType.none) {
+        NextScreen.replaceSlideAnimation(context, const Home());
       } else {
-        await AuthService().userLogOut();
-        await AuthService().googleLogout();
-        if (!mounted) return;
-        NextScreen.replaceSlideAnimation(context, const NoUserFound());
+        NextScreen.openBottomSheet(context, const NoLicenseFound());
       }
     } else {
-      await ref.read(appSettingsProvider.notifier).getData();
-      final settings = ref.read(appSettingsProvider);
+      // Пайдаланушы жүйеден шыққан болса
       final bool isGuestUser = await SPService().isGuestUser();
 
       if (settings?.license != LicenseType.none) {
