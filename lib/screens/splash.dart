@@ -39,7 +39,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
   }
 
   _startInitialization() async {
-    // Деректерді жүктеуді бастау
     final user = FirebaseAuth.instance.currentUser;
     if (ref.read(appSettingsProvider) == null) {
       await ref.read(appSettingsProvider.notifier).getData();
@@ -78,36 +77,37 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
 
   @override
   Widget build(BuildContext context) {
-    // Статус-бардың түсін мөлдір ету (анимация астында көрінуі үшін)
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark, // Немесе анимацияңызға қарай Brightness.light
+      statusBarIconBrightness: Brightness.dark,
     ));
 
     return Scaffold(
-      backgroundColor: Colors.white, // Лотти фонымен бірдей болғаны дұрыс
-      body: Stack(
-        children: [
-          // Бүкіл экранды толтыратын Лотти анимациясы
-          Positioned.fill(
-            child: Lottie.asset(
-              splashAnimation,
-              controller: _controller,
-              fit: BoxFit.cover, // Видео сияқты экранды толық жабады
-              onLoaded: (composition) {
-                _controller
-                  ..duration = composition.duration
-                  ..forward().whenComplete(() => _navigateToNext());
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Lottie.asset(
+          splashAnimation,
+          controller: _controller,
+          width: MediaQuery.of(context).size.width * 0.7,
+          fit: BoxFit.contain,
+          onLoaded: (composition) {
+            _controller
+              ..duration = composition.duration
+              ..forward().whenComplete(() {
+                // 3. Анимация аяқталғанда күшті соққы
+                HapticFeedback.heavyImpact(); 
+                _navigateToNext();
+              });
 
-                // Тактильді діріл
-                HapticFeedback.lightImpact();
-                Timer(Duration(milliseconds: (composition.duration.inMilliseconds * 0.4).toInt()), () {
-                  HapticFeedback.mediumImpact();
-                });
-              },
-            ),
-          ),
-        ],
+            // 1. Анимация басталғанда (Орташа күшті соққы)
+            HapticFeedback.mediumImpact();
+
+            // 2. Анимацияның 50%-ында (Ең күшті соққы)
+            Timer(Duration(milliseconds: (composition.duration.inMilliseconds * 0.5).toInt()), () {
+              HapticFeedback.heavyImpact();
+            });
+          },
+        ),
       ),
     );
   }
