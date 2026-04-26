@@ -7,11 +7,11 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>dcplatforma</string>
+		<string>Tatti-Til</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
-		<string>com.dcplatforma.edu</string>
+		<string>com.tattitil.app</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleLocalizations</key>
@@ -28,7 +28,7 @@
 			<string>in</string>
 		</array>
 		<key>CFBundleName</key>
-		<string>dcplatforma</string>
+		<string>Tatti-Til</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -42,27 +42,18 @@
 				<string>Editor</string>
 				<key>CFBundleURLSchemes</key>
 				<array>
-					<string>fb8758748773798</string>
-					<string>com.googleusercontent.apps.63012545079-cjg99rrmfdbik0umasl6r6m174bu8egi</string>
+					<string>com.googleusercontent.apps.877086975035-2de4bm3ii381961o0u9he08fhir2gig5</string>
 				</array>
 			</dict>
 		</array>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
-		<key>FacebookAppID</key>
-		<string>875874877379</string>
-		<key>FacebookClientToken</key>
-		<string>665500d5d5c72ce7aaa61448445</string>
-		<key>FacebookDisplayName</key>
-		<string>dcplatforma</string>
 		<key>GADApplicationIdentifier</key>
 		<string>ca-app-pub-3940256099942544~3347511713</string>
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
 			<string>itms-beta</string>
 			<string>itms</string>
-			<string>fbapi</string>
-			<string>fb-messenger-share-api</string>
 		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>

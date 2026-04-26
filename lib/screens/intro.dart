@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:lms_app/configs/app_assets.dart';
 import 'package:lms_app/configs/features_config.dart';
@@ -99,7 +98,10 @@ class IntroView extends StatelessWidget {
       children: [
         Flexible(
           flex: 5,
-          child: SvgPicture.asset(image),
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Image.asset(image, fit: BoxFit.contain),
+          ),
         ),
         Flexible(
           flex: 2,
@@ -115,8 +117,3 @@ class IntroView extends StatelessWidget {
     );
   }
 }
-
-
-// righteous
-// adamina
-// comforta

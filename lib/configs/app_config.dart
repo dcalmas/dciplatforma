@@ -4,13 +4,13 @@ class AppConfig {
 
   
   // App Name
-  static const String appName = 'PrimeLms';
+  static const String appName = 'Tatti-Til';
 
-  // App Theme Color - Change Hex code <3F51B5>
-  static const Color appThemeColor = Color(0xFF3F51B5);
+  // App Theme Color - Change Hex code <f00080>
+  static const Color appThemeColor = Color(0xFFf00080);
 
   // Android Package Name
-  static const String androidPackageName = 'com.mrblab.prime_lms';
+  static const String androidPackageName = 'com.tattitil.app';
 
   // iOS App ID
   static const String iosAppID = '000000';

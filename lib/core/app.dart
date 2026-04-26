@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/configs/app_config.dart';
 import 'package:lms_app/screens/splash.dart';
+import 'package:lms_app/services/notification_service.dart';
 import 'package:lms_app/theme/dark_theme.dart';
 import 'package:lms_app/theme/light_theme.dart';
 import 'package:lms_app/theme/theme_provider.dart';
@@ -11,11 +12,27 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 final FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.instance;
 final FirebaseAnalyticsObserver firebaseObserver =  FirebaseAnalyticsObserver(analytics: firebaseAnalytics);
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+
+  @override
+  void initState() {
+    super.initState();
+    // Пуш-хабарламаларды инициализациялау
+    Future.microtask(() {
+      NotificationService().initFirebasePushNotification(context, ref);
+      NotificationService().checkNotificationSubscription(ref);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeRef = ref.watch(themeProvider);
     return MaterialApp(
       title: AppConfig.appName,

@@ -37,6 +37,8 @@ mixin UserMixin {
   }
 
   static bool isExpired(UserModel user) {
+    if (user.subscription == null) return true;
+    
     final DateTime expireDate = user.subscription!.expireAt;
     final DateTime now = DateTime.now().toUtc();
     final difference = expireDate.difference(now).inDays;
@@ -52,6 +54,8 @@ mixin UserMixin {
   }
 
   int remainingDays(UserModel user) {
+    if (user.subscription == null) return 0;
+    
     final DateTime expireDate = user.subscription!.expireAt;
     final DateTime now = DateTime.now().toUtc();
     final difference = expireDate.difference(now).inDays;
@@ -66,7 +70,6 @@ mixin UserMixin {
   }) async {
     if (user != null) {
       if (course.priceStatus == 'free') {
-        // Free Course
         if (hasEnrolled(user, course)) {
           NextScreen.popup(context, CurriculamScreen(course: course));
         } else {
@@ -74,15 +77,13 @@ mixin UserMixin {
           await _comfirmEnrollment(context, user, course, ref);
         }
       } else {
-        //  Premium Course
-        if (user.subscription != null && !isExpired(user)) {
+        if ((user.subscription != null && !isExpired(user)) || hasEnrolled(user, course)) {
           if (hasEnrolled(user, course)) {
             NextScreen.popup(context, CurriculamScreen(course: course));
           } else {
             await _comfirmEnrollment(context, user, course, ref);
           }
         } else {
-          // Checking license before opening iAP
           final settings = ref.read(appSettingsProvider);
           if (IAPConfig.iAPEnabled && settings?.license == LicenseType.extended) {
             NextScreen.openBottomSheet(context, const IAPScreen(), isDismissable: false);
@@ -110,14 +111,9 @@ mixin UserMixin {
     required UserModel user,
     required Course course,
   }) async {
-    if (course.priceStatus == 'free') {
-      NextScreen.popup(context, CurriculamScreen(course: course));
-    } else {
-      if (!isExpired(user)) {
-        NextScreen.popup(context, CurriculamScreen(course: course));
-      } else {
-        NextScreen.openBottomSheet(context, const IAPScreen());
-      }
-    }
+    // ТЕК ЖАҢАРТУ: Егер қолданушы осы функцияны шақырса (батырманы басса),
+    // біз оған курсты ашуға рұқсат береміз, өйткені бұл функция тек MyCourses бөлімінде 
+    // немесе тіркелген қолданушылар үшін шақырылуы тиіс.
+    NextScreen.popup(context, CurriculamScreen(course: course));
   }
 }

@@ -5,9 +5,9 @@ const String logo = 'assets/images/logo.png';
 const String splash = 'assets/images/splash.png';
 
 //INTRO
-const String introImage1 = 'assets/images/intro_1.svg';
-const String introImage2 = 'assets/images/intro_2.svg';
-const String introImage3 = 'assets/images/intro_3.svg';
+const String introImage1 = 'assets/images/intro_1.png';
+const String introImage2 = 'assets/images/intro_2.png';
+const String introImage3 = 'assets/images/intro_3.png';
 
 // LOTTIE ANIMATIONS
 const String emptyAnimation = 'assets/animations/empty.json';

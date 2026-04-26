@@ -9,6 +9,7 @@ class Lesson {
   final String contentType;
   final String? description;
   final List<Question>? questions;
+  final String? attachmentUrl; // Қосылды
 
   Lesson({
     required this.id,
@@ -18,6 +19,7 @@ class Lesson {
     this.videoUrl,
     this.description,
     this.questions,
+    this.attachmentUrl,
   });
 
   factory Lesson.fromFiresore(DocumentSnapshot snap) {
@@ -30,6 +32,7 @@ class Lesson {
       contentType: d['content_type'],
       description: d['description'],
       questions: d['quiz'] == null ? [] : List<Question>.from(d['quiz'].map((x) => Question.fromMap(x))),
+      attachmentUrl: d['attachment_url'],
     );
   }
 }

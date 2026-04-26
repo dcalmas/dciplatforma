@@ -4,11 +4,6 @@
     <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
     <!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
 
-    <!-- Facebook login -->
-    <queries>
-        <provider android:authorities="com.facebook.katana.provider.PlatformProvider" />
-    </queries>
-
     
     <!-- URL Lanucher -->
     <queries>
@@ -26,9 +21,9 @@
 
 
     <application
-        android:label="Prime LMS"
+        android:label="Tatti-Til"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
@@ -58,15 +53,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
-
-        <!-- fb login config -->
-        <meta-data
-           android:name="com.facebook.sdk.ApplicationId"
-           android:value="@string/facebook_app_id" />
-        <meta-data 
-           android:name="com.facebook.sdk.ClientToken" 
-           android:value="@string/facebook_client_token"/>
 
 
         <!-- Admob Setup -->

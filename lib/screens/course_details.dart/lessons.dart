@@ -17,6 +17,7 @@ import 'package:lms_app/services/firebase_service.dart';
 import 'package:lms_app/utils/loading_widget.dart';
 import 'package:lms_app/utils/next_screen.dart';
 import 'package:lms_app/utils/snackbars.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/lesson.dart';
 import '../../providers/user_data_provider.dart';
@@ -54,7 +55,7 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
                   lesson.name,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500, fontSize: 18),
                 ),
-                subtitle: Text(lesson.contentType).tr(),
+                subtitle: Text(lesson.contentType == 'document' ? 'document' : lesson.contentType).tr(),
                 leading: Text(
                   '${index + 1}.',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
@@ -68,20 +69,14 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
 
   void _onTap(BuildContext context, Lesson lesson, Course course, UserModel? user, WidgetRef ref) {
     if (user != null) {
-      if (course.priceStatus == priceStatus.keys.first) {
-        // Free
-        if (hasEnrolled(user, course)) {
-          _openLesson(context, lesson, ref);
-        } else {
-          openSnackbar(context, 'Enroll to open lesson');
-        }
+      bool enrolled = hasEnrolled(user, course);
+      bool isPremium = course.priceStatus != 'free';
+      bool isPremiumUser = UserMixin.isUserPremium(user);
+
+      if (!isPremium || enrolled || isPremiumUser) {
+        _openLesson(context, lesson, ref);
       } else {
-        // Premium
-        if (hasEnrolled(user, course) && !UserMixin.isExpired(user)) {
-          _openLesson(context, lesson, ref);
-        } else {
-          openSnackbar(context, 'Enroll to open lesson');
-        }
+        openSnackbar(context, 'Пікір қалдыру үшін курсқа тіркеліңіз'.tr());
       }
     } else {
       NextScreen.openBottomSheet(context, const LoginScreen());
@@ -89,16 +84,15 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
   }
 
   void _openLesson(BuildContext context, Lesson lesson, WidgetRef ref) {
-    // Егер видео немесе iframe болса - VideoLesson-ға жібереміз
-    if ((lesson.contentType == 'video' && lesson.videoUrl != null) || lesson.contentType == 'iframe') {
+    if (lesson.contentType == 'document' && lesson.attachmentUrl != null) {
+      launchUrl(Uri.parse(lesson.attachmentUrl!), mode: LaunchMode.externalApplication);
+    } else if ((lesson.contentType == 'video' && lesson.videoUrl != null) || lesson.contentType == 'iframe') {
       NextScreen.iOS(context, VideoLesson(course: course, lesson: lesson));
     } else if (lesson.contentType == 'article') {
       NextScreen.iOS(context, ArticleLesson(lesson: lesson, course: course));
     } else {
       NextScreen.popup(context, QuizLesson(course: course, lesson: lesson));
     }
-
-    //Placed interstitial ads when open any lesson
     AdManager.initInterstitailAds(ref);
   }
 
@@ -110,6 +104,8 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
         return const Icon(FeatherIcons.playCircle);
       } else if (lesson.contentType == 'article') {
         return const Icon(LineIcons.stickyNote);
+      } else if (lesson.contentType == 'document') {
+        return const Icon(Icons.picture_as_pdf); // Қате түзетілді: LineIcons-тың орнына Icons қолданылды
       } else {
         return const Icon(LineIcons.lightbulb);
       }
