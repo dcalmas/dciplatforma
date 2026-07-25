@@ -1,4 +1,4 @@
-package com.dcplaforma.edu
+package com.dcplatforma.edu
 
 import io.flutter.embedding.android.FlutterActivity
 

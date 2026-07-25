@@ -11,7 +11,7 @@
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
-		<string>com.dcplaforma.edu</string>
+		<string>com.dcplatforma.edu</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleLocalizations</key>
