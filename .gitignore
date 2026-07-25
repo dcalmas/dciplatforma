@@ -59,3 +59,11 @@ ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
+
+# Separate projects - not part of lms_app
+lms_admin/
+lms_web/
+lms_web_original/
+tatti_til_mobile/
+lms_web.zip
+functions/node_modules/
