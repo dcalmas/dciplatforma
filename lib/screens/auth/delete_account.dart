@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
@@ -32,7 +31,7 @@ class DeleteAccount extends StatelessWidget {
         child: ListTile(
           leading: const Icon(LineIcons.removeUser),
           title: const Text('delete-account').tr(),
-          trailing: const Icon(FeatherIcons.chevronRight),
+          trailing: const Icon(LineIcons.chevron_right),
           onTap: () => NextScreen.openBottomSheet(context, const _DeleteDialog(), maxHeight: 0.80),
         ),
       ),

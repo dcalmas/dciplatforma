@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
@@ -7,11 +6,11 @@ import 'package:lms_app/screens/home/home_view.dart';
 import 'package:lms_app/theme/theme_provider.dart';
 
 const List<Map<String, dynamic>> homeTabItems = [
-  {'key': 'courses', 'icon': FeatherIcons.home, 'label': 'home'},
-  {'key': 'all-courses', 'icon': FeatherIcons.bookOpen, 'label': 'all-courses'},
+  {'key': 'courses', 'icon': LineIcons.home, 'label': 'home'},
+  {'key': 'all-courses', 'icon': LineIcons.book_open, 'label': 'all-courses'},
   {'key': 'my-courses', 'icon': LineIcons.graduationCap, 'label': 'my-courses'},
-  {'key': 'tests', 'icon': FeatherIcons.barChart2, 'label': 'tests'},
-  {'key': 'profile', 'icon': FeatherIcons.user, 'label': 'menu'},
+  {'key': 'tests', 'icon': LineIcons.bar_chart, 'label': 'tests'},
+  {'key': 'profile', 'icon': LineIcons.user, 'label': 'menu'},
 ];
 
 final navBarIndexProvider = StateProvider<int>((ref) => 0);

@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/constants/custom_colors.dart';
@@ -66,7 +66,7 @@ class ReviewTile extends ConsumerWidget {
 
   PopupMenuButton _reportButton(WidgetRef ref) {
     return PopupMenuButton(
-      child: const Icon(FeatherIcons.moreHorizontal, size: 20),
+      child: const Icon(LineIcons.ellipsis_h, size: 20),
       itemBuilder: (context) {
         return [
           PopupMenuItem(

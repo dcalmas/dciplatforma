@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/screens/reviews/rating_form.dart';
@@ -74,7 +74,7 @@ class TitleInfo extends ConsumerWidget {
               const SizedBox(width: 12),
               Row(
                 children: [
-                  Icon(FeatherIcons.users, size: 15, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+                  Icon(LineIcons.users, size: 15, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                   const SizedBox(width: 6),
                   Text(
                     'count-students',

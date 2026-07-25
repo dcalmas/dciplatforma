@@ -1,4 +1,4 @@
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/components/html_body.dart';
@@ -56,7 +56,7 @@ class _ArticleLessonState extends ConsumerState<ArticleLesson> {
                 width: 1.5,
               ),
             ),
-            child: Icon(FeatherIcons.chevronLeft, size: 20, color: primaryColor),
+            child: Icon(LineIcons.chevron_left, size: 20, color: primaryColor),
           ),
         ),
         title: Text(widget.lesson.name),

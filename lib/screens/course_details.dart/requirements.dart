@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/course.dart';
@@ -54,7 +54,7 @@ class Requirements extends StatelessWidget {
                     color: primaryColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(FeatherIcons.clipboard, size: 20, color: primaryColor),
+                  child: Icon(LineIcons.clipboard, size: 20, color: primaryColor),
                 ),
                 const SizedBox(width: 14),
                 Text(
@@ -80,7 +80,7 @@ class Requirements extends StatelessWidget {
                       color: primaryColor.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(FeatherIcons.check, size: 12, color: primaryColor),
+                    child: Icon(LineIcons.check, size: 12, color: primaryColor),
                   ),
                   const SizedBox(width: 12),
                   Expanded(

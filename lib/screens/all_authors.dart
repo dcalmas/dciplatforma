@@ -1,4 +1,4 @@
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/components/loading_list_tile.dart';
@@ -59,7 +59,7 @@ class AllAuthors extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const Icon(FeatherIcons.chevronRight),
+                    const Icon(LineIcons.chevron_right),
                   ],
                 ),
               );

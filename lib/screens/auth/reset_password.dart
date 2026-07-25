@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 
@@ -37,7 +37,7 @@ class ResetPasswordState extends State<ResetPassword> {
         backgroundColor: bgColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(FeatherIcons.x, color: isDarkMode ? Colors.white : Colors.black87),
+          icon: Icon(LineIcons.times, color: isDarkMode ? Colors.white : Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -100,7 +100,7 @@ class ResetPasswordState extends State<ResetPassword> {
                           borderSide: BorderSide.none,
                         ),
                         suffixIcon: IconButton(
-                          icon: Icon(FeatherIcons.xCircle, size: 18, color: Colors.grey[400]),
+                          icon: Icon(LineIcons.times_circle, size: 18, color: Colors.grey[400]),
                           onPressed: () => emailCtrl.clear(),
                         ),
                       ),

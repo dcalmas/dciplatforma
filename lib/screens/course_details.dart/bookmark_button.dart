@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
@@ -50,11 +49,11 @@ class _BookmarkIcon extends ConsumerWidget {
     const double iconSize = 20;
     final user = ref.watch(userDataProvider);
     if (user == null || user.wishList!.isEmpty) {
-      return const Icon(FeatherIcons.heart, size: iconSize);
+      return const Icon(LineIcons.heart, size: iconSize);
     } else if (user.wishList!.contains(course.id)) {
       return const Icon(LineIcons.heartAlt, color: Colors.redAccent, size: iconSize);
     } else {
-      return const Icon(FeatherIcons.heart, size: iconSize);
+      return const Icon(LineIcons.heart, size: iconSize);
     }
   }
 }

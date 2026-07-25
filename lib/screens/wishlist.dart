@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/components/loading_list_tile.dart';
@@ -38,7 +38,7 @@ class Wishlist extends ConsumerWidget with CourseMixin {
       appBar: AppBar(
         title: const Text('wishlist').tr(),
         titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, fontSize: 20),
-        leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(FeatherIcons.chevronLeft)),
+        leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(LineIcons.chevron_left)),
       ),
       body: RefreshIndicator(
         onRefresh: () async => ref.refresh(wishlistProvider),

@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import '../../components/html_body.dart';
 import '../../models/notification_model.dart';
@@ -63,7 +63,7 @@ class CustomNotificationDeatils extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(FeatherIcons.clock, size: 14, color: Colors.white),
+                              const Icon(LineIcons.clock, size: 14, color: Colors.white),
                               const SizedBox(width: 6),
                               Text(
                                 _getDate(notificationModel),

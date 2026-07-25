@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/screens/all_courses.dart/courses_view.dart';
@@ -60,7 +60,7 @@ class AllCoursesTab extends ConsumerWidget {
                       children: [
                         _buildToggleBtn(
                           context,
-                          icon: FeatherIcons.list,
+                          icon: LineIcons.list,
                           isActive: !isGrid,
                           onTap: () => ref.read(allCoursesViewStyleProvider.notifier).state = false,
                           primaryColor: primaryColor,
@@ -68,7 +68,7 @@ class AllCoursesTab extends ConsumerWidget {
                         ),
                         _buildToggleBtn(
                           context,
-                          icon: FeatherIcons.grid,
+                          icon: LineIcons.th_large,
                           isActive: isGrid,
                           onTap: () => ref.read(allCoursesViewStyleProvider.notifier).state = true,
                           primaryColor: primaryColor,
@@ -98,7 +98,7 @@ class AllCoursesTab extends ConsumerWidget {
                         children: [
                           SizedBox(height: MediaQuery.of(context).size.height * 0.25),
                           Center(
-                            child: Icon(FeatherIcons.bookOpen, size: 56, color: Colors.grey[400]),
+                            child: Icon(LineIcons.book_open, size: 56, color: Colors.grey[400]),
                           ),
                           const SizedBox(height: 16),
                           Center(

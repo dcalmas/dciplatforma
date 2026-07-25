@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/configs/app_assets.dart';
@@ -95,7 +95,7 @@ class UserInfo extends StatelessWidget with UserMixin {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    FeatherIcons.edit3,
+                    LineIcons.edit,
                     size: 18,
                     color: primaryColor,
                   ),
@@ -180,7 +180,7 @@ class UserInfo extends StatelessWidget with UserMixin {
               ],
             ),
           ),
-          const Icon(FeatherIcons.chevronRight, color: Colors.white),
+          const Icon(LineIcons.chevron_right, color: Colors.white),
         ],
       ),
     );
@@ -223,7 +223,7 @@ class UserInfo extends StatelessWidget with UserMixin {
               ),
             ).tr(),
           ),
-          Icon(FeatherIcons.chevronRight, color: primaryColor),
+          Icon(LineIcons.chevron_right, color: primaryColor),
         ],
       ),
     );

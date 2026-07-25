@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/course.dart';
@@ -54,7 +54,7 @@ class Learnings extends StatelessWidget {
                     color: primaryColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(FeatherIcons.checkCircle, size: 20, color: Colors.green),
+                  child: const Icon(LineIcons.check_circle, size: 20, color: Colors.green),
                 ),
                 const SizedBox(width: 14),
                 Text(
@@ -80,7 +80,7 @@ class Learnings extends StatelessWidget {
                       color: Colors.green.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(FeatherIcons.check, size: 12, color: Colors.green),
+                    child: const Icon(LineIcons.check, size: 12, color: Colors.green),
                   ),
                   const SizedBox(width: 12),
                   Expanded(

@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/models/course.dart';
@@ -44,7 +44,7 @@ class SearchScreen extends ConsumerWidget {
         if (recentSearchList.isNotEmpty) {
           return const RecentSearches();
         } else {
-          return EmptyPageWithIcon(icon: FeatherIcons.search, title: 'search-course'.tr());
+          return EmptyPageWithIcon(icon: LineIcons.search, title: 'search-course'.tr());
         }
       }
     }
@@ -55,7 +55,7 @@ class SearchScreen extends ConsumerWidget {
         titleSpacing: 0,
         title: SearchAppBar(searchTextCtlr: searchFieldCtrl),
         leading: IconButton(
-          icon: const Icon(FeatherIcons.chevronLeft),
+          icon: const Icon(LineIcons.chevron_left),
           onPressed: () => Navigator.pop(context),
         ),
       ),

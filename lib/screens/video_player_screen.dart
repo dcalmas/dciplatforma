@@ -1,4 +1,4 @@
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:lms_app/components/youtube_player_widget.dart';
 import 'package:lms_app/services/app_service.dart';
@@ -23,7 +23,7 @@ class VideoPlayerScreen extends StatelessWidget {
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(
-            FeatherIcons.chevronLeft,
+            LineIcons.chevron_left,
             color: Colors.white,
           ),
         ),

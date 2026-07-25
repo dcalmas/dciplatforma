@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feather_icons/feather_icons.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/user_model.dart';
@@ -55,7 +55,7 @@ class CourseInfo extends StatelessWidget {
                     color: primaryColor.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(FeatherIcons.user, size: 20, color: primaryColor),
+                  child: Icon(LineIcons.user, size: 20, color: primaryColor),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -80,7 +80,7 @@ class CourseInfo extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(FeatherIcons.chevronRight, size: 18, color: Colors.grey[400]),
+                Icon(LineIcons.chevron_right, size: 18, color: Colors.grey[400]),
               ],
             ),
           ),
@@ -91,7 +91,7 @@ class CourseInfo extends StatelessWidget {
           // Info Badges
           _buildInfoRow(
             context,
-            icon: FeatherIcons.calendar,
+            icon: LineIcons.calendar_alt,
             title: 'last-updated-'.tr(args: [AppService.getDate(course.updatedAt ?? course.createdAt)]),
             isDarkMode: isDarkMode,
             primaryColor: primaryColor,
@@ -99,7 +99,7 @@ class CourseInfo extends StatelessWidget {
           const SizedBox(height: 12),
           _buildInfoRow(
             context,
-            icon: FeatherIcons.globe,
+            icon: LineIcons.globe,
             title: 'language-'.tr(args: [course.courseMeta.language.toString()]),
             isDarkMode: isDarkMode,
             primaryColor: primaryColor,
@@ -107,7 +107,7 @@ class CourseInfo extends StatelessWidget {
           const SizedBox(height: 12),
           _buildInfoRow(
             context,
-            icon: FeatherIcons.clock,
+            icon: LineIcons.clock,
             title: 'duration-'.tr(args: [course.courseMeta.duration.toString()]),
             isDarkMode: isDarkMode,
             primaryColor: primaryColor,
@@ -115,7 +115,7 @@ class CourseInfo extends StatelessWidget {
           const SizedBox(height: 12),
           _buildInfoRow(
             context,
-            icon: FeatherIcons.bookOpen,
+            icon: LineIcons.book_open,
             title: 'count-lesson'.tr(args: [course.lessonsCount.toString()]),
             isDarkMode: isDarkMode,
             primaryColor: primaryColor,
