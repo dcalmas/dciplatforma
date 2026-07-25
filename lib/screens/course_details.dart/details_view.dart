@@ -27,7 +27,11 @@ class CourseDetailsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+
     return Scaffold(
+      backgroundColor: bgColor,
       bottomNavigationBar: Wrap(
         alignment: WrapAlignment.center,
         children: [
@@ -36,10 +40,13 @@ class CourseDetailsView extends ConsumerWidget {
         ],
       ),
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             pinned: false,
             floating: true,
+            backgroundColor: bgColor,
+            elevation: 0,
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(FeatherIcons.chevronLeft),
@@ -53,7 +60,7 @@ class CourseDetailsView extends ConsumerWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 5, 20, 30),
+                padding: const EdgeInsets.fromLTRB(20, 5, 20, 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -62,7 +69,7 @@ class CourseDetailsView extends ConsumerWidget {
                     TitleInfo(course: course),
                     CourseInfo(course: course),
                     Learnings(course: course),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
                     Curriculam(course: course),
                     Requirements(course: course),
                     CourseDescription(course: course),
@@ -77,3 +84,4 @@ class CourseDetailsView extends ConsumerWidget {
     );
   }
 }
+

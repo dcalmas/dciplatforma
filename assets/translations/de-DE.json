@@ -93,6 +93,7 @@
     "count-questions": "{} von {} Fragen",
     "choose-answer": "Bitte wählen Sie Ihre Antwort",
     "try-again": "Erneut versuchen",
+    "finish": "Beenden",
     "your-score": "Ihre Punktzahl: ",
     "score-count": "{} von 100",
     "passed-test": "Herzlichen Glückwunsch! Sie haben den Test bestanden.",
@@ -132,5 +133,10 @@
     "buy-app-subtitle": "Erstellen Sie Ihre eigene LMS-App",
     "user-disable-title": "Zugriff verweigert!",
     "user-disable-subtitle": "Bitte kontaktieren Sie unsere Support-E-Mail.",
-    "unmark-complete": "Markierung aufheben"
+    "unmark-complete": "Markierung aufheben",
+    "free": "Kostenlos",
+    "premium": "Premium",
+    "unread-notifications": "ungelesene Benachrichtigungen",
+    "no-notification-subtitle": "Ihre Benachrichtigungen werden hier angezeigt, sobald Sie sie erhalten",
+    "all-courses": "Alle Kurse"
 }

@@ -93,6 +93,7 @@
     "count-questions": "{} من {} أسئلة",
     "choose-answer": "الرجاء اختيار إجابتك",
     "try-again": "حاول مرة أخرى",
+    "finish": "إنهاء",
     "your-score": "مجموع نقاطك: ",
     "score-count": "{} من 100",
     "passed-test": "تهانينا! لقد اجتزت الاختبار",
@@ -132,5 +133,10 @@
     "buy-app-subtitle": "قم ببناء تطبيق LMS الخاص بك",
     "user-disable-title": "الوصول مرفوض!",
     "user-disable-subtitle": "الرجاء الاتصال ببريد الدعم الخاص بنا.",
-    "unmark-complete": "إلغاء الاكتمال"
+    "unmark-complete": "إلغاء الاكتمال",
+    "free": "مجاني",
+    "premium": "مميز",
+    "unread-notifications": "إشعارات غير مقروءة",
+    "no-notification-subtitle": "ستظهر إشعاراتك هنا بمجرد استلامها",
+    "all-courses": "جميع الدورات"
 }

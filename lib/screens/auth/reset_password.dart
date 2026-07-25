@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
-
 import '../../services/auth_service.dart';
 
 class ResetPassword extends StatefulWidget {
@@ -13,67 +13,129 @@ class ResetPassword extends StatefulWidget {
 class ResetPasswordState extends State<ResetPassword> {
   var formKey = GlobalKey<FormState>();
   var emailCtrl = TextEditingController();
+  bool isLoading = false;
 
   _handleSubmit() async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
+      setState(() => isLoading = true);
       await AuthService().sendPasswordRestEmail(context, emailCtrl.text.trim());
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
+        backgroundColor: bgColor,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: Icon(FeatherIcons.x, color: isDarkMode ? Colors.white : Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 40),
+        child: Form(
+          key: formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'reset-password',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 28),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 28,
+                  color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                ),
               ).tr(),
-              const SizedBox(height: 10),
+              const SizedBox(height: 6),
               Text(
                 'follow-simple-steps',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                style: TextStyle(
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  fontSize: 14,
+                ),
               ).tr(),
-              const SizedBox(
-                height: 50,
-              ),
-              TextFormField(
-                decoration: InputDecoration(hintText: 'username@mail.com', labelText: 'email'.tr()),
-                controller: emailCtrl,
-                keyboardType: TextInputType.emailAddress,
-                validator: (String? value) {
-                  if (value!.isEmpty) return "Email can't be empty";
-                  return null;
-                },
-              ),
-              const SizedBox(
-                height: 80,
-              ),
-              SizedBox(
-                height: 45,
-                width: double.infinity,
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, elevation: 0),
-                    child: Text(
-                      'submit',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.white),
-                    ).tr(),
-                    onPressed: () => _handleSubmit()),
-              ),
-              const SizedBox(
-                height: 50,
+              const SizedBox(height: 24),
+
+              // Form Container Card
+              Container(
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: cardBgColor,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDarkMode
+                          ? Colors.black.withValues(alpha: 0.3)
+                          : Colors.indigo.withValues(alpha: 0.06),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: emailCtrl,
+                      keyboardType: TextInputType.emailAddress,
+                      style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        hintText: 'username@mail.com',
+                        labelText: 'email'.tr(),
+                        filled: true,
+                        fillColor: isDarkMode ? const Color(0xFF141622) : const Color(0xFFF8F9FE),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(FeatherIcons.xCircle, size: 18, color: Colors.grey[400]),
+                          onPressed: () => emailCtrl.clear(),
+                        ),
+                      ),
+                      validator: (String? value) {
+                        if (value!.isEmpty) return "Email can't be empty";
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      height: 52,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          elevation: 0,
+                          shadowColor: primaryColor.withValues(alpha: 0.4),
+                        ),
+                        onPressed: isLoading ? null : _handleSubmit,
+                        child: isLoading
+                            ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            : Text(
+                                'submit',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ).tr(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -82,3 +144,4 @@ class ResetPasswordState extends State<ResetPassword> {
     );
   }
 }
+

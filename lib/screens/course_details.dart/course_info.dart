@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:feather_icons/feather_icons.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/user_model.dart';
@@ -16,61 +15,145 @@ class CourseInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              text: 'created-by'.tr(),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              children: [
-                const TextSpan(text: ' '),
-                TextSpan(
-                  text: course.author.name,
-                  recognizer: TapGestureRecognizer()..onTap = () => _onTapAuthor(context),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
-                )
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const Icon(FeatherIcons.calendar, size: 20, color: Colors.blueGrey),
-              const SizedBox(width: 5),
-              Text('last-updated-', style: Theme.of(context).textTheme.bodyLarge).tr(
-                args: [AppService.getDate(course.updatedAt ?? course.createdAt)],
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(FeatherIcons.globe, size: 20, color: Colors.blueGrey),
-              const SizedBox(width: 5),
-              Text('language-', style: Theme.of(context).textTheme.bodyLarge).tr(args: [course.courseMeta.language.toString()]),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(FeatherIcons.clock, size: 20, color: Colors.blueGrey),
-              const SizedBox(width: 5),
-              Text('duration-', style: Theme.of(context).textTheme.bodyLarge).tr(args: [course.courseMeta.duration.toString()]),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(FeatherIcons.book, size: 20, color: Colors.blueGrey),
-              const SizedBox(width: 5),
-              Text('count-lesson', style: Theme.of(context).textTheme.bodyLarge).tr(args: [course.lessonsCount.toString()]),
-            ],
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDarkMode
+              ? Colors.white.withValues(alpha: 0.06)
+              : primaryColor.withValues(alpha: 0.1),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDarkMode
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.indigo.withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Author Row
+          GestureDetector(
+            onTap: () => _onTapAuthor(context),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(FeatherIcons.user, size: 20, color: primaryColor),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'created-by'.tr(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                        ),
+                      ),
+                      Text(
+                        course.author.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(FeatherIcons.chevronRight, size: 18, color: Colors.grey[400]),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1),
+          const SizedBox(height: 16),
+
+          // Info Badges
+          _buildInfoRow(
+            context,
+            icon: FeatherIcons.calendar,
+            title: 'last-updated-'.tr(args: [AppService.getDate(course.updatedAt ?? course.createdAt)]),
+            isDarkMode: isDarkMode,
+            primaryColor: primaryColor,
+          ),
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            context,
+            icon: FeatherIcons.globe,
+            title: 'language-'.tr(args: [course.courseMeta.language.toString()]),
+            isDarkMode: isDarkMode,
+            primaryColor: primaryColor,
+          ),
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            context,
+            icon: FeatherIcons.clock,
+            title: 'duration-'.tr(args: [course.courseMeta.duration.toString()]),
+            isDarkMode: isDarkMode,
+            primaryColor: primaryColor,
+          ),
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            context,
+            icon: FeatherIcons.bookOpen,
+            title: 'count-lesson'.tr(args: [course.lessonsCount.toString()]),
+            isDarkMode: isDarkMode,
+            primaryColor: primaryColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required bool isDarkMode,
+    required Color primaryColor,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: primaryColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, size: 18, color: primaryColor),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: isDarkMode ? Colors.grey[300] : const Color(0xFF334155),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -84,3 +167,4 @@ class CourseInfo extends StatelessWidget {
     }
   }
 }
+

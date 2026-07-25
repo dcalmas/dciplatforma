@@ -93,6 +93,7 @@
     "count-questions": "{} में से {} प्रश्न",
     "choose-answer": "कृपया अपना उत्तर चुनें",
     "try-again": "फिर से कोशिश करें",
+    "finish": "समाप्त करें",
     "your-score": "आपका स्कोर: ",
     "score-count": "{} में से 100",
     "passed-test": "बधाई हो! आपने परीक्षा पास की है।",
@@ -132,5 +133,10 @@
     "buy-app-subtitle": "अपना खुद का LMS ऐप बनाएं",
     "user-disable-title": "पहुँच वर्जित!",
     "user-disable-subtitle": "कृपया हमारे समर्थन ईमेल से संपर्क करें।",
-    "unmark-complete": "पूरा अनमार्क करें"
+    "unmark-complete": "पूरा अनमार्क करें",
+    "free": "मुफ़्त",
+    "premium": "प्रीमियम",
+    "unread-notifications": "अपठित सूचनाएँ",
+    "no-notification-subtitle": "आपकी सूचनाएँ यहाँ दिखाई देंगी जैसे ही आप उन्हें प्राप्त करेंगे",
+    "all-courses": "सभी पाठ्यक्रम"
 }

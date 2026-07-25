@@ -12,26 +12,33 @@ class ProfileTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userDataProvider);
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          title: const Text('profile').tr(),
-          pinned: true,
-          titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, fontSize: 20),
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+
+    return Scaffold(
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        title: const Text('profile').tr(),
+        elevation: 0,
+        backgroundColor: bgColor,
+        foregroundColor: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+        titleTextStyle: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 22,
+          color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
         ),
-        SliverToBoxAdapter(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                user == null ? const GuestUser() : UserInfo(user: user, ref: ref),
-                const AppSettings(),
-              ],
-            ),
-          ),
-        )
-      ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 90),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            user == null ? const GuestUser() : UserInfo(user: user, ref: ref),
+            const AppSettings(),
+          ],
+        ),
+      ),
     );
   }
 }
+

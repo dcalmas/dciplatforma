@@ -21,97 +21,212 @@ class UserInfo extends StatelessWidget with UserMixin {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+
     return Column(
       children: [
-        ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          onTap: () => NextScreen.openBottomSheet(context, EditProfile(user: user), maxHeight: 0.80),
-          title: Text(
-            user.name,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(user.email),
+        // Main User Card
+        Container(
+          margin: const EdgeInsets.only(bottom: 20),
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: cardBgColor,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: isDarkMode
+                    ? Colors.black.withValues(alpha: 0.3)
+                    : Colors.indigo.withValues(alpha: 0.05),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
             ],
           ),
-          leading: UserAvatar(imageUrl: user.imageUrl, radius: 50, iconSize: 25),
-          trailing: const Icon(
-            FeatherIcons.edit3,
-            size: 20,
+          child: Row(
+            children: [
+              // Avatar
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: primaryColor.withValues(alpha: 0.3), width: 2),
+                ),
+                child: UserAvatar(imageUrl: user.imageUrl, radius: 52, iconSize: 26),
+              ),
+              const SizedBox(width: 16),
+
+              // User details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      user.email,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Edit Button
+              GestureDetector(
+                onTap: () => NextScreen.openBottomSheet(context, EditProfile(user: user), maxHeight: 0.80),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    FeatherIcons.edit3,
+                    size: 18,
+                    color: primaryColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+
+        // Subscription Banner
         Consumer(
           builder: (context, ref, child) {
             final settings = ref.watch(appSettingsProvider);
             if (IAPConfig.iAPEnabled && settings?.license == LicenseType.extended) {
               return InkWell(
-                child: user.subscription == null ? _noSubscriptionContainer(context) : _subscriptionContainer(context),
                 onTap: () => NextScreen.openBottomSheet(context, const IAPScreen(), isDismissable: false),
+                child: user.subscription == null
+                    ? _noSubscriptionContainer(context, isDarkMode, primaryColor, cardBgColor)
+                    : _subscriptionContainer(context, isDarkMode, primaryColor),
               );
             } else {
               return const SizedBox.shrink();
             }
           },
-        )
+        ),
       ],
     );
   }
 
-  Container _subscriptionContainer(BuildContext context) {
+  Widget _subscriptionContainer(BuildContext context, bool isDarkMode, Color primaryColor) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        border: Border.all(width: 0.3, color: Colors.blueGrey),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-          minVerticalPadding: 20,
-          leading: CircleAvatar(backgroundColor: Theme.of(context).primaryColor, child: Image.asset(premiumImage, height: 20, width: 20)),
-          title: Text(
-            user.subscription!.plan,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18, fontWeight: FontWeight.w600),
+        gradient: LinearGradient(
+          colors: [primaryColor, primaryColor.withValues(alpha: 0.85)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withValues(alpha: 0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
-          subtitle: UserMixin.isExpired(user)
-              ? const Text(
-                  'expired',
-                  style: TextStyle(color: Colors.redAccent),
-                ).tr()
-              : RichText(
-                  text: TextSpan(
-                      text: 'active'.tr().padRight(8),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.blueAccent,
-                          ),
-                      children: [
-                        const TextSpan(text: '('),
-                        TextSpan(
-                          text: 'expire-in-days'.tr(args: [remainingDays(user).toString()]),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red),
-                        ),
-                        const TextSpan(text: ')')
-                      ]),
-                )),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Image.asset(premiumImage, height: 22, width: 22, color: Colors.white),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.subscription!.plan,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                UserMixin.isExpired(user)
+                    ? const Text(
+                        'expired',
+                        style: TextStyle(color: Colors.yellowAccent, fontSize: 12),
+                      ).tr()
+                    : Text(
+                        'expire-in-days'.tr(args: [remainingDays(user).toString()]),
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+              ],
+            ),
+          ),
+          const Icon(FeatherIcons.chevronRight, color: Colors.white),
+        ],
+      ),
     );
   }
 
-  Container _noSubscriptionContainer(BuildContext context) {
+  Widget _noSubscriptionContainer(
+      BuildContext context, bool isDarkMode, Color primaryColor, Color cardBgColor) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        border: Border.all(width: 0.3, color: Colors.blueGrey),
-        borderRadius: BorderRadius.circular(10),
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: ListTile(
-        trailing: const Icon(FeatherIcons.chevronRight),
-        minVerticalPadding: 20,
-        leading: CircleAvatar(backgroundColor: Theme.of(context).primaryColor, child: Image.asset(premiumImage, height: 20, width: 20)),
-        title: Text(
-          'subscribe-to-access-features',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18),
-        ).tr(),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: primaryColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Image.asset(premiumImage, height: 22, width: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              'subscribe-to-access-features',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+              ),
+            ).tr(),
+          ),
+          Icon(FeatherIcons.chevronRight, color: primaryColor),
+        ],
       ),
     );
   }
 }
+

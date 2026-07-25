@@ -7,11 +7,11 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>Tatti-Til</string>
+		<string>dcplatforma</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
-		<string>com.tattitil.app</string>
+		<string>com.dciplatforma.kz</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleLocalizations</key>
@@ -28,7 +28,7 @@
 			<string>in</string>
 		</array>
 		<key>CFBundleName</key>
-		<string>Tatti-Til</string>
+		<string>dcplatforma</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -93,6 +93,8 @@
 		<key>LSMinimumSystemVersion</key>
 		<string>15.0.0</string>
 		<key>UIStatusBarHidden</key>
+		<true/>
+		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
 	</dict>
 </plist>

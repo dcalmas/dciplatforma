@@ -36,15 +36,23 @@ class UserModel {
   });
 
   factory UserModel.fromFirebase(DocumentSnapshot snap) {
-    Map d = snap.data() as Map<String, dynamic>;
+    final rawData = snap.data();
+    if (rawData == null) {
+      return UserModel(
+        id: snap.id,
+        email: '',
+        name: '',
+      );
+    }
+    Map<String, dynamic> d = rawData as Map<String, dynamic>;
     return UserModel(
       id: snap.id,
-      email: d['email'],
+      email: d['email'] ?? '',
       imageUrl: d['image_url'],
-      name: d['name'],
+      name: d['name'] ?? '',
       role: d['role'] ?? [],
       isDisbaled: d['disabled'] ?? false,
-      createdAt: (d['created_at'] as Timestamp).toDate(),
+      createdAt: d['created_at'] != null ? (d['created_at'] as Timestamp).toDate() : DateTime.now(),
       updatedAt: d['updated_at'] == null ? null : (d['updated_at'] as Timestamp).toDate(),
       authorInfo: d['author_info'] == null ? null : AuthorInfo.fromMap(d['author_info']),
       enrolledCourses: d['enrolled'] ?? [],

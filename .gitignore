@@ -41,6 +41,13 @@ app.*.map.json
 /android/app/release
 /android/app/.cxx
 
+# Security - Service accounts & API keys
+**/service-account.json
+**/fcm_config.dart
+**/.env
+**/.env.local
+**/.env.production
+
 # iOS related - Codemagic үшін маңызды
 # Біз кейбір файлдарды ИГНОР ЕТПЕЙМІЗ
 !/ios/Runner/GoogleService-Info.plist

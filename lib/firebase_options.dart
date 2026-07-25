@@ -50,22 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDuEUcRy5yolZDuH1lNr_p8Cw9iau8JQ9g',
-    appId: '1:877086975035:android:51a797bcaaa8c327d4a81e',
-    messagingSenderId: '877086975035',
-    projectId: 'tatti-til',
-    storageBucket: 'tatti-til.firebasestorage.app',
+    apiKey: 'AIzaSyAH-oVk7alMDl2-c_TYcNTL67O-rYzWpzo',
+    appId: '1:63012545079:android:a65325a3fe14529be9d5b2',
+    messagingSenderId: '63012545079',
+    projectId: 'dciplatforma',
+    storageBucket: 'dciplatforma.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDm6e33axpCGzq91QOF_T0HLG2qRakzoFo',
-    appId: '1:877086975035:ios:d833d433e3745c44d4a81e',
-    messagingSenderId: '877086975035',
-    projectId: 'tatti-til',
-    storageBucket: 'tatti-til.firebasestorage.app',
-    androidClientId: '877086975035-ik1q307pvubdp8hf1bu4krse4qn0cpa3.apps.googleusercontent.com',
-    iosClientId: '877086975035-2de4bm3ii381961o0u9he08fhir2gig5.apps.googleusercontent.com',
-    iosBundleId: 'com.tattitil.app',
+    apiKey: 'AIzaSyDoSXX91vEwtL3B7LZTgbtLxo6D8v7-xw8',
+    appId: '1:63012545079:ios:1e80d1b33c3c922ce9d5b2',
+    messagingSenderId: '63012545079',
+    projectId: 'dciplatforma',
+    storageBucket: 'dciplatforma.firebasestorage.app',
+    androidClientId: '63012545079-4h2nvplfq12rb4q51hidleeq9p94lgvc.apps.googleusercontent.com',
+    iosClientId: '63012545079-ccr7fi36qpho4it4ro0i8lg7a6fk7bs2.apps.googleusercontent.com',
+    iosBundleId: 'com.dciplatforma.kz',
   );
-
 }

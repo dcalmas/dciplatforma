@@ -93,6 +93,7 @@
     "count-questions": "{} dari {} Pertanyaan",
     "choose-answer": "Silakan pilih jawaban Anda",
     "try-again": "Coba Lagi",
+    "finish": "Selesai",
     "your-score": "Skor Anda: ",
     "score-count": "{} dari 100",
     "passed-test": "Selamat! Anda telah lulus ujian.",
@@ -132,5 +133,10 @@
     "buy-app-subtitle": "Bangun aplikasi LMS Anda sendiri",
     "user-disable-title": "Akses Ditolak!",
     "user-disable-subtitle": "Harap hubungi email dukungan kami.",
-    "unmark-complete": "Batalkan Selesai"
+    "unmark-complete": "Batalkan Selesai",
+    "free": "Gratis",
+    "premium": "Premium",
+    "unread-notifications": "notifikasi belum dibaca",
+    "no-notification-subtitle": "Notifikasi Anda akan muncul di sini begitu Anda menerimanya",
+    "all-courses": "Semua Kursus"
 }

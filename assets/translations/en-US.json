@@ -93,6 +93,7 @@
     "count-questions": "{} of {} Questions",
     "choose-answer": "Please choose your answer",
     "try-again": "Try Again",
+    "finish": "Finish",
     "your-score": "Your Score: ",
     "score-count": "{} out of 100",
     "passed-test": "Congrats! You have passed the test.",
@@ -132,5 +133,18 @@
     "buy-app-subtitle": "Build your own LMS app",
     "user-disable-title": "Access Denied!",
     "user-disable-subtitle": "Please contact our support email.",
-    "unmark-complete": "Unmark Complete"
+    "unmark-complete": "Unmark Complete",
+    "tests": "Tests",
+    "assignments": "Assignments",
+    "menu": "Menu",
+    "search-placeholder": "Search courses and tests",
+    "new-courses": "NEW COURSES",
+    "reviews-count": "reviews",
+    "completed": "Completed",
+    "locked": "Locked",
+    "free": "Free",
+    "premium": "Premium",
+    "unread-notifications": "unread notifications",
+    "no-notification-subtitle": "You will see your notifications here once you receive them",
+    "all-courses": "All Courses"
 }

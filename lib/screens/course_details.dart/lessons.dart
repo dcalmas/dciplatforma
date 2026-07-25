@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:lms_app/ads/ad_manager.dart';
-import 'package:lms_app/constants/app_constants.dart';
 import 'package:lms_app/mixins/course_mixin.dart';
 import 'package:lms_app/mixins/user_mixin.dart';
 import 'package:lms_app/models/course.dart';
@@ -31,6 +30,10 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userDataProvider);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+
     return FutureBuilder(
       future: FirebaseService().getLessons(course.id, sectionId),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -43,24 +46,68 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
         return ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(top: 0, bottom: 20),
+          padding: const EdgeInsets.only(top: 8, bottom: 16),
           itemCount: lessons.length,
           itemBuilder: (context, index) {
             final Lesson lesson = lessons[index];
-            return ListTile(
+            final bool completed = isLessonCompleted(lesson, user);
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: cardBgColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDarkMode
+                        ? Colors.black.withValues(alpha: 0.2)
+                        : Colors.indigo.withValues(alpha: 0.04),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ListTile(
                 onTap: () => _onTap(context, lesson, course, user, ref),
-                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                horizontalTitleGap: 10,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                leading: Container(
+                  width: 38,
+                  height: 38,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: completed
+                        ? Colors.green.withValues(alpha: 0.12)
+                        : primaryColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '${index + 1}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: completed ? Colors.green : primaryColor,
+                    ),
+                  ),
+                ),
                 title: Text(
                   lesson.name,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500, fontSize: 18),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                  ),
                 ),
-                subtitle: Text(lesson.contentType == 'document' ? 'document' : lesson.contentType).tr(),
-                leading: Text(
-                  '${index + 1}.',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
-                ),
-                trailing: _trailingIcon(lesson, user));
+                subtitle: Text(
+                  lesson.contentType == 'document' ? 'document' : lesson.contentType,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ).tr(),
+                trailing: _trailingIcon(lesson, user, primaryColor),
+              ),
+            );
           },
         );
       },
@@ -76,7 +123,7 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
       if (!isPremium || enrolled || isPremiumUser) {
         _openLesson(context, lesson, ref);
       } else {
-        openSnackbar(context, 'Пікір қалдыру үшін курсқа тіркеліңіз'.tr());
+        openSnackbar(context, 'subscribe-to-access-features'.tr());
       }
     } else {
       NextScreen.openBottomSheet(context, const LoginScreen());
@@ -96,19 +143,20 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
     AdManager.initInterstitailAds(ref);
   }
 
-  Icon _trailingIcon(Lesson lesson, UserModel? user) {
+  Widget _trailingIcon(Lesson lesson, UserModel? user, Color primaryColor) {
     if (isLessonCompleted(lesson, user)) {
-      return const Icon(Icons.check_box, color: Colors.orange);
+      return const Icon(Icons.check_circle_rounded, color: Colors.green, size: 22);
     } else {
       if (lesson.contentType == 'video' || lesson.contentType == 'iframe') {
-        return const Icon(FeatherIcons.playCircle);
+        return Icon(FeatherIcons.playCircle, color: primaryColor, size: 20);
       } else if (lesson.contentType == 'article') {
-        return const Icon(LineIcons.stickyNote);
+        return Icon(LineIcons.stickyNote, color: primaryColor, size: 20);
       } else if (lesson.contentType == 'document') {
-        return const Icon(Icons.picture_as_pdf); // Қате түзетілді: LineIcons-тың орнына Icons қолданылды
+        return const Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: 20);
       } else {
-        return const Icon(LineIcons.lightbulb);
+        return Icon(LineIcons.lightbulb, color: primaryColor, size: 20);
       }
     }
   }
 }
+

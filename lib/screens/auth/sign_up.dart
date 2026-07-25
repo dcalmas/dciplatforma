@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:lms_app/components/privacy_info.dart';
 import 'package:lms_app/models/user_model.dart';
 import 'package:lms_app/screens/auth/login.dart';
-import 'package:lms_app/screens/splash.dart';
+import 'package:lms_app/core/home.dart';
 import 'package:lms_app/services/auth_service.dart';
 import 'package:lms_app/services/firebase_service.dart';
 import 'package:lms_app/utils/next_screen.dart';
-import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import '../../providers/user_data_provider.dart';
 import 'social_logins.dart';
 
@@ -29,13 +29,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   var nameCtlr = TextEditingController();
   var emailCtlr = TextEditingController();
   var passwordCtrl = TextEditingController();
-  final _btnController = RoundedLoadingButtonController();
+  bool isLoading = false;
 
   bool offsecureText = true;
   IconData lockIcon = LineIcons.lock;
 
   UserModel _userModel(UserCredential userCredential) {
-    final UserModel user = UserModel(
+    return UserModel(
       id: userCredential.user!.uid,
       email: userCredential.user!.email ?? emailCtlr.text,
       name: userCredential.user!.displayName ?? nameCtlr.text,
@@ -43,47 +43,42 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       imageUrl: userCredential.user?.photoURL,
       platform: Platform.isAndroid ? 'Android' : 'iOS',
     );
-    return user;
   }
 
   Future _handleSignUpWithUsernamePassword() async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
-      _btnController.start();
+      setState(() => isLoading = true);
       final UserCredential? userCredential =
           await AuthService().signUpWithEmailPassword(context, emailCtlr.text.trim(), passwordCtrl.text.trim()).onError((error, stackTrace) {
-        _btnController.reset();
+        if (mounted) setState(() => isLoading = false);
         return null;
       });
       if (userCredential != null && userCredential.user != null) {
         await FirebaseService().saveUserData(_userModel(userCredential));
         await FirebaseService().updateUserStats();
-        _btnController.success();
+        if (mounted) setState(() => isLoading = false);
         await AuthService().sendEmailVerification();
         afterSignIn();
       } else {
-        _btnController.reset();
+        if (mounted) setState(() => isLoading = false);
       }
     }
   }
 
   void _onlockPressed() {
-    if (offsecureText == true) {
-      setState(() {
-        offsecureText = false;
-        lockIcon = LineIcons.lockOpen;
-      });
-    } else {
-      setState(() {
-        offsecureText = true;
-        lockIcon = LineIcons.lock;
-      });
-    }
+    setState(() {
+      offsecureText = !offsecureText;
+      lockIcon = offsecureText ? LineIcons.lock : LineIcons.lockOpen;
+    });
   }
 
   void afterSignIn() async {
     if (widget.popUpScreen == null || widget.popUpScreen == false) {
-      NextScreen.closeOthersAnimation(context, const SplashScreen());
+      await ref.read(userDataProvider.notifier).fetchUserData();
+      ref.read(userDataProvider.notifier).getData();
+      if (!mounted) return;
+      NextScreen.closeOthers(context, const Home());
     } else {
       final navigator = Navigator.of(context);
       await ref.read(userDataProvider.notifier).getData();
@@ -93,148 +88,202 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+
     return Scaffold(
+      backgroundColor: bgColor,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
+        backgroundColor: bgColor,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: Icon(FeatherIcons.x, color: isDarkMode ? Colors.white : Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 25, right: 25, top: 20, bottom: 50),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 40),
         child: Form(
           key: formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 'create-account',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 28),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 28,
+                  color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                ),
               ).tr(),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 6),
               Text(
                 'follow-simple-steps',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.secondary),
-              ).tr(),
-              SocialLogins(
-                afterSignIn: afterSignIn,
-              ),
-              Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: const Text(
-                  '------ OR ------',
-                  style: TextStyle(color: Colors.blueGrey),
+                style: TextStyle(
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  fontSize: 14,
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              ).tr(),
+              const SizedBox(height: 20),
+
+              // Form Container Card
+              Container(
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: cardBgColor,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDarkMode
+                          ? Colors.black.withValues(alpha: 0.3)
+                          : Colors.indigo.withValues(alpha: 0.06),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    SocialLogins(afterSignIn: afterSignIn),
+                    Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      child: Text(
+                        '------ OR ------',
+                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                      ),
+                    ),
+
+                    // Name input
+                    TextFormField(
+                      controller: nameCtlr,
+                      keyboardType: TextInputType.name,
+                      style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                         hintText: 'enter-name'.tr(),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(3)),
-                        label: const Text('name').tr(),
+                        labelText: 'name'.tr(),
+                        filled: true,
+                        fillColor: isDarkMode ? const Color(0xFF141622) : const Color(0xFFF8F9FE),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
                         suffixIcon: IconButton(
-                          icon: const Icon(
-                            Icons.clear,
-                            size: 20,
-                          ),
+                          icon: Icon(FeatherIcons.xCircle, size: 18, color: Colors.grey[400]),
                           onPressed: () => nameCtlr.clear(),
-                        )),
-                    controller: nameCtlr,
-                    keyboardType: TextInputType.name,
-                    validator: (value) {
-                      if (value!.isEmpty) return 'Name is required';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                  TextFormField(
-                    decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        ),
+                      ),
+                      validator: (value) => value!.isEmpty ? 'Name is required' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Email input
+                    TextFormField(
+                      controller: emailCtlr,
+                      keyboardType: TextInputType.emailAddress,
+                      style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                         hintText: 'enter-email'.tr(),
-                        label: const Text('email').tr(),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(3)),
+                        labelText: 'email'.tr(),
+                        filled: true,
+                        fillColor: isDarkMode ? const Color(0xFF141622) : const Color(0xFFF8F9FE),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
                         suffixIcon: IconButton(
-                          icon: const Icon(
-                            Icons.clear,
-                            size: 20,
-                          ),
+                          icon: Icon(FeatherIcons.xCircle, size: 18, color: Colors.grey[400]),
                           onPressed: () => emailCtlr.clear(),
-                        )),
-                    controller: emailCtlr,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value!.isEmpty) return 'Email is required';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                  TextFormField(
-                    decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        ),
+                      ),
+                      validator: (value) => value!.isEmpty ? 'Email is required' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Password input
+                    TextFormField(
+                      controller: passwordCtrl,
+                      obscureText: offsecureText,
+                      style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                         hintText: 'enter-password'.tr(),
-                        label: const Text('password').tr(),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(3)),
+                        labelText: 'password'.tr(),
+                        filled: true,
+                        fillColor: isDarkMode ? const Color(0xFF141622) : const Color(0xFFF8F9FE),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
                         suffixIcon: IconButton(
-                          padding: const EdgeInsets.all(0),
-                          style: IconButton.styleFrom(padding: const EdgeInsets.all(0)),
-                          icon: Icon(
-                            lockIcon,
-                            size: 20,
-                          ),
-                          onPressed: () => _onlockPressed(),
-                        )),
-                    controller: passwordCtrl,
-                    obscureText: offsecureText,
-                    keyboardType: TextInputType.visiblePassword,
-                    validator: (value) {
-                      if (value!.isEmpty) return 'Password is required';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 50),
-                  RoundedLoadingButton(
-                    animateOnTap: false,
-                    controller: _btnController,
-                    onPressed: () => _handleSignUpWithUsernamePassword(),
-                    width: MediaQuery.of(context).size.width * 1.0,
-                    color: Theme.of(context).primaryColor,
-                    elevation: 0,
-                    child: Text(
-                      'create-account',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: Colors.white),
-                    ).tr(),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.only(top: 15),
-                    child: Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
+                          icon: Icon(lockIcon, size: 18, color: primaryColor),
+                          onPressed: _onlockPressed,
+                        ),
+                      ),
+                      validator: (value) => value!.isEmpty ? 'Password is required' : null,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Submit Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          elevation: 0,
+                          shadowColor: primaryColor.withValues(alpha: 0.4),
+                        ),
+                        onPressed: isLoading ? null : _handleSignUpWithUsernamePassword,
+                        child: isLoading
+                            ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            : Text(
+                                'create-account',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ).tr(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Login Link
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           "already-have-account",
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                          ),
                         ).tr(),
                         TextButton(
-                            child: Text(
-                              'login',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, fontSize: 15),
-                            ).tr(),
-                            onPressed: () => NextScreen.replace(context, const LoginScreen())),
+                          child: Text(
+                            'login',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: primaryColor,
+                            ),
+                          ).tr(),
+                          onPressed: () => NextScreen.replace(context, const LoginScreen()),
+                        ),
                       ],
                     ),
-                  ),
-                  const PrivacyInfo(),
-                ],
+                    const PrivacyInfo(),
+                  ],
+                ),
               ),
             ],
           ),
@@ -243,3 +292,4 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     );
   }
 }
+

@@ -254,7 +254,10 @@ class FirebaseService {
 
   Stream<UserModel?> userDataStream() {
     final String userId = FirebaseAuth.instance.currentUser!.uid;
-    return firestore.collection('users').doc(userId).snapshots().map((snap) => UserModel.fromFirebase(snap));
+    return firestore.collection('users').doc(userId).snapshots().map((snap) {
+      if (!snap.exists || snap.data() == null) return null;
+      return UserModel.fromFirebase(snap);
+    });
   }
 
   Future<UserModel?> getAuthorData(String authorId) async {

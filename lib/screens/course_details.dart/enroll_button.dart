@@ -21,50 +21,60 @@ class EnrollButton extends ConsumerWidget with UserMixin {
     final user = ref.watch(userDataProvider);
     final bool isLoading = ref.watch(_isLoadingEnrollmentProvider);
     final String text = CourseMixin.enrollButtonText(course, user);
-    final bool isPremium = course.priceStatus == priceStatus.keys.first ? false : true;
+    final bool isPremium = course.priceStatus != priceStatus.keys.first;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
 
-    return BottomAppBar(
-      padding: const EdgeInsets.all(0),
+    return SafeArea(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        width: MediaQuery.of(context).size.width,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Visibility(
-              visible: !hasEnrolled(user, course),
-              child: Flexible(
-                fit: FlexFit.loose,
-                flex: isPremium ? 1 : 2,
-                child: isPremium ? _PremiumTag() : _FreeTag(),
-              ),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: isDarkMode
+                  ? Colors.black.withValues(alpha: 0.4)
+                  : Colors.indigo.withValues(alpha: 0.1),
+              blurRadius: 20,
+              spreadRadius: 0,
+              offset: const Offset(0, 8),
             ),
-            Flexible(
-              fit: FlexFit.tight,
-              flex: 5,
+          ],
+        ),
+        child: Row(
+          children: [
+            if (!hasEnrolled(user, course)) ...[
+              isPremium ? _PremiumTag(primaryColor: primaryColor) : _FreeTag(primaryColor: primaryColor),
+              const SizedBox(width: 14),
+            ],
+            Expanded(
               child: SizedBox(
                 height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                     elevation: 0,
+                    shadowColor: primaryColor.withValues(alpha: 0.4),
                   ),
-                  child: isLoading
-                      ? const LoadingIndicatorWidget(color: Colors.white)
-                      : Text(
-                          text,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ).tr(),
                   onPressed: () async {
                     ref.read(_isLoadingEnrollmentProvider.notifier).state = true;
                     await handleEnrollment(context, user: user, course: course, ref: ref);
                     ref.read(_isLoadingEnrollmentProvider.notifier).state = false;
                   },
+                  child: isLoading
+                      ? const LoadingIndicatorWidget(color: Colors.white)
+                      : Text(
+                          text,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ).tr(),
                 ),
               ),
             ),
@@ -76,36 +86,43 @@ class EnrollButton extends ConsumerWidget with UserMixin {
 }
 
 class _FreeTag extends StatelessWidget {
+  final Color primaryColor;
+  const _FreeTag({required this.primaryColor});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(right: 15),
-      height: 50,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(30)),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: primaryColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Text(
         priceStatus.values.first.toUpperCase(),
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).primaryColor,
-              fontWeight: FontWeight.w600,
-            ),
+        style: TextStyle(
+          color: primaryColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
       ),
     );
   }
 }
 
 class _PremiumTag extends StatelessWidget {
+  final Color primaryColor;
+  const _PremiumTag({required this.primaryColor});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 50,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Theme.of(context).primaryColor,
+        color: primaryColor.withValues(alpha: 0.1),
       ),
-      child: Image.asset(premiumImage, fit: BoxFit.contain),
+      child: Image.asset(premiumImage, fit: BoxFit.contain, height: 22, width: 22),
     );
   }
 }
+

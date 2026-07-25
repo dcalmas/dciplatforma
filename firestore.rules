@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    function isAuthor() {
+      return request.auth != null && request.auth.token.author == true;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isCourseOwner(courseId) {
+      return isAdmin() ||
+        get(/databases/$(database)/documents/courses/$(courseId)).data.author.id == request.auth.uid;
+    }
+
+    // --- COURSES ---
+    match /courses/{doc} {
+      allow read: if true;
+      allow create: if request.auth != null && (isAdmin() || isAuthor());
+      allow update: if request.auth != null && (isAdmin() ||
+        resource.data.author.id == request.auth.uid);
+      allow delete: if request.auth != null && isAdmin();
+    }
+
+    // --- SECTIONS ---
+    match /courses/{courseId}/sections/{sectionId} {
+      allow read: if true;
+      allow write: if request.auth != null && isCourseOwner(courseId);
+    }
+
+    // --- LESSONS ---
+    match /courses/{courseId}/sections/{sectionId}/lessons/{lessonId} {
+      allow read: if true;
+      allow write: if request.auth != null && isCourseOwner(courseId);
+    }
+
+    // --- CATEGORIES ---
+    match /categories/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // --- TAGS ---
+    match /tags/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // --- USERS ---
+    match /users/{userId} {
+      allow read: if request.auth != null && (isOwner(userId) || isAdmin());
+      allow create: if request.auth != null && isOwner(userId);
+      allow update: if request.auth != null && (isOwner(userId) || isAdmin());
+      allow delete: if request.auth != null && isAdmin();
+    }
+
+    // --- REVIEWS ---
+    match /reviews/{doc} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null &&
+        resource.data.user.id == request.auth.uid;
+      allow delete: if request.auth != null &&
+        (resource.data.user.id == request.auth.uid || isAdmin());
+    }
+
+    // --- SETTINGS ---
+    match /settings/{doc} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // --- NOTIFICATIONS ---
+    match /notifications/{doc} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // --- PURCHASES ---
+    match /purchases/{doc} {
+      allow read: if request.auth != null && isAdmin();
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // --- STATS ---
+    match /user_stats/{doc} {
+      allow read, write: if request.auth != null && isAdmin();
+    }
+    match /purchase_stats/{doc} {
+      allow read, write: if request.auth != null && isAdmin();
+    }
+  }
+}

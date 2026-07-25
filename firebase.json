@@ -1,1 +1,11 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"tatti-til","appId":"1:877086975035:android:51a797bcaaa8c327d4a81e","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"tatti-til","configurations":{"android":"1:877086975035:android:51a797bcaaa8c327d4a81e","ios":"1:877086975035:ios:d833d433e3745c44d4a81e"}}}}}}
+{
+  "functions": {
+    "source": "functions",
+    "codebase": "lms-functions",
+    "ignore": ["node_modules", ".git"]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

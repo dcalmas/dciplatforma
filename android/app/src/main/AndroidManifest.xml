@@ -21,7 +21,7 @@
 
 
     <application
-        android:label="Tatti-Til"
+        android:label="dcplatforma"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">

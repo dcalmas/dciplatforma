@@ -93,6 +93,7 @@
     "count-questions": "{} 个问题中的 {} 个",
     "choose-answer": "请选择您的答案",
     "try-again": "重试",
+    "finish": "完成",
     "your-score": "您的分数：",
     "score-count": "{} 分（满分100分）",
     "passed-test": "恭喜！您已通过测试。",
@@ -132,5 +133,10 @@
     "buy-app-subtitle": "构建您自己的 LMS 应用",
     "user-disable-title": "访问被拒绝！",
     "user-disable-subtitle": "请联系我们的支持邮箱。",
-    "unmark-complete": "取消完成"
+    "unmark-complete": "取消完成",
+    "free": "免费",
+    "premium": "高级",
+    "unread-notifications": "未读通知",
+    "no-notification-subtitle": "收到通知后将在此处显示",
+    "all-courses": "所有课程"
 }

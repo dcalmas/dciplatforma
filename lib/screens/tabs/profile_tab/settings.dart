@@ -20,151 +20,214 @@ class AppSettings extends ConsumerWidget with UserMixin {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool notificationEnbaled = ref.watch(nProvider);
-    final setttings = ref.watch(appSettingsProvider);
+    final bool notificationEnabled = ref.watch(nProvider);
+    final settings = ref.watch(appSettingsProvider);
     final user = ref.watch(userDataProvider);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: const Text(
-            'settings',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ).tr(),
-        ),
-        ListTile(
-          leading: Icon(notificationEnbaled ? LineIcons.bell : LineIcons.bellSlash),
-          title: const Text('notifications').tr(),
-          trailing: Switch.adaptive(
-            value: notificationEnbaled,
-            onChanged: (value) => NotificationService().handleSubscription(context, value, ref),
-          ),
-        ),
-        const Divider(),
-        ListTile(
-          leading: const Icon(Icons.dark_mode),
-          title: const Text('dark-mode').tr(),
-          trailing: Switch.adaptive(
-            value: ref.watch(themeProvider).isDarkMode,
-            onChanged: (value) => ref.read(themeProvider.notifier).changeTheme(value),
-          ),
-        ),
-        Visibility(
-          visible: isMultilanguageEnbled,
-          child: Column(
-            children: [
-              const Divider(),
-              ListTile(
-                title: const Text('language').tr(),
-                leading: const Icon(LineIcons.language),
-                trailing: const Icon(FeatherIcons.chevronRight),
+        _buildSectionHeader(context, 'settings'.tr(), isDarkMode),
+        _buildCardContainer(
+          cardBgColor,
+          isDarkMode,
+          [
+            _buildSettingTile(
+              icon: notificationEnabled ? LineIcons.bell : LineIcons.bellSlash,
+              title: 'notifications'.tr(),
+              primaryColor: primaryColor,
+              isDarkMode: isDarkMode,
+              trailing: Switch.adaptive(
+                value: notificationEnabled,
+                onChanged: (value) => NotificationService().handleSubscription(context, value, ref),
+              ),
+            ),
+            const Divider(height: 1, indent: 54),
+            _buildSettingTile(
+              icon: Icons.dark_mode_outlined,
+              title: 'dark-mode'.tr(),
+              primaryColor: primaryColor,
+              isDarkMode: isDarkMode,
+              trailing: Switch.adaptive(
+                value: ref.watch(themeProvider).isDarkMode,
+                onChanged: (value) => ref.read(themeProvider.notifier).changeTheme(value),
+              ),
+            ),
+            if (isMultilanguageEnbled) ...[
+              const Divider(height: 1, indent: 54),
+              _buildSettingTile(
+                icon: LineIcons.language,
+                title: 'language'.tr(),
+                primaryColor: primaryColor,
+                isDarkMode: isDarkMode,
                 onTap: () => NextScreen.openBottomSheet(context, const Languages()),
               ),
             ],
-          ),
+            const Divider(height: 1, indent: 54),
+            _buildSettingTile(
+              icon: LineIcons.lock,
+              title: 'privacy-policy'.tr(),
+              primaryColor: primaryColor,
+              isDarkMode: isDarkMode,
+              onTap: () => AppService().openLinkWithCustomTab(settings?.privacyUrl ?? ''),
+            ),
+            const Divider(height: 1, indent: 54),
+            _buildSettingTile(
+              icon: LineIcons.envelope,
+              title: 'contact-us'.tr(),
+              primaryColor: primaryColor,
+              isDarkMode: isDarkMode,
+              onTap: () => AppService().openEmailSupport(settings?.supportEmail ?? ''),
+            ),
+            const Divider(height: 1, indent: 54),
+            _buildSettingTile(
+              icon: LineIcons.star,
+              title: 'rate-app'.tr(),
+              primaryColor: primaryColor,
+              isDarkMode: isDarkMode,
+              onTap: () => AppService().launchAppReview(context),
+            ),
+          ],
         ),
-        const Divider(),
-        ListTile(
-          title: const Text('privacy-policy').tr(),
-          leading: const Icon(LineIcons.lock),
-          trailing: const Icon(FeatherIcons.chevronRight),
-          onTap: () => AppService().openLinkWithCustomTab(setttings?.privacyUrl ?? ''),
-        ),
-        const Divider(),
-        ListTile(
-          title: const Text('contact-us').tr(),
-          leading: const Icon(LineIcons.envelope),
-          trailing: const Icon(FeatherIcons.chevronRight),
-          onTap: () => AppService().openEmailSupport(setttings?.supportEmail ?? ''),
-        ),
-        const Divider(),
-        ListTile(
-          title: const Text('rate-app').tr(),
-          leading: const Icon(LineIcons.star),
-          trailing: const Icon(FeatherIcons.chevronRight),
-          onTap: () => AppService().launchAppReview(context),
-        ),
-        Visibility(
-          visible: user != null,
-          child: Column(
-            children: [
-              const Divider(),
-              ListTile(
-                title: const Text('account-control').tr(),
-                leading: const Icon(LineIcons.userCog),
-                trailing: const Icon(FeatherIcons.chevronRight),
+
+        if (user != null) ...[
+          const SizedBox(height: 10),
+          _buildCardContainer(
+            cardBgColor,
+            isDarkMode,
+            [
+              _buildSettingTile(
+                icon: LineIcons.userCog,
+                title: 'account-control'.tr(),
+                primaryColor: primaryColor,
+                isDarkMode: isDarkMode,
                 onTap: () => NextScreen.iOS(context, const DeleteAccount()),
               ),
-              const Divider(),
-              ListTile(
-                title: const Text('logout').tr(),
-                leading: const Icon(FeatherIcons.logOut),
-                trailing: const Icon(FeatherIcons.chevronRight),
+              const Divider(height: 1, indent: 54),
+              _buildSettingTile(
+                icon: FeatherIcons.logOut,
+                title: 'logout'.tr(),
+                primaryColor: Colors.redAccent,
+                isDarkMode: isDarkMode,
+                iconColor: Colors.redAccent,
                 onTap: () => openLogoutDialog(context, () => handleLogout(context, ref: ref)),
               ),
             ],
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 50, bottom: 20),
-          child: const Text(
-            'social',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ).tr(),
-        ),
-        Visibility(
-          visible: setttings?.social?.fb != null,
-          child: Column(
-            children: [
-              ListTile(
-                title: const Text('facebook').tr(),
-                leading: const Icon(LineIcons.facebook),
-                trailing: const Icon(FeatherIcons.chevronRight),
-                onTap: () => AppService().openLink(setttings!.social!.fb!),
+        ],
+
+        const SizedBox(height: 24),
+        _buildSectionHeader(context, 'social'.tr(), isDarkMode),
+        _buildCardContainer(
+          cardBgColor,
+          isDarkMode,
+          [
+            if (settings?.social?.fb != null)
+              _buildSettingTile(
+                icon: LineIcons.facebook,
+                title: 'facebook'.tr(),
+                primaryColor: primaryColor,
+                isDarkMode: isDarkMode,
+                onTap: () => AppService().openLink(settings!.social!.fb!),
               ),
-              const Divider(),
-            ],
-          ),
-        ),
-        Visibility(
-          visible: setttings?.social?.youtube != null,
-          child: Column(
-            children: [
-              ListTile(
-                title: const Text('youtube').tr(),
-                leading: const Icon(LineIcons.youtube),
-                trailing: const Icon(FeatherIcons.chevronRight),
-                onTap: () => AppService().openLink(setttings!.social!.youtube!),
+            if (settings?.social?.youtube != null)
+              _buildSettingTile(
+                icon: LineIcons.youtube,
+                title: 'youtube'.tr(),
+                primaryColor: primaryColor,
+                isDarkMode: isDarkMode,
+                onTap: () => AppService().openLink(settings!.social!.youtube!),
               ),
-              const Divider(),
-            ],
-          ),
-        ),
-        Visibility(
-          visible: setttings?.social?.twitter != null,
-          child: Column(
-            children: [
-              ListTile(
-                title: const Text('twitter').tr(),
-                leading: const Icon(FeatherIcons.twitter),
-                trailing: const Icon(FeatherIcons.chevronRight),
-                onTap: () => AppService().openLink(setttings!.social!.twitter!),
+            if (settings?.social?.twitter != null)
+              _buildSettingTile(
+                icon: FeatherIcons.twitter,
+                title: 'twitter'.tr(),
+                primaryColor: primaryColor,
+                isDarkMode: isDarkMode,
+                onTap: () => AppService().openLink(settings!.social!.twitter!),
               ),
-              const Divider(),
-            ],
-          ),
-        ),
-        Visibility(
-          visible: setttings?.social?.instagram != null,
-          child: ListTile(
-            title: const Text('instagram').tr(),
-            leading: const Icon(FeatherIcons.instagram),
-            trailing: const Icon(FeatherIcons.chevronRight),
-            onTap: () => AppService().openLink(setttings!.social!.instagram!),
-          ),
+            if (settings?.social?.instagram != null)
+              _buildSettingTile(
+                icon: FeatherIcons.instagram,
+                title: 'instagram'.tr(),
+                primaryColor: primaryColor,
+                isDarkMode: isDarkMode,
+                onTap: () => AppService().openLink(settings!.social!.instagram!),
+              ),
+          ],
         ),
       ],
     );
   }
+
+  Widget _buildSectionHeader(BuildContext context, String title, bool isDarkMode) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 10),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          letterSpacing: 1.0,
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardContainer(Color cardBgColor, bool isDarkMode, List<Widget> children) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: isDarkMode
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.indigo.withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildSettingTile({
+    required IconData icon,
+    required String title,
+    required Color primaryColor,
+    required bool isDarkMode,
+    Color? iconColor,
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: (iconColor ?? primaryColor).withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, size: 20, color: iconColor ?? primaryColor),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 15,
+          color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+        ),
+      ),
+      trailing: trailing ?? Icon(FeatherIcons.chevronRight, size: 18, color: Colors.grey[400]),
+    );
+  }
 }
+

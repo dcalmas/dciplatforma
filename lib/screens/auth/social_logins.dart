@@ -89,80 +89,162 @@ class _SocialLoginsState extends State<SocialLogins> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+
     return Column(
       children: [
-        const SizedBox(height: 30),
-        RoundedLoadingButton(
+        // Google Sign In
+        _GradientBorderButton(
           controller: googleCtlr,
-          animateOnTap: false,
-          color: Colors.blueAccent,
-          elevation: 0,
-          borderRadius: 3,
+          onPressed: () => _handleGoogleSignIn(),
+          isDarkMode: isDarkMode,
+          primaryColor: primaryColor,
+          cardBgColor: cardBgColor,
+          gradientColors: const [
+            Color(0xFF4285F4),
+            Color(0xFFEA4335),
+            Color(0xFFFBBC05),
+            Color(0xFF34A853),
+          ],
+          icon: FontAwesomeIcons.google,
+          iconColors: const [
+            Color(0xFF4285F4),
+            Color(0xFFEA4335),
+            Color(0xFFFBBC05),
+            Color(0xFF34A853),
+          ],
+          label: 'Google',
+        ),
+
+        // Facebook
+        if (isFacebookLoginEnabled) ...[
+          const SizedBox(height: 12),
+          _GradientBorderButton(
+            controller: fbController,
+            onPressed: () => _handleFacebookSignIn(),
+            isDarkMode: isDarkMode,
+            primaryColor: primaryColor,
+            cardBgColor: cardBgColor,
+            gradientColors: const [
+              Color(0xFF1877F2),
+              Color(0xFF42A5F5),
+            ],
+            icon: FontAwesomeIcons.facebook,
+            iconColors: const [Color(0xFF1877F2)],
+            label: 'Facebook',
+          ),
+        ],
+
+        // Apple
+        if (Platform.isIOS) ...[
+          const SizedBox(height: 12),
+          _GradientBorderButton(
+            controller: appleController,
+            onPressed: () => _handleAppleSignIn(),
+            isDarkMode: isDarkMode,
+            primaryColor: primaryColor,
+            cardBgColor: cardBgColor,
+            gradientColors: const [
+              Color(0xFF333333),
+              Color(0xFF666666),
+            ],
+            icon: FontAwesomeIcons.apple,
+            iconColors: const [Color(0xFF333333)],
+            label: 'Apple',
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _GradientBorderButton extends StatelessWidget {
+  final RoundedLoadingButtonController controller;
+  final VoidCallback onPressed;
+  final bool isDarkMode;
+  final Color primaryColor;
+  final Color cardBgColor;
+  final List<Color> gradientColors;
+  final IconData icon;
+  final List<Color> iconColors;
+  final String label;
+
+  const _GradientBorderButton({
+    required this.controller,
+    required this.onPressed,
+    required this.isDarkMode,
+    required this.primaryColor,
+    required this.cardBgColor,
+    required this.gradientColors,
+    required this.icon,
+    required this.iconColors,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: gradientColors.first.withValues(alpha: 0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: RoundedLoadingButton(
+        controller: controller,
+        animateOnTap: false,
+        color: Colors.transparent,
+        elevation: 0,
+        borderRadius: 18,
+        onPressed: onPressed,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: LinearGradient(
+              colors: gradientColors.map((c) => c.withValues(alpha: 0.08)).toList(),
+            ),
+            border: Border.all(
+              color: gradientColors.first.withValues(alpha: 0.3),
+              width: 1.5,
+            ),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const FaIcon(FontAwesomeIcons.google, color: Colors.white, size: 20),
-              const SizedBox(width: 15),
+              // Colored gradient circle with icon
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: gradientColors.map((c) => c.withValues(alpha: 0.15)).toList(),
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: FaIcon(icon, color: iconColors.first, size: 18),
+              ),
+              const SizedBox(width: 14),
               Text(
-                'Sign In With Google',
+                'Sign in with $label',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white),
-              )
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
             ],
           ),
-          onPressed: () => _handleGoogleSignIn(),
         ),
-        Visibility(
-          visible: isFacebookLoginEnabled,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: RoundedLoadingButton(
-              controller: fbController,
-              animateOnTap: false,
-              color: Colors.indigo,
-              elevation: 0,
-              borderRadius: 3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const FaIcon(FontAwesomeIcons.facebook, color: Colors.white, size: 20),
-                  const SizedBox(width: 15),
-                  Text(
-                    'Sign In With Facebook',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white),
-                  )
-                ],
-              ),
-              onPressed: () => _handleFacebookSignIn(),
-            ),
-          ),
-        ),
-        Visibility(
-          visible: Platform.isIOS,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: RoundedLoadingButton(
-                controller: appleController,
-                animateOnTap: false,
-                color: Colors.grey.shade800,
-                elevation: 0,
-                borderRadius: 3,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const FaIcon(FontAwesomeIcons.apple, color: Colors.white, size: 20),
-                    const SizedBox(width: 15),
-                    Text(
-                      'Sign In With Apple',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white),
-                    )
-                  ],
-                ),
-                onPressed: () => _handleAppleSignIn()),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

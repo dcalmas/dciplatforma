@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:line_icons/line_icons.dart';
 import '../../components/html_body.dart';
 import '../../models/notification_model.dart';
 
@@ -11,59 +11,116 @@ class CustomNotificationDeatils extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 30),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Row(
-                children: [
-                  const Icon(
-                    LineIcons.clock,
-                    size: 20,
-                    color: Colors.blueGrey,
+      backgroundColor: bgColor,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 200,
+            pinned: true,
+            backgroundColor: primaryColor,
+            leading: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 20),
+              ),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      primaryColor,
+                      primaryColor.withValues(alpha: 0.7),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    _getDate(context, notificationModel),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blueGrey,
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(FeatherIcons.clock, size: 14, color: Colors.white),
+                              const SizedBox(width: 6),
+                              Text(
+                                _getDate(notificationModel),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          notificationModel.title,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: cardBgColor,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDarkMode
+                        ? Colors.black.withValues(alpha: 0.3)
+                        : primaryColor.withValues(alpha: 0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
+              child: HtmlBody(description: notificationModel.body),
             ),
-            Text(
-              notificationModel.title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)
-            ),
-            Divider(
-              height: 30,
-              color: Theme.of(context).primaryColor,
-              thickness: 2,
-            ),
-            HtmlBody(description: notificationModel.body),
-            const SizedBox(
-              height: 20,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  static String _getDate(BuildContext context, NotificationModel notificationModel) {
-    final String date = DateFormat('MMMM dd, yyyy hh:mm a').format(notificationModel.recievedAt);
-    return date;
+  static String _getDate(NotificationModel notificationModel) {
+    return DateFormat('MMMM dd, yyyy • hh:mm a').format(notificationModel.recievedAt);
   }
 }

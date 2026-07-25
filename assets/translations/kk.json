@@ -93,6 +93,7 @@
   "count-questions": "{} / {} Сұрақ",
   "choose-answer": "Жауапты таңдаңыз",
   "try-again": "Қайта көру",
+  "finish": "Аяқтау",
   "your-score": "Нәтижеңіз: ",
   "score-count": "100-ден {} балл",
   "passed-test": "Құттықтаймыз! Сіз тесттен өттіңіз.",
@@ -132,5 +133,18 @@
   "buy-app-subtitle": "Өз LMS қосымшаңызды жасаңыз",
   "user-disable-title": "Кіру шектелген!",
   "user-disable-subtitle": "Қолдау көрсету орталығына хабарласыңыз.",
-  "unmark-complete": "Белгіні алып тастау"
+  "unmark-complete": "Белгіні алып тастау",
+  "tests": "Тесттер",
+  "assignments": "Тапсырмалар",
+  "menu": "Мәзір",
+  "search-placeholder": "Курстар мен тесттерді іздеу",
+  "new-courses": "ЖАҢА КУРСТАР",
+  "reviews-count": "пікір",
+  "completed": "Аяқталды",
+  "locked": "Тіркелу қажет",
+  "free": "Тегін",
+  "premium": "Премиум",
+  "unread-notifications": "оқылмаған хабарландырулар",
+  "no-notification-subtitle": "Хабарландыруларыңыз алынған кезде олар осында көрсетіледі",
+  "all-courses": "Барлық курстар"
 }

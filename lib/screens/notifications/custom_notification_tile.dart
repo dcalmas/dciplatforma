@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:lms_app/services/hive_service.dart';
 import 'package:lms_app/utils/string_extension.dart';
@@ -7,107 +7,171 @@ import '../../models/notification_model.dart';
 import '../../utils/next_screen.dart';
 import 'custom_notification_details.dart';
 
-class CustomNotificationTile extends StatelessWidget {
+class CustomNotificationTile extends StatefulWidget {
   const CustomNotificationTile({super.key, required this.notificationModel});
 
   final NotificationModel notificationModel;
 
   @override
+  State<CustomNotificationTile> createState() => _CustomNotificationTileState();
+}
+
+class _CustomNotificationTileState extends State<CustomNotificationTile> {
+  double _scale = 1.0;
+
+  @override
   Widget build(BuildContext context) {
-    final bool isRead = notificationModel.read ?? false;
-    return InkWell(
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(15, 25, 10, 25),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isRead ? Colors.blueGrey : Theme.of(context).primaryColor,
-            width: 0.5,
-          ),
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            IntrinsicHeight(
+    final bool isRead = widget.notificationModel.read ?? false;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+
+    return GestureDetector(
+        onTapDown: (_) => setState(() => _scale = 0.97),
+        onTapUp: (_) async {
+          setState(() => _scale = 1.0);
+          if (widget.notificationModel.read == false) {
+            await HiveService().setNotificationRead(widget.notificationModel);
+          }
+          if (!context.mounted) return;
+          NextScreen.openBottomSheet(
+            context,
+            CustomNotificationDeatils(notificationModel: widget.notificationModel),
+          );
+        },
+        onTapCancel: () => setState(() => _scale = 1.0),
+        child: AnimatedScale(
+          scale: _scale,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOutCubic,
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: cardBgColor,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(
+                color: isRead
+                    ? Colors.transparent
+                    : primaryColor.withValues(alpha: 0.35),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isDarkMode
+                      ? Colors.black.withValues(alpha: 0.3)
+                      : primaryColor.withValues(alpha: 0.04),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: IntrinsicHeight(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  VerticalDivider(
-                    thickness: 2.0,
-                    color: isRead ? Colors.blueGrey.shade200 : Theme.of(context).primaryColor,
-                  ),
+                  _buildIconBadge(isRead, primaryColor),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          notificationModel.title,
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18, fontWeight: FontWeight.w600),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                widget.notificationModel.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontWeight: isRead ? FontWeight.w600 : FontWeight.bold,
+                                  fontSize: 15,
+                                  color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                                ),
+                              ),
+                            ),
+                            if (!isRead)
+                              Container(
+                                width: 8,
+                                height: 8,
+                                margin: const EdgeInsets.only(left: 8),
+                                decoration: BoxDecoration(
+                                  color: primaryColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                          ],
                         ),
-                        const SizedBox(
-                          height: 8,
-                        ),
+                        const SizedBox(height: 6),
                         Text(
-                          notificationModel.body.toNormalText,
+                          widget.notificationModel.body.toNormalText,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Icon(FeatherIcons.clock, size: 13, color: Colors.grey[400]),
+                            const SizedBox(width: 6),
+                            Text(
+                              _getDate(widget.notificationModel),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  IconButton(
-                    constraints: const BoxConstraints(minHeight: 40),
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(left: 8),
-                    icon: const Icon(
-                      Icons.close,
-                      size: 20,
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () async {
+                      await HiveService().deleteNotificationData(widget.notificationModel.id);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(FeatherIcons.x, size: 14, color: Colors.grey[400]),
                     ),
-                    onPressed: () => HiveService().deleteNotificationData(notificationModel.id),
-                  )
+                  ),
                 ],
               ),
             ),
-            const SizedBox(
-              height: 12,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const Icon(
-                  CupertinoIcons.time,
-                  size: 18,
-                  color: Colors.blueGrey,
-                ),
-                const SizedBox(
-                  width: 5,
-                ),
-                Text(
-                  _getDate(context, notificationModel),
-                  style: const TextStyle(fontSize: 13, color: Colors.blueGrey),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
-      ),
-      onTap: () async {
-        if (notificationModel.read == false) {
-          await HiveService().setNotificationRead(notificationModel);
-        }
-        if (!context.mounted) return;
-        NextScreen.openBottomSheet(context, CustomNotificationDeatils(notificationModel: notificationModel));
-      },
     );
   }
 
-  static String _getDate(BuildContext context, NotificationModel notificationModel) {
-    final String date = DateFormat('MMMM dd, yyyy').format(notificationModel.recievedAt);
-    return date;
+  Widget _buildIconBadge(bool isRead, Color primaryColor) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: isRead
+            ? Colors.grey.withValues(alpha: 0.12)
+            : primaryColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(
+        FeatherIcons.bell,
+        size: 20,
+        color: isRead ? Colors.grey : primaryColor,
+      ),
+    );
+  }
+
+  static String _getDate(NotificationModel notificationModel) {
+    return DateFormat('MMM dd, yyyy • hh:mm a').format(notificationModel.recievedAt);
   }
 }

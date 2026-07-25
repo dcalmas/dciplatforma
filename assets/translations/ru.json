@@ -93,6 +93,7 @@
   "count-questions": "Вопрос {} из {}",
   "choose-answer": "Пожалуйста, выберите ответ",
   "try-again": "Попробовать снова",
+  "finish": "Завершить",
   "your-score": "Ваш результат: ",
   "score-count": "{} из 100",
   "passed-test": "Поздравляем! Вы прошли тест.",
@@ -132,5 +133,18 @@
   "buy-app-subtitle": "Создайте свое собственное LMS-приложение",
   "user-disable-title": "Доступ запрещен!",
   "user-disable-subtitle": "Пожалуйста, свяжитесь со службой поддержки.",
-  "unmark-complete": "Снять отметку о прохождении"
+  "unmark-complete": "Снять отметку о прохождении",
+  "tests": "Тесты",
+  "assignments": "Задания",
+  "menu": "Меню",
+  "search-placeholder": "Поиск курсов и тестов",
+  "new-courses": "НОВЫЕ КУРСЫ",
+  "reviews-count": "отзывов",
+  "completed": "Пройдено",
+  "locked": "Доступно по подписке",
+  "free": "Бесплатный",
+  "premium": "Премиум",
+  "unread-notifications": "непрочитанных уведомлений",
+  "no-notification-subtitle": "Ваши уведомления появятся здесь, как только вы их получите",
+  "all-courses": "Все курсы"
 }

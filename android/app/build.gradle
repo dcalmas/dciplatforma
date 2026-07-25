@@ -30,7 +30,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.tattitil.app"
+    namespace "com.dciplatforma.kz"
     compileSdkVersion 36
     ndkVersion flutter.ndkVersion
 
@@ -48,7 +48,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.tattitil.app"
+        applicationId "com.dciplatforma.kz"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
@@ -59,7 +59,11 @@ android {
        release {
            keyAlias keystoreProperties['keyAlias']
            keyPassword keystoreProperties['keyPassword']
-           storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+           // Кейстор файлының жолын дұрыстау
+           def keystoreFile = keystoreProperties['storeFile']
+           if (keystoreFile != null) {
+               storeFile rootProject.file(keystoreFile)
+           }
            storePassword keystoreProperties['storePassword']
        }
    }
@@ -70,7 +74,6 @@ android {
    }
 }
 
-// Кітапханалардың нұсқасын AGP 8.7.3 - 8.9.1 аралығында үйлесімді болатындай етіп бекіту
 configurations.all {
     resolutionStrategy {
         force 'androidx.core:core:1.15.0'

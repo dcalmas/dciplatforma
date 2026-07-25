@@ -93,6 +93,7 @@
     "count-questions": "{} de {} Questions",
     "choose-answer": "Veuillez choisir votre réponse",
     "try-again": "Réessayer",
+    "finish": "Terminer",
     "your-score": "Votre Score : ",
     "score-count": "{} sur 100",
     "passed-test": "Félicitations ! Vous avez réussi le test.",
@@ -132,5 +133,10 @@
     "buy-app-subtitle": "Créez votre propre application LMS",
     "user-disable-title": "Accès Refusé !",
     "user-disable-subtitle": "Veuillez contacter notre adresse e-mail d'assistance.",
-    "unmark-complete": "Décocher Complet"
+    "unmark-complete": "Décocher Complet",
+    "free": "Gratuit",
+    "premium": "Premium",
+    "unread-notifications": "notifications non lues",
+    "no-notification-subtitle": "Vos notifications apparaîtront ici dès que vous les recevrez",
+    "all-courses": "Tous les cours"
 }
