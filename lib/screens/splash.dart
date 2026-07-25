@@ -44,6 +44,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
     );
 
     _startInitialization();
+    Timer(const Duration(seconds: 5), () {
+      if (!_animDone) {
+        _animDone = true;
+        _tryNavigate();
+      }
+    });
   }
 
   @override
@@ -53,13 +59,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
   }
 
   _startInitialization() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (ref.read(appSettingsProvider) == null) {
-      await ref.read(appSettingsProvider.notifier).getData();
-    }
-    if (user != null) {
-      await ref.read(userDataProvider.notifier).fetchUserData();
-      ref.read(userDataProvider.notifier).getData();
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (ref.read(appSettingsProvider) == null) {
+        await ref.read(appSettingsProvider.notifier).getData().timeout(const Duration(seconds: 8));
+      }
+      if (user != null) {
+        await ref.read(userDataProvider.notifier).fetchUserData().timeout(const Duration(seconds: 8));
+        ref.read(userDataProvider.notifier).getData();
+      }
+    } catch (e) {
+      debugPrint('Splash init error: $e');
     }
     _initDone = true;
     _tryNavigate();

@@ -243,7 +243,7 @@ class FirebaseService {
     UserModel? user;
     try {
       final String userId = FirebaseAuth.instance.currentUser!.uid;
-      final DocumentSnapshot snap = await firestore.collection('users').doc(userId).get();
+      final DocumentSnapshot snap = await firestore.collection('users').doc(userId).get().timeout(const Duration(seconds: 10));
       user = UserModel.fromFirebase(snap);
     } catch (e) {
       debugPrint('error on getting user data: $e');
@@ -269,10 +269,10 @@ class FirebaseService {
   Future<AppSettingsModel?> getAppSettingsData() async {
     AppSettingsModel? settings;
     try {
-      final DocumentSnapshot snap = await firestore.collection('settings').doc('app').get();
+      final DocumentSnapshot snap = await firestore.collection('settings').doc('app').get().timeout(const Duration(seconds: 10));
       settings = AppSettingsModel.fromFirestore(snap);
     } catch (e) {
-      debugPrint('error on getting app settings data');
+      debugPrint('error on getting app settings data: $e');
     }
     return settings;
   }

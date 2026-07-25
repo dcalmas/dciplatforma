@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import '../constants/app_constants.dart';
 
 class HiveService {
-  static void initHive() async {
+  static Future<void> initHive() async {
     final Directory directory = await getApplicationDocumentsDirectory();
     Hive.init(directory.path); 
     await Hive.openBox(notificationTag);

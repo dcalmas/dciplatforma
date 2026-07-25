@@ -12,7 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await EasyLocalization.ensureInitialized();
-  HiveService.initHive();
+  await HiveService.initHive();
   AppService.svgPrecacheImage();
   runApp(
     ProviderScope(

@@ -3,27 +3,27 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>877086975035-2de4bm3ii381961o0u9he08fhir2gig5.apps.googleusercontent.com</string>
+	<string>63012545079-ccr7fi36qpho4it4ro0i8lg7a6fk7bs2.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.877086975035-2de4bm3ii381961o0u9he08fhir2gig5</string>
+	<string>com.googleusercontent.apps.63012545079-ccr7fi36qpho4it4ro0i8lg7a6fk7bs2</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>877086975035-ik1q307pvubdp8hf1bu4krse4qn0cpa3.apps.googleusercontent.com</string>
+	<string>63012545079-4h2nvplfq12rb4q51hidleeq9p94lgvc.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyDm6e33axpCGzq91QOF_T0HLG2qRakzoFo</string>
+	<string>AIzaSyDoSXX91vEwtL3B7LZTgbtLxo6D8v7-xw8</string>
 	<key>GCM_SENDER_ID</key>
-	<string>877086975035</string>
+	<string>63012545079</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.dcplatforma.edu</string>
 	<key>PROJECT_ID</key>
-	<string>tatti-til</string>
+	<string>dciplatforma</string>
 	<key>STORAGE_BUCKET</key>
-	<string>tatti-til.firebasestorage.app</string>
+	<string>dciplatforma.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
-	<false></false>
+	<true></true>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
+	<true></true>
 	<key>IS_APPINVITE_ENABLED</key>
 	<true></true>
 	<key>IS_GCM_ENABLED</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:877086975035:ios:d833d433e3745c44d4a81e</string>
+	<string>1:63012545079:ios:1e80d1b33c3c922ce9d5b2</string>
 </dict>
 </plist>
