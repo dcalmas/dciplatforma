@@ -10,7 +10,7 @@ class AppConfig {
   static const Color appThemeColor = Color(0xFFf00080);
 
   // Android Package Name
-  static const String androidPackageName = 'com.dciplatforma.kz';
+  static const String androidPackageName = 'com.dcplaforma.edu';
 
   // iOS App ID
   static const String iosAppID = '000000';

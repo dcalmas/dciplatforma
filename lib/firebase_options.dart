@@ -64,6 +64,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'dciplatforma.firebasestorage.app',
     androidClientId: '63012545079-4h2nvplfq12rb4q51hidleeq9p94lgvc.apps.googleusercontent.com',
     iosClientId: '63012545079-ccr7fi36qpho4it4ro0i8lg7a6fk7bs2.apps.googleusercontent.com',
-    iosBundleId: 'com.dciplatforma.kz',
+    iosBundleId: 'com.dcplaforma.edu',
   );
 }
