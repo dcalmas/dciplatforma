@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:lms_app/components/html_body.dart';
 import 'package:lms_app/models/course.dart';
@@ -50,7 +50,7 @@ class CourseDescription extends StatelessWidget {
                     color: primaryColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(LineIcons.file_alt, size: 20, color: primaryColor),
+                  child: Icon(FeatherIcons.fileText, size: 20, color: primaryColor),
                 ),
                 const SizedBox(width: 14),
                 Text(

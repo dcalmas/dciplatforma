@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 
 import '../../auth/login.dart';
@@ -14,10 +14,10 @@ class GuestUser extends StatelessWidget {
       decoration: BoxDecoration(border: Border.all(width: 0.3, color: Colors.blueGrey), borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         title: const Text('login').tr(),
-        leading: const Icon(LineIcons.user_plus, size: 20),
+        leading: const Icon(FeatherIcons.userPlus, size: 20),
         contentPadding: const EdgeInsets.symmetric(horizontal: 25),
         minVerticalPadding: 20,
-        trailing: const Icon(LineIcons.chevron_right),
+        trailing: const Icon(FeatherIcons.chevronRight),
         onTap: () => NextScreen.openBottomSheet(context, const LoginScreen(popUpScreen: true)),
       ),
     );

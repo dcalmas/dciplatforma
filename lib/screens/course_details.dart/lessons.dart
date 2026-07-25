@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
@@ -147,7 +148,7 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
       return const Icon(Icons.check_circle_rounded, color: Colors.green, size: 22);
     } else {
       if (lesson.contentType == 'video' || lesson.contentType == 'iframe') {
-        return Icon(LineIcons.play_circle, color: primaryColor, size: 20);
+        return Icon(FeatherIcons.playCircle, color: primaryColor, size: 20);
       } else if (lesson.contentType == 'article') {
         return Icon(LineIcons.stickyNote, color: primaryColor, size: 20);
       } else if (lesson.contentType == 'document') {

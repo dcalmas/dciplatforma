@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
@@ -217,13 +218,13 @@ class TestsTab extends ConsumerWidget with UserMixin {
       );
     } else if (!hasAccess) {
       return Icon(
-        LineIcons.lock,
+        FeatherIcons.lock,
         color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
         size: 20,
       );
     } else {
       return Icon(
-        LineIcons.chevron_right,
+        FeatherIcons.chevronRight,
         color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
         size: 20,
       );

@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,7 +33,7 @@ class RecentSearches extends ConsumerWidget with SearchMixin {
                     title: Text(e),
                     leading: const Icon(CupertinoIcons.time, color: Colors.blueGrey),
                     trailing: IconButton(
-                      icon: const Icon(LineIcons.trash, size: 20),
+                      icon: const Icon(FeatherIcons.delete, size: 20),
                       onPressed: () => removeFromSearchList(value: e, ref: ref),
                     ),
                     onTap: () {

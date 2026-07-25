@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:lms_app/services/hive_service.dart';
 import 'package:lms_app/utils/string_extension.dart';
@@ -116,7 +116,7 @@ class _CustomNotificationTileState extends State<CustomNotificationTile> {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            Icon(LineIcons.clock, size: 13, color: Colors.grey[400]),
+                            Icon(FeatherIcons.clock, size: 13, color: Colors.grey[400]),
                             const SizedBox(width: 6),
                             Text(
                               _getDate(widget.notificationModel),
@@ -142,7 +142,7 @@ class _CustomNotificationTileState extends State<CustomNotificationTile> {
                         color: Colors.grey.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(LineIcons.times, size: 14, color: Colors.grey[400]),
+                      child: Icon(FeatherIcons.x, size: 14, color: Colors.grey[400]),
                     ),
                   ),
                 ],
@@ -164,7 +164,7 @@ class _CustomNotificationTileState extends State<CustomNotificationTile> {
         borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
-        LineIcons.bell,
+        FeatherIcons.bell,
         size: 20,
         color: isRead ? Colors.grey : primaryColor,
       ),

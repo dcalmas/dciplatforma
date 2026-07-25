@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:lms_app/components/privacy_info.dart';
 import 'package:lms_app/models/user_model.dart';
 import 'package:lms_app/screens/auth/login.dart';
@@ -99,7 +100,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         backgroundColor: bgColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(LineIcons.times, color: isDarkMode ? Colors.white : Colors.black87),
+          icon: Icon(FeatherIcons.x, color: isDarkMode ? Colors.white : Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -173,7 +174,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           borderSide: BorderSide.none,
                         ),
                         suffixIcon: IconButton(
-                          icon: Icon(LineIcons.times_circle, size: 18, color: Colors.grey[400]),
+                          icon: Icon(FeatherIcons.xCircle, size: 18, color: Colors.grey[400]),
                           onPressed: () => nameCtlr.clear(),
                         ),
                       ),
@@ -197,7 +198,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           borderSide: BorderSide.none,
                         ),
                         suffixIcon: IconButton(
-                          icon: Icon(LineIcons.times_circle, size: 18, color: Colors.grey[400]),
+                          icon: Icon(FeatherIcons.xCircle, size: 18, color: Colors.grey[400]),
                           onPressed: () => emailCtlr.clear(),
                         ),
                       ),

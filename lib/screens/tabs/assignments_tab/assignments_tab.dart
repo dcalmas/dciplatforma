@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/mixins/user_mixin.dart';
@@ -69,7 +69,7 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(LineIcons.chevron_left),
+          icon: const Icon(FeatherIcons.chevronLeft),
         ),
         title: const Text('assignments').tr(),
         elevation: 0,
@@ -99,7 +99,7 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
                   SizedBox(height: MediaQuery.of(context).size.height * 0.3),
                   const Center(
                     child: Icon(
-                      LineIcons.check_square,
+                      FeatherIcons.checkSquare,
                       size: 64,
                       color: Colors.grey,
                     ),
@@ -147,7 +147,7 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        LineIcons.file_alt,
+                        FeatherIcons.fileText,
                         color: Theme.of(context).primaryColor,
                         size: 24,
                       ),
@@ -235,13 +235,13 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
       );
     } else if (!hasAccess) {
       return Icon(
-        LineIcons.lock,
+        FeatherIcons.lock,
         color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
         size: 20,
       );
     } else {
       return Icon(
-        LineIcons.download,
+        FeatherIcons.download,
         color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
         size: 20,
       );

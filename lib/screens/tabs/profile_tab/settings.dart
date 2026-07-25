@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
@@ -107,7 +108,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
               ),
               const Divider(height: 1, indent: 54),
               _buildSettingTile(
-                icon: LineIcons.alternate_sign_out,
+                icon: FeatherIcons.logOut,
                 title: 'logout'.tr(),
                 primaryColor: Colors.redAccent,
                 isDarkMode: isDarkMode,
@@ -142,7 +143,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
               ),
             if (settings?.social?.twitter != null)
               _buildSettingTile(
-                icon: LineIcons.twitter_alt,
+                icon: FeatherIcons.twitter,
                 title: 'twitter'.tr(),
                 primaryColor: primaryColor,
                 isDarkMode: isDarkMode,
@@ -150,7 +151,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
               ),
             if (settings?.social?.instagram != null)
               _buildSettingTile(
-                icon: LineIcons.instagram,
+                icon: FeatherIcons.instagram,
                 title: 'instagram'.tr(),
                 primaryColor: primaryColor,
                 isDarkMode: isDarkMode,
@@ -225,7 +226,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
           color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
         ),
       ),
-      trailing: trailing ?? Icon(LineIcons.chevron_right, size: 18, color: Colors.grey[400]),
+      trailing: trailing ?? Icon(FeatherIcons.chevronRight, size: 18, color: Colors.grey[400]),
     );
   }
 }

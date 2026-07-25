@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/screens/all_courses.dart/courses_view.dart';
@@ -44,7 +44,7 @@ class CategoriesLayout2 extends StatelessWidget {
                     contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                     title: Text(category.name),
                     titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                    trailing: const Icon(LineIcons.chevron_right),
+                    trailing: const Icon(FeatherIcons.chevronRight),
                     leading: SizedBox(
                       height: 40,
                       width: 50,

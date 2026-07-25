@@ -1,4 +1,4 @@
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/ads/ad_manager.dart';
@@ -49,7 +49,7 @@ class CourseDetailsView extends ConsumerWidget {
             elevation: 0,
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(LineIcons.chevron_left),
+              icon: const Icon(FeatherIcons.chevronLeft),
             ),
             actions: [
               BookmarkButton(course: course),

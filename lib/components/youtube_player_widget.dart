@@ -1,4 +1,4 @@
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -79,7 +79,7 @@ class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
-                LineIcons.chevron_left,
+                FeatherIcons.chevronLeft,
                 color: Colors.white,
               ),
             ),

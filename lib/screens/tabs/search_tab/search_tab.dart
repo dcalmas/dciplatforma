@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/models/tag.dart';
@@ -52,7 +52,7 @@ class SearchTab extends ConsumerWidget {
                   'search-course',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ).tr(),
-                const Icon(LineIcons.search, size: 20),
+                const Icon(FeatherIcons.search, size: 20),
               ],
             ),
           ),

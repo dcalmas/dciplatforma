@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/configs/app_assets.dart';
@@ -93,7 +93,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                           ],
                         ),
                         child: Icon(
-                          LineIcons.globe,
+                          FeatherIcons.globe,
                           size: 20,
                           color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                         ),
@@ -185,8 +185,8 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                           const SizedBox(width: 8),
                           Icon(
                             _currentPage < pages.length - 1
-                                ? LineIcons.arrow_right
-                                : LineIcons.arrow_right_circle,
+                                ? FeatherIcons.arrowRight
+                                : FeatherIcons.arrowRightCircle,
                             size: 20,
                           ),
                         ],

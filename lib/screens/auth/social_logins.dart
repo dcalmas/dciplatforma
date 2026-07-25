@@ -167,7 +167,7 @@ class _GradientBorderButton extends StatelessWidget {
   final Color primaryColor;
   final Color cardBgColor;
   final List<Color> gradientColors;
-  final IconData icon;
+  final FaIconData icon;
   final List<Color> iconColors;
   final String label;
 

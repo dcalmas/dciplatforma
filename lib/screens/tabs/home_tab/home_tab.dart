@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -204,7 +204,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                           padding: const EdgeInsets.symmetric(vertical: 60),
                           child: Column(
                             children: [
-                              Icon(LineIcons.inbox, size: 48, color: Colors.grey[400]),
+                              Icon(FeatherIcons.inbox, size: 48, color: Colors.grey[400]),
                               const SizedBox(height: 12),
                               Text(
                                 'no-course'.tr(),
@@ -249,7 +249,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
           child: ClipOval(
             child: user?.imageUrl != null && user!.imageUrl!.isNotEmpty
                 ? CustomCacheImage(imageUrl: user.imageUrl, radius: 24)
-                : Icon(LineIcons.user, color: primaryColor, size: 24),
+                : Icon(FeatherIcons.user, color: primaryColor, size: 24),
           ),
         ),
         const SizedBox(width: 14),
@@ -298,7 +298,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
           ),
           child: Row(
             children: [
-              Icon(LineIcons.calendar_alt, size: 14, color: primaryColor),
+              Icon(FeatherIcons.calendar, size: 14, color: primaryColor),
               const SizedBox(width: 6),
               Text(
                 monthName,
@@ -425,7 +425,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                         children: [
                           Row(
                             children: [
-                              const Icon(LineIcons.clock, color: Colors.white70, size: 14),
+                              const Icon(FeatherIcons.clock, color: Colors.white70, size: 14),
                               const SizedBox(width: 6),
                               Text(
                                 '${course.lessonsCount} сабақ',
@@ -518,13 +518,13 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
             fontSize: 14,
           ),
           icon: Icon(
-            LineIcons.search,
+            FeatherIcons.search,
             color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
             size: 20,
           ),
           border: InputBorder.none,
           suffixIcon: Icon(
-            LineIcons.sliders_h,
+            FeatherIcons.sliders,
             color: primaryColor,
             size: 18,
           ),
@@ -797,7 +797,7 @@ class _NotificationBell extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 Icon(
-                  hasUnread ? LineIcons.bell : LineIcons.bell,
+                  hasUnread ? FeatherIcons.bell : FeatherIcons.bell,
                   size: 19,
                   color: hasUnread ? primaryColor : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                 ),

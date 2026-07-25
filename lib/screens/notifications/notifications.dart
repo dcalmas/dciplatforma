@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lms_app/screens/notifications/custom_notification_tile.dart';
@@ -38,7 +38,7 @@ class Notifications extends StatelessWidget {
                 width: 1.5,
               ),
             ),
-            child: Icon(LineIcons.chevron_left, size: 20, color: primaryColor),
+            child: Icon(FeatherIcons.chevronLeft, size: 20, color: primaryColor),
           ),
         ),
         title: const Text('notifications').tr(),
@@ -140,7 +140,7 @@ class Notifications extends StatelessWidget {
               color: primaryColor.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(LineIcons.bell, size: 16, color: primaryColor),
+            child: Icon(FeatherIcons.bell, size: 16, color: primaryColor),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -173,7 +173,7 @@ class Notifications extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                LineIcons.bell_slash,
+                FeatherIcons.bellOff,
                 size: 44,
                 color: primaryColor.withValues(alpha: 0.5),
               ),

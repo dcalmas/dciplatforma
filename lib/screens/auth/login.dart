@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -173,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ],
                   ),
-                  child: Icon(LineIcons.times, size: 20, color: isDarkMode ? Colors.white : Colors.black87),
+                  child: Icon(FeatherIcons.x, size: 20, color: isDarkMode ? Colors.white : Colors.black87),
                 ),
               ),
             ),
@@ -309,7 +310,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 borderSide: BorderSide(color: primaryColor, width: 1.5),
                               ),
                               suffixIcon: IconButton(
-                                icon: Icon(LineIcons.times_circle, size: 18, color: Colors.grey[400]),
+                                icon: Icon(FeatherIcons.xCircle, size: 18, color: Colors.grey[400]),
                                 onPressed: () => emailCtlr.clear(),
                               ),
                             ),

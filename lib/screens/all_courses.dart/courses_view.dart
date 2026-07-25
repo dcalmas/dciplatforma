@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/ads/ad_manager.dart';
@@ -128,11 +128,11 @@ class _AllCoursesViewState extends ConsumerState<AllCoursesView> {
         centerTitle: true,
         titleSpacing: 0,
         elevation: 0,
-        leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(LineIcons.chevron_left)),
+        leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(FeatherIcons.chevronLeft)),
         actions: [
           IconButton(
             style: IconButton.styleFrom(padding: const EdgeInsets.only(right: 10)),
-            icon: const Icon(LineIcons.search),
+            icon: const Icon(FeatherIcons.search),
             onPressed: () => NextScreen.normal(context, const SearchScreen()),
           ),
         ],
@@ -212,7 +212,7 @@ class FilterContainer extends StatelessWidget {
         children: [
           IconButton(
             icon: Icon(
-              LineIcons.th_large,
+              FeatherIcons.grid,
               size: 22,
               color: gridStyle == GridStyle.grid ? Colors.blueAccent : Colors.blueGrey,
             ),
@@ -220,7 +220,7 @@ class FilterContainer extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(
-              LineIcons.square,
+              FeatherIcons.square,
               size: 22,
               color: gridStyle == GridStyle.box ? Colors.blueAccent : Colors.blueGrey,
             ),
@@ -228,7 +228,7 @@ class FilterContainer extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(
-              LineIcons.list,
+              FeatherIcons.list,
               size: 22,
               color: gridStyle == GridStyle.list ? Colors.blueAccent : Colors.blueGrey,
             ),

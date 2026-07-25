@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:lms_app/services/app_service.dart';
 
@@ -14,7 +14,7 @@ class BuyNowTile extends StatelessWidget {
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Theme.of(context).primaryColor),
       child: ListTile(
         leading: const Icon(
-          LineIcons.shopping_cart,
+          FeatherIcons.shoppingCart,
           color: Colors.white,
         ),
         title: Text('buy-app-title', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600)).tr(),
@@ -23,7 +23,7 @@ class BuyNowTile extends StatelessWidget {
           style: TextStyle(color: Colors.white70),
         ).tr(),
         horizontalTitleGap: 20,
-        trailing: const Icon(LineIcons.chevron_right, color: Colors.white),
+        trailing: const Icon(FeatherIcons.chevronRight, color: Colors.white),
         onTap: () => AppService().openLinkWithCustomTab('https://codecanyon.net/user/mrblab/portfolio'),
       ),
     );
