@@ -822,7 +822,7 @@ class _NotificationBell extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 Icon(
-                  hasUnread ? FeatherIcons.bell : FeatherIcons.bellOff,
+                  hasUnread ? FeatherIcons.bell : FeatherIcons.bell,
                   size: 19,
                   color: hasUnread ? primaryColor : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                 ),
