@@ -68,65 +68,84 @@ class NotificationService {
   }
 
   Future _handleNotificationPermission(WidgetRef ref) async {
-    NotificationSettings settings = await _fcm.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: true,
-      provisional: false,
-      sound: true,
-    );
+    try {
+      NotificationSettings settings = await _fcm.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: true,
+        provisional: false,
+        sound: true,
+      );
 
-    // iOS үшін дыбыс шығуын мәжбүрлеу (Foreground)
-    await _fcm.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+      // iOS үшін дыбыс шығуын мәжбүрлеу (Foreground)
+      await _fcm.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      debugPrint('User granted permission');
-      ref.read(nProvider.notifier).update((state) => true);
-      await SPService().setNotificationSubscription(true);
-      await _subscribe();
-    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-      debugPrint('User granted provisional permission');
-      ref.read(nProvider.notifier).update((state) => true);
-      await SPService().setNotificationSubscription(true);
-      await _subscribe();
-    } else {
-      debugPrint('User declined or has not accepted permission');
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        debugPrint('FCM: User granted permission');
+        ref.read(nProvider.notifier).update((state) => true);
+        await SPService().setNotificationSubscription(true);
+        await _subscribe();
+        await _logToken();
+      } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+        debugPrint('FCM: User granted provisional permission');
+        ref.read(nProvider.notifier).update((state) => true);
+        await SPService().setNotificationSubscription(true);
+        await _subscribe();
+        await _logToken();
+      } else {
+        debugPrint('FCM: User declined or has not accepted permission');
+      }
+    } catch (e) {
+      debugPrint('FCM: Error requesting permission: $e');
+    }
+  }
+
+  Future _logToken() async {
+    try {
+      final token = await _fcm.getToken();
+      debugPrint('FCM Token: $token');
+    } catch (e) {
+      debugPrint('FCM: Error getting token: $e');
     }
   }
 
   Future initFirebasePushNotification(BuildContext context, WidgetRef ref) async {
-    await _handleNotificationPermission(ref);
+    try {
+      await _handleNotificationPermission(ref);
 
-    RemoteMessage? initialMessage = await _fcm.getInitialMessage();
-    debugPrint('inittal message : $initialMessage');
-    if (initialMessage != null) {
-      await HiveService().saveNotificationData(initialMessage).then((value){
-        if(!context.mounted) return;
-        _navigateToDetailsScreen(context, initialMessage);
+      RemoteMessage? initialMessage = await _fcm.getInitialMessage();
+      debugPrint('FCM: initial message: $initialMessage');
+      if (initialMessage != null) {
+        await HiveService().saveNotificationData(initialMessage).then((value){
+          if(!context.mounted) return;
+          _navigateToDetailsScreen(context, initialMessage);
+        });
+      }
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        debugPrint('FCM onMessage: ${message.data}');
+        await HiveService().saveNotificationData(message).then((value){
+          if(!context.mounted) return;
+          _openNotificationDialog(context, message);
+        });
       });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+        debugPrint('FCM onMessageOpenedApp: ${message.data}');
+        await HiveService().saveNotificationData(message).then((value){
+          if(!context.mounted) return;
+          _navigateToDetailsScreen(context, message);
+        });
+      });
+    } catch (e) {
+      debugPrint('FCM: Error initializing push notifications: $e');
     }
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      debugPrint('onMessage: ${message.data}');
-      await HiveService().saveNotificationData(message).then((value){
-        if(!context.mounted) return;
-        _openNotificationDialog(context, message);
-      });
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      debugPrint('onMessageOppn: ${message.data}');
-      await HiveService().saveNotificationData(message).then((value){
-        if(!context.mounted) return;
-        _navigateToDetailsScreen(context, message);
-      });
-    });
   }
 
   Future _openNotificationDialog(context, RemoteMessage message) async {

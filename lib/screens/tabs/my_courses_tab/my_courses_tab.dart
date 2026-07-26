@@ -47,7 +47,7 @@ class MyCoursesTab extends ConsumerStatefulWidget {
   ConsumerState<MyCoursesTab> createState() => _MyCoursesTabState();
 }
 
-class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, SingleTickerProviderStateMixin {
+class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, TickerProviderStateMixin {
   late AnimationController _animationController;
   late TabController _tabController;
 
