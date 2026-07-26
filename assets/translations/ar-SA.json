@@ -149,5 +149,6 @@
     "name-required": "الاسم مطلوب",
     "min-6-chars": "6 أحرف على الأقل",
     "passwords-no-match": "كلمات المرور غير متطابقة",
-    "required": "مطلوب"
+    "required": "مطلوب",
+    "student": "طالب"
 }

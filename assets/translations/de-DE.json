@@ -149,5 +149,6 @@
     "name-required": "Name ist erforderlich",
     "min-6-chars": "Mindestens 6 Zeichen",
     "passwords-no-match": "Passwörter stimmen nicht überein",
-    "required": "Erforderlich"
+    "required": "Erforderlich",
+    "student": "Schüler"
 }

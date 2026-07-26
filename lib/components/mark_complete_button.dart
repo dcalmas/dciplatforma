@@ -16,7 +16,7 @@ class MarkCompleteButton extends ConsumerWidget with CourseMixin {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userDataProvider);
-    final bool isCompleted = isLessonCompleted(lesson, user);
+    final bool isCompleted = isLessonCompleted(lesson, user, course.id);
     final IconData icon = isCompleted ? Icons.clear : Icons.done;
     final String buttonText = isCompleted ? 'unmark-complete' : 'mark-complete';
 

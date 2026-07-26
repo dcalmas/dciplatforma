@@ -149,5 +149,6 @@
     "name-required": "请输入姓名",
     "min-6-chars": "至少6个字符",
     "passwords-no-match": "密码不匹配",
-    "required": "必填"
+    "required": "必填",
+    "student": "学生"
 }

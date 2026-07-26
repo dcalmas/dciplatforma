@@ -12,8 +12,12 @@ import 'package:lms_app/utils/snackbars.dart';
 import '../../services/content_security_service.dart';
 
 final selectedOptionProvider = StateProvider.autoDispose<int?>((ref) => null);
-final questionPageControllerProvider = Provider((ref) => PageController(initialPage: 0));
-final correctAnswerCountProvider = StateProvider<int>((ref) => 0);
+final questionPageControllerProvider = Provider.autoDispose<PageController>((ref) {
+  final controller = PageController(initialPage: 0);
+  ref.onDispose(() => controller.dispose());
+  return controller;
+});
+final correctAnswerCountProvider = StateProvider.autoDispose<int>((ref) => 0);
 final currentPageIndexProvider = StateProvider.autoDispose<int>((ref) => 0);
 
 class QuizLesson extends ConsumerStatefulWidget {

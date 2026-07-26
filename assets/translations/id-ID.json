@@ -149,5 +149,6 @@
     "name-required": "Nama wajib diisi",
     "min-6-chars": "Minimal 6 karakter",
     "passwords-no-match": "Kata sandi tidak cocok",
-    "required": "Wajib"
+    "required": "Wajib",
+    "student": "Siswa"
 }

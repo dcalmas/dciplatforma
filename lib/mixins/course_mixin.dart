@@ -4,12 +4,12 @@ import 'package:lms_app/models/user_model.dart';
 
 mixin CourseMixin {
 
-  bool isLessonCompleted(Lesson lesson, UserModel? user) {
-    if (user != null && user.completedLessons != null && user.completedLessons!.any((element) => element.toString().contains(lesson.id))) {
-      return true;
-    } else {
-      return false;
+  bool isLessonCompleted(Lesson lesson, UserModel? user, String courseId) {
+    if (user != null && user.completedLessons != null) {
+      final String completedId = '${courseId}_${lesson.id}';
+      return user.completedLessons!.any((element) => element.toString() == completedId);
     }
+    return false;
   }
 
   static String enrollButtonText(Course course, UserModel? user) {
@@ -23,7 +23,7 @@ mixin CourseMixin {
     } else {
       if (user.completedLessons == null || user.completedLessons!.isEmpty) return 'start-course';
       
-      List validIds = user.completedLessons!.where((element) => element.toString().contains(course.id)).toList();
+      List validIds = user.completedLessons!.where((element) => element.toString().startsWith('${course.id}_')).toList();
       final double courseProgess = validIds.isEmpty ? 0 : (validIds.length / (course.lessonsCount != 0 ? course.lessonsCount : 1));
       
       if (courseProgess == 0) {

@@ -40,6 +40,7 @@ class AuthService {
 
   Future<UserCredential?> signInWithFacebook() async {
     final LoginResult loginResult = await FacebookAuth.instance.login();
+    if (loginResult.status != LoginStatus.success || loginResult.accessToken == null) return null;
     final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!.token);
     return await _firebaseAuth.signInWithCredential(facebookAuthCredential);
   }
@@ -76,7 +77,8 @@ class AuthService {
   }
 
   Future userLogOut() async {
-    if (user != null) {
+    final currentUser = _firebaseAuth.currentUser;
+    if (currentUser != null) {
       await _firebaseAuth.signOut();
     } else {
       debugPrint('Not signed in');
@@ -95,7 +97,7 @@ class AuthService {
     try {
       user = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      debugPrint('error: e');
+      debugPrint('error: $e');
       if (!context.mounted) return null;
       openSnackbarFailure(context, e.message);
     }
@@ -105,7 +107,7 @@ class AuthService {
   Future deleteUserAuth() async {
     await user?.delete().catchError((e) {
       debugPrint('error on deleting account');
-      Fluttertoast.showToast(msg: e);
+      Fluttertoast.showToast(msg: e.toString());
     });
   }
 

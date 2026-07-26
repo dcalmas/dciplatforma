@@ -88,6 +88,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       openSnackbarFailure(context, 'profile-update-failed'.tr());
     }
 
+    if (!mounted) return;
     setState(() => _isUpdatingName = false);
   }
 
@@ -101,6 +102,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       _newPasswordController.text,
     );
 
+    if (!mounted) return;
     setState(() => _isUpdatingPassword = false);
 
     if (result && mounted) {

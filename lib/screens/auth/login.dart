@@ -12,6 +12,7 @@ import 'package:lms_app/screens/auth/sign_up.dart';
 import 'package:lms_app/core/home.dart';
 import 'package:lms_app/services/auth_service.dart';
 import 'package:lms_app/services/firebase_service.dart';
+import 'package:lms_app/services/sp_service.dart';
 import 'package:lms_app/utils/next_screen.dart';
 import '../../providers/user_data_provider.dart';
 import 'social_logins.dart';
@@ -67,6 +68,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void afterSignIn() async {
+    await SPService().clearGuestUser();
     if (widget.popUpScreen == null || widget.popUpScreen == false) {
       await ref.read(userDataProvider.notifier).fetchUserData();
       ref.read(userDataProvider.notifier).getData();

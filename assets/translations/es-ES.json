@@ -149,5 +149,6 @@
     "name-required": "El nombre es obligatorio",
     "min-6-chars": "Mínimo 6 caracteres",
     "passwords-no-match": "Las contraseñas no coinciden",
-    "required": "Obligatorio"
+    "required": "Obligatorio",
+    "student": "Estudiante"
 }

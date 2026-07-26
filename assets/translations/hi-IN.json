@@ -149,5 +149,6 @@
     "name-required": "नाम आवश्यक है",
     "min-6-chars": "कम से कम 6 अक्षर",
     "passwords-no-match": "पासवर्ड मेल नहीं खाते",
-    "required": "आवश्यक"
+    "required": "आवश्यक",
+    "student": "विद्यार्थी"
 }

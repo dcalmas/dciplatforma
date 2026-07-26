@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,9 @@ final nProvider = StateProvider<bool>((ref) => false);
 
 class NotificationService {
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  StreamSubscription<RemoteMessage>? _onMessageSub;
+  StreamSubscription<RemoteMessage>? _onMessageOpenedAppSub;
+  bool _listenersRegistered = false;
 
   Future<bool?> _checkPermisson() async {
     bool? accepted;
@@ -117,6 +121,11 @@ class NotificationService {
 
   Future initFirebasePushNotification() async {
     try {
+      if (_listenersRegistered) {
+        debugPrint('FCM: Listeners already registered, skipping');
+        return;
+      }
+
       await _handleNotificationPermission();
 
       RemoteMessage? initialMessage = await _fcm.getInitialMessage();
@@ -129,7 +138,7 @@ class NotificationService {
         }
       }
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      _onMessageSub = FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
         debugPrint('FCM onMessage: ${message.messageId}');
         debugPrint('FCM onMessage title: ${message.notification?.title}');
         await HiveService().saveNotificationData(message);
@@ -140,7 +149,7 @@ class NotificationService {
         }
       });
 
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      _onMessageOpenedAppSub = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
         debugPrint('FCM onMessageOpenedApp: ${message.messageId}');
         await HiveService().saveNotificationData(message);
         final ctx = _context;
@@ -149,6 +158,7 @@ class NotificationService {
         }
       });
 
+      _listenersRegistered = true;
       debugPrint('FCM: Listeners registered successfully');
     } catch (e) {
       debugPrint('FCM: Error initializing push notifications: $e');
@@ -164,5 +174,11 @@ class NotificationService {
     final NotificationModel notification = NotificationModel.fromRemoteMessage(message);
     HiveService().setNotificationRead(notification);
     NextScreen.normal(context, CustomNotificationDeatils(notificationModel: notification));
+  }
+
+  void dispose() {
+    _onMessageSub?.cancel();
+    _onMessageOpenedAppSub?.cancel();
+    _listenersRegistered = false;
   }
 }

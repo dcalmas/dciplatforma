@@ -7,6 +7,7 @@ import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/category.dart';
 import 'package:lms_app/screens/course_details.dart/details_view.dart';
 import 'package:lms_app/screens/notifications/notifications.dart';
+import 'package:lms_app/screens/auth/login.dart';
 import 'package:lms_app/screens/profile_page.dart';
 import 'package:lms_app/services/firebase_service.dart';
 import 'package:lms_app/utils/custom_cached_image.dart';
@@ -249,7 +250,14 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
       children: [
         // Profile Avatar
         GestureDetector(
-          onTap: () => NextScreen.iOS(context, const ProfilePage()),
+          onTap: () {
+            final currentUser = ref.read(userDataProvider);
+            if (currentUser == null) {
+              NextScreen.openBottomSheet(context, const LoginScreen(popUpScreen: true));
+            } else {
+              NextScreen.iOS(context, const ProfilePage());
+            }
+          },
           child: Container(
           width: 48,
           height: 48,
@@ -280,7 +288,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${user?.name ?? "Оқушы"} 👋',
+                '${user?.name ?? 'student'.tr()} 👋',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -450,7 +458,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                               const Icon(FeatherIcons.clock, color: Colors.white70, size: 14),
                               const SizedBox(width: 6),
                               Text(
-                                '${course.lessonsCount} сабақ',
+                                'count-lesson'.tr(args: [course.lessonsCount.toString()]),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -545,11 +553,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
             size: 20,
           ),
           border: InputBorder.none,
-          suffixIcon: Icon(
-            FeatherIcons.sliders,
-            color: primaryColor,
-            size: 18,
-          ),
         ),
       ),
     );
@@ -819,7 +822,7 @@ class _NotificationBell extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 Icon(
-                  hasUnread ? FeatherIcons.bell : FeatherIcons.bell,
+                  hasUnread ? FeatherIcons.bell : FeatherIcons.bellOff,
                   size: 19,
                   color: hasUnread ? primaryColor : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                 ),

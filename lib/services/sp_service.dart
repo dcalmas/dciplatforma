@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SPService {
   Future clearLocalData() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+    await prefs.clear();
   }
 
   Future setNotificationSubscription(bool value) async {
@@ -25,6 +25,11 @@ class SPService {
 
   Future setGuestUser() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('guest_user', true);
+    await prefs.setBool('guest_user', true);
+  }
+
+  Future clearGuestUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('guest_user');
   }
 }

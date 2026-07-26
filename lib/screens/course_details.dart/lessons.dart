@@ -50,7 +50,7 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
           itemCount: lessons.length,
           itemBuilder: (context, index) {
             final Lesson lesson = lessons[index];
-            final bool completed = isLessonCompleted(lesson, user);
+            final bool completed = isLessonCompleted(lesson, user, course.id);
 
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
@@ -144,7 +144,7 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
   }
 
   Widget _trailingIcon(Lesson lesson, UserModel? user, Color primaryColor) {
-    if (isLessonCompleted(lesson, user)) {
+    if (isLessonCompleted(lesson, user, course.id)) {
       return const Icon(Icons.check_circle_rounded, color: Colors.green, size: 22);
     } else {
       if (lesson.contentType == 'video' || lesson.contentType == 'iframe') {

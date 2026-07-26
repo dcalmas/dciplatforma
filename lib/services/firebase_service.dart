@@ -215,19 +215,19 @@ class FirebaseService {
   }
 
   Future<QuerySnapshot?> getAllReviews(String courseId, DocumentSnapshot? lastDocument) async {
-    QuerySnapshot? snapshot;
+    QuerySnapshot? result;
     final CollectionReference ref = firestore.collection('reviews');
     if (lastDocument == null) {
-      await ref.orderBy('created_at', descending: false).get().then((QuerySnapshot? snapshot) {
-        snapshot = snapshot;
+      await ref.orderBy('created_at', descending: false).get().then((QuerySnapshot? snap) {
+        result = snap;
       });
     } else {
-      await ref.orderBy('created_at', descending: false).startAfterDocument(lastDocument).get().then((QuerySnapshot? snapshot) {
-        snapshot = snapshot;
+      await ref.orderBy('created_at', descending: false).startAfterDocument(lastDocument).get().then((QuerySnapshot? snap) {
+        result = snap;
       });
     }
 
-    return snapshot;
+    return result;
   }
 
   Future<List<Tag>> getCourseTags(List tagIds) async {
