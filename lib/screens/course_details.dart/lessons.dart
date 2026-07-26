@@ -120,7 +120,7 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
                                       fontSize: 13,
                                       color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
                                     ),
-                                  ).tr(),
+                                  ),
                                 ),
                               ],
                             ),
