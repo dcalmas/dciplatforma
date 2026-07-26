@@ -7,7 +7,11 @@ import 'package:lms_app/screens/tabs/tests_tab/tests_tab.dart';
 import 'package:lms_app/screens/tabs/all_courses_tab.dart';
 import '../tabs/my_courses_tab/my_courses_tab.dart';
 
-final homeTabControllerProvider = StateProvider<PageController>((ref) => PageController(initialPage: 0));
+final homeTabControllerProvider = Provider.autoDispose<PageController>((ref) {
+  final controller = PageController(initialPage: 0);
+  ref.onDispose(() => controller.dispose());
+  return controller;
+});
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});

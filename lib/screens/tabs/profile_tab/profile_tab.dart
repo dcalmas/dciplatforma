@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/screens/profile_page.dart';
+import 'package:lms_app/components/user_avatar.dart';
 import 'package:lms_app/screens/tabs/profile_tab/settings.dart';
 import '../../../providers/user_data_provider.dart';
 import '../../../utils/next_screen.dart';
@@ -84,28 +85,11 @@ class ProfileTab extends ConsumerWidget {
               shape: BoxShape.circle,
               border: Border.all(color: primaryColor.withValues(alpha: 0.3), width: 2),
             ),
-            child: user.imageUrl != null && user.imageUrl!.isNotEmpty
-                ? ClipOval(
-                    child: Image.network(
-                      user.imageUrl!,
-                      width: 52,
-                      height: 52,
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                : Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: primaryColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      color: primaryColor,
-                      size: 26,
-                    ),
-                  ),
+            child: UserAvatar(
+              imageUrl: user.imageUrl,
+              radius: 26,
+              iconSize: 26,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(

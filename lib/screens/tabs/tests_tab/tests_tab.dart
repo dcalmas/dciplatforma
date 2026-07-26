@@ -129,7 +129,7 @@ class TestsTab extends ConsumerWidget with UserMixin {
                 final course = quizItem.course;
                 final lesson = quizItem.lesson;
 
-                final isCompleted = user?.completedLessons?.contains(lesson.id) ?? false;
+                final isCompleted = user?.completedLessons?.contains('${course.id}_${lesson.id}') ?? false;
                 final enrolled = hasEnrolled(user, course);
                 final isPremium = course.priceStatus != 'free';
                 final isPremiumUser = UserMixin.isUserPremium(user);
@@ -187,7 +187,7 @@ class TestsTab extends ConsumerWidget with UserMixin {
                           fontSize: 13,
                         ),
                       ).tr(args: [
-                        '0', // Start question index
+                        '1',
                         (lesson.questions?.length ?? 0).toString(),
                       ]),
                     ),

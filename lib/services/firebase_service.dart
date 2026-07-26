@@ -354,7 +354,7 @@ class FirebaseService {
   Future saveUserData(UserModel user) async {
     try {
       final data = UserModel.getMap(user);
-      await firestore.collection('users').doc(user.id).set(data);
+      await firestore.collection('users').doc(user.id).set(data, SetOptions(merge: true));
     } catch (e) {
       debugPrint('error on saving user data: $e');
     }

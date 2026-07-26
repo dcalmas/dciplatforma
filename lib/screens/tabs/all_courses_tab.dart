@@ -128,7 +128,6 @@ class AllCoursesTab extends ConsumerWidget {
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          mainAxisExtent: 250,
                           childAspectRatio: 0.68,
                           crossAxisSpacing: 14,
                           mainAxisSpacing: 14,
