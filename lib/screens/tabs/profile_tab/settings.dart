@@ -45,7 +45,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
                 onChanged: (value) => NotificationService().handleSubscription(context, value, ref),
               ),
             ),
-            const Divider(height: 1, indent: 54),
+            const Divider(height: 1, indent: 58),
             _buildSettingTile(
               icon: Icons.dark_mode_outlined,
               title: 'dark-mode'.tr(),
@@ -57,7 +57,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
               ),
             ),
             if (isMultilanguageEnbled) ...[
-              const Divider(height: 1, indent: 54),
+              const Divider(height: 1, indent: 58),
               _buildSettingTile(
                 icon: LineIcons.language,
                 title: 'language'.tr(),
@@ -66,7 +66,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
                 onTap: () => NextScreen.openBottomSheet(context, const Languages()),
               ),
             ],
-            const Divider(height: 1, indent: 54),
+            const Divider(height: 1, indent: 58),
             _buildSettingTile(
               icon: LineIcons.lock,
               title: 'privacy-policy'.tr(),
@@ -74,7 +74,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
               isDarkMode: isDarkMode,
               onTap: () => AppService().openLinkWithCustomTab(settings?.privacyUrl ?? ''),
             ),
-            const Divider(height: 1, indent: 54),
+            const Divider(height: 1, indent: 58),
             _buildSettingTile(
               icon: LineIcons.envelope,
               title: 'contact-us'.tr(),
@@ -82,7 +82,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
               isDarkMode: isDarkMode,
               onTap: () => AppService().openEmailSupport(settings?.supportEmail ?? ''),
             ),
-            const Divider(height: 1, indent: 54),
+            const Divider(height: 1, indent: 58),
             _buildSettingTile(
               icon: LineIcons.star,
               title: 'rate-app'.tr(),
@@ -94,7 +94,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
         ),
 
         if (user != null) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
           _buildCardContainer(
             cardBgColor,
             isDarkMode,
@@ -106,7 +106,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
                 isDarkMode: isDarkMode,
                 onTap: () => NextScreen.iOS(context, const DeleteAccount()),
               ),
-              const Divider(height: 1, indent: 54),
+              const Divider(height: 1, indent: 58),
               _buildSettingTile(
                 icon: FeatherIcons.logOut,
                 title: 'logout'.tr(),
@@ -119,7 +119,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
           ),
         ],
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 28),
         _buildSectionHeader(context, 'social'.tr(), isDarkMode),
         _buildCardContainer(
           cardBgColor,
@@ -165,12 +165,12 @@ class AppSettings extends ConsumerWidget with UserMixin {
 
   Widget _buildSectionHeader(BuildContext context, String title, bool isDarkMode) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10),
+      padding: const EdgeInsets.only(left: 4, bottom: 14),
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 12,
+          fontSize: 13,
           letterSpacing: 1.0,
           color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
         ),
@@ -183,7 +183,7 @@ class AppSettings extends ConsumerWidget with UserMixin {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
@@ -194,7 +194,10 @@ class AppSettings extends ConsumerWidget with UserMixin {
           ),
         ],
       ),
-      child: Column(children: children),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Column(children: children),
+      ),
     );
   }
 
@@ -209,25 +212,26 @@ class AppSettings extends ConsumerWidget with UserMixin {
   }) {
     return ListTile(
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 2),
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        width: 44,
+        height: 44,
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: (iconColor ?? primaryColor).withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
         ),
-        child: Icon(icon, size: 20, color: iconColor ?? primaryColor),
+        child: Icon(icon, size: 22, color: iconColor ?? primaryColor),
       ),
       title: Text(
         title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          fontSize: 15,
+          fontSize: 16,
           color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
         ),
       ),
-      trailing: trailing ?? Icon(FeatherIcons.chevronRight, size: 18, color: Colors.grey[400]),
+      trailing: trailing ?? Icon(FeatherIcons.chevronRight, size: 20, color: Colors.grey[400]),
     );
   }
 }
-

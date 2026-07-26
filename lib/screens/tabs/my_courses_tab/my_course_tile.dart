@@ -53,18 +53,18 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOutCubic,
         child: Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(14),
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: isDarkMode
                     ? Colors.black.withValues(alpha: 0.3)
-                    : Colors.indigo.withValues(alpha: 0.05),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
+                    : Colors.indigo.withValues(alpha: 0.06),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
@@ -72,17 +72,17 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
             children: [
               // Course Thumbnail with rounded corners
               ClipRRect(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
                 child: SizedBox(
-                  height: 95,
-                  width: 95,
+                  height: 100,
+                  width: 100,
                   child: Hero(
                     tag: heroTag,
-                    child: CustomCacheImage(imageUrl: widget.course.thumbnailUrl, radius: 18),
+                    child: CustomCacheImage(imageUrl: widget.course.thumbnailUrl, radius: 16),
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 16),
 
               // Course Details & Progress
               Expanded(
@@ -95,27 +95,27 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        height: 1.25,
+                        fontSize: 16,
+                        height: 1.3,
                         color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       widget.course.author.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: primaryColor,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
                     // Progress Bar
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(10),
                       child: LinearProgressIndicator(
                         value: courseProgress,
                         minHeight: 6,
@@ -125,7 +125,7 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
                     // Bottom Row: Percent & Action Button
                     Row(
@@ -136,17 +136,17 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
                               color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 10),
                         GestureDetector(
                           onTap: () => handleOpenCourse(context, user: widget.user, course: widget.course),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             decoration: BoxDecoration(
                               color: primaryColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(14),
@@ -158,7 +158,7 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
                               style: TextStyle(
                                 color: primaryColor,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: 13,
                               ),
                             ),
                           ),
@@ -175,4 +175,3 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
     );
   }
 }
-

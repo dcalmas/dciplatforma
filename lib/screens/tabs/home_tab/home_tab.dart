@@ -88,7 +88,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 ),
               ),
             ),
-            padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 12, 20, 12),
+            padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 16, 20, 16),
             child: _buildTopHeader(context, user, isDarkMode, primaryColor),
           ),
           Expanded(
@@ -131,62 +131,66 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
 
               return SingleChildScrollView(
                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 90),
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 90),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Active Course Card ("Continue Learning")
                     if (_searchQuery.isEmpty && activeCourse != null) ...[
                       _buildActiveCourseCard(context, activeCourse, user, primaryColor, isDarkMode),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 28),
                     ],
 
                     // Search & Filter input
                     _buildSearchBar(context, isDarkMode, primaryColor),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 24),
 
                     // Categories Horizontal Selector
                     if (_searchQuery.isEmpty)
                       categoriesState.when(
-                        loading: () => const SizedBox(height: 40),
-                        error: (err, stack) => const SizedBox(height: 40),
+                        loading: () => const SizedBox(height: 44),
+                        error: (err, stack) => const SizedBox(height: 44),
                         data: (categories) => _buildCategoryList(categories, isDarkMode, primaryColor),
                       ),
 
                     // Header for Search Results or Section Title
                     if (_searchQuery.isNotEmpty) ...[
-                      Text(
-                        '${"search".tr()}: "$_searchQuery"',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: isDarkMode ? Colors.white : Colors.black87,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(
+                          '${"search".tr()}: "$_searchQuery"',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: isDarkMode ? Colors.white : const Color(0xFF1E293B),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 12),
                     ] else ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'courses'.tr(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              color: isDarkMode ? Colors.white : const Color(0xFF1E293B),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'courses'.tr(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: isDarkMode ? Colors.white : const Color(0xFF1E293B),
+                              ),
                             ),
-                          ),
-                          Text(
-                            '${filteredCourses.length} ${"courses".tr().toLowerCase()}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                            Text(
+                              '${filteredCourses.length} ${"courses".tr().toLowerCase()}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 14),
                     ],
 
                     // Staggered Course List
@@ -293,11 +297,11 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  fontSize: 22,
                   color: isDarkMode ? Colors.white : const Color(0xFF1E293B),
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 'courses'.tr(),
                 style: TextStyle(
@@ -312,27 +316,27 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
 
         // Date Pill
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 10,
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Row(
             children: [
-              Icon(FeatherIcons.calendar, size: 14, color: primaryColor),
-              const SizedBox(width: 6),
+              Icon(FeatherIcons.calendar, size: 15, color: primaryColor),
+              const SizedBox(width: 8),
               Text(
                 monthName,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 13,
                   color: isDarkMode ? Colors.grey[300] : const Color(0xFF334155),
                 ),
               ),
@@ -362,6 +366,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
       },
       child: Container(
         width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 200),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -372,17 +377,12 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            bottomLeft: Radius.circular(24),
-            bottomRight: Radius.circular(24),
-            topRight: Radius.circular(64),
-          ),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: primaryColor.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: primaryColor.withValues(alpha: 0.35),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
             ),
           ],
         ),
@@ -390,25 +390,37 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
           children: [
             // Soft background circle design element
             Positioned(
-              right: -20,
-              top: -20,
+              right: -24,
+              top: -24,
               child: Container(
-                width: 140,
-                height: 140,
+                width: 160,
+                height: 160,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white.withValues(alpha: 0.08),
                 ),
               ),
             ),
+            Positioned(
+              right: 40,
+              bottom: -30,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.all(22.0),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Badge: "Оқуды жалғастыру"
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(14),
@@ -416,13 +428,13 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 14),
-                        const SizedBox(width: 6),
+                        const Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 16),
+                        const SizedBox(width: 8),
                         Text(
                           'my-courses'.tr(),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                           ),
@@ -430,7 +442,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
                   // Course Title
                   Text(
@@ -440,68 +452,70 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
-                      fontSize: 20,
+                      fontSize: 22,
                       height: 1.25,
                     ),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 24),
 
                   // Bottom Row: Duration/Progress + Circular Play Button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(FeatherIcons.clock, color: Colors.white70, size: 14),
-                              const SizedBox(width: 6),
-                              Text(
-                                'count-lesson'.tr(args: [course.lessonsCount.toString()]),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(FeatherIcons.clock, color: Colors.white70, size: 15),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'count-lesson'.tr(args: [course.lessonsCount.toString()]),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: 160,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: progressRatio > 0 ? progressRatio : 0.25,
+                                  backgroundColor: Colors.white.withValues(alpha: 0.25),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                  minHeight: 6,
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: 140,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: progressRatio > 0 ? progressRatio : 0.25,
-                                backgroundColor: Colors.white.withValues(alpha: 0.25),
-                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                                minHeight: 5,
-                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
 
                       // Prominent Circular Play Button
                       Container(
-                        width: 52,
-                        height: 52,
+                        width: 60,
+                        height: 60,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.15),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
                             ),
                           ],
                         ),
                         child: Icon(
                           Icons.play_arrow_rounded,
                           color: primaryColor,
-                          size: 32,
+                          size: 36,
                         ),
                       ),
                     ],
@@ -517,13 +531,14 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
 
   Widget _buildSearchBar(BuildContext context, bool isDarkMode, Color primaryColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 18),
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -545,14 +560,15 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
           hintText: 'search-placeholder'.tr(),
           hintStyle: TextStyle(
             color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
-            fontSize: 14,
+            fontSize: 15,
           ),
           icon: Icon(
             FeatherIcons.search,
             color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
-            size: 20,
+            size: 21,
           ),
           border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
     );
@@ -561,58 +577,57 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
   Widget _buildCategoryList(List<Category> categories, bool isDarkMode, Color primaryColor) {
     return Container(
       height: 44,
-      margin: const EdgeInsets.only(bottom: 20),
-      child: ListView.builder(
+      margin: const EdgeInsets.only(bottom: 24),
+      child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 0),
         itemCount: categories.length + 1,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final isAll = index == 0;
           final categoryId = isAll ? 'all' : categories[index - 1].id;
           final categoryName = isAll ? 'all-categories'.tr() : categories[index - 1].name;
           final isSelected = _selectedCategoryId == categoryId;
 
-          return Padding(
-            padding: const EdgeInsets.only(right: 10.0),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedCategoryId = categoryId;
-                });
-                _restartAnimations();
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                decoration: BoxDecoration(
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedCategoryId = categoryId;
+              });
+              _restartAnimations();
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? primaryColor
+                    : (isDarkMode ? const Color(0xFF1E202C) : Colors.white),
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  if (isSelected)
+                    BoxShadow(
+                      color: primaryColor.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    )
+                  else
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                ],
+              ),
+              child: Text(
+                categoryName,
+                style: TextStyle(
                   color: isSelected
-                      ? primaryColor
-                      : (isDarkMode ? const Color(0xFF1E202C) : Colors.white),
-                  borderRadius: BorderRadius.circular(22),
-                  boxShadow: [
-                    if (isSelected)
-                      BoxShadow(
-                        color: primaryColor.withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      )
-                    else
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                  ],
-                ),
-                child: Text(
-                  categoryName,
-                  style: TextStyle(
-                    color: isSelected
-                        ? Colors.white
-                        : (isDarkMode ? Colors.grey[300] : const Color(0xFF475569)),
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    fontSize: 13,
-                  ),
+                      ? Colors.white
+                      : (isDarkMode ? Colors.grey[300] : const Color(0xFF475569)),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -629,14 +644,14 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
                 ? Colors.black.withValues(alpha: 0.3)
-                : Colors.indigo.withValues(alpha: 0.05),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
+                : Colors.indigo.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -648,7 +663,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
           Stack(
             children: [
               SizedBox(
-                height: 180,
+                height: 190,
                 width: double.infinity,
                 child: Hero(
                   tag: heroTag,
@@ -662,7 +677,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 top: 14,
                 right: 14,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(12),
@@ -672,7 +687,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 11,
+                      fontSize: 12,
                     ),
                   ),
                 ),
@@ -680,7 +695,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(18.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -691,7 +706,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 17,
+                    fontSize: 16,
                     height: 1.3,
                     color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
                   ),
@@ -714,13 +729,13 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
+                    const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
                     const SizedBox(width: 4),
                     Text(
                       course.rating.toStringAsFixed(1),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 15,
                         color: isDarkMode ? Colors.white : Colors.black87,
                       ),
                     ),
@@ -803,8 +818,8 @@ class _NotificationBell extends StatelessWidget {
         return GestureDetector(
           onTap: () => NextScreen.iOS(context, const Notifications()),
           child: Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: hasUnread
                   ? primaryColor.withValues(alpha: 0.12)
@@ -812,8 +827,8 @@ class _NotificationBell extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -823,16 +838,16 @@ class _NotificationBell extends StatelessWidget {
               children: [
                 Icon(
                   hasUnread ? FeatherIcons.bell : FeatherIcons.bell,
-                  size: 19,
+                  size: 20,
                   color: hasUnread ? primaryColor : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                 ),
                 if (hasUnread)
                   Positioned(
-                    top: 6,
-                    right: 8,
+                    top: 8,
+                    right: 9,
                     child: Container(
-                      width: 8,
-                      height: 8,
+                      width: 9,
+                      height: 9,
                       decoration: const BoxDecoration(
                         color: Colors.redAccent,
                         shape: BoxShape.circle,
@@ -893,4 +908,3 @@ class _BouncingCardState extends State<_BouncingCard> {
     );
   }
 }
-

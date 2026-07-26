@@ -18,47 +18,75 @@ class GridCourseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final heroTag = UniqueKey();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return InkWell(
+      borderRadius: BorderRadius.circular(20),
       onTap: () => NextScreen.iOS(
           context,
           CourseDetailsView(
             course: course,
             heroTag: heroTag,
           )),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            children: [
-              Stack(
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: isDarkMode
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : Colors.indigo.withValues(alpha: 0.06),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                Container(
+                  height: gridStyle == GridStyle.grid ? 130 : 180,
+                  width: double.infinity,
+                  color: Colors.grey.shade100,
+                  child: Hero(tag: heroTag, child: CustomCacheImage(imageUrl: course.thumbnailUrl, radius: 0)),
+                ),
+                PremiumTag(course: course)
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    height: gridStyle == GridStyle.grid ? 130 : 180,
-                    color: Colors.grey.shade100,
-                    child: Hero(tag: heroTag, child: CustomCacheImage(imageUrl: course.thumbnailUrl, radius: 0)),
+                  Text(
+                    course.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                    ),
                   ),
-                  PremiumTag(course: course)
+                  const SizedBox(height: 8),
+                  Text(
+                    'count-students',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDarkMode ? Colors.grey[400] : Colors.blueGrey,
+                    ),
+                  ).tr(args: [course.studentsCount.toString()]),
+                  const SizedBox(height: 6),
+                  RatingViewer(rating: course.rating),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Text(
-            course.name,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            'count-students',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.blueGrey),
-          ).tr(args: [course.studentsCount.toString()]),
-          const SizedBox(height: 5),
-          RatingViewer(rating: course.rating),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

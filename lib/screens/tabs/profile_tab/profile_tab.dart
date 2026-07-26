@@ -63,11 +63,11 @@ class ProfileTab extends ConsumerWidget {
     final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(18),
+      margin: const EdgeInsets.only(bottom: 28),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
@@ -83,12 +83,12 @@ class ProfileTab extends ConsumerWidget {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: primaryColor.withValues(alpha: 0.3), width: 2),
+              border: Border.all(color: primaryColor.withValues(alpha: 0.3), width: 2.5),
             ),
             child: UserAvatar(
               imageUrl: user.imageUrl,
-              radius: 26,
-              iconSize: 26,
+              radius: 28,
+              iconSize: 28,
             ),
           ),
           const SizedBox(width: 16),
@@ -102,17 +102,17 @@ class ProfileTab extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontSize: 19,
                     color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 5),
                 Text(
                   user.email,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
@@ -128,4 +128,3 @@ class ProfileTab extends ConsumerWidget {
     );
   }
 }
-

@@ -29,7 +29,7 @@ class AllCoursesTab extends ConsumerWidget {
           children: [
             // Header
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
               decoration: BoxDecoration(
                 color: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
                 border: Border(
@@ -57,12 +57,12 @@ class AllCoursesTab extends ConsumerWidget {
                   Container(
                     decoration: BoxDecoration(
                       color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -124,13 +124,13 @@ class AllCoursesTab extends ConsumerWidget {
 
                     if (isGrid) {
                       return GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 90),
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           childAspectRatio: 0.68,
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 14,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
                         ),
                         itemCount: courses.length,
                         itemBuilder: (context, index) => GridCourseTile(course: courses[index], gridStyle: GridStyle.grid),
@@ -138,7 +138,7 @@ class AllCoursesTab extends ConsumerWidget {
                     }
 
                     return ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 90),
+                      padding: const EdgeInsets.fromLTRB(20, 14, 20, 90),
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       itemCount: courses.length,
                       itemBuilder: (context, index) => GridListCourseTile(course: courses[index]),
@@ -165,16 +165,16 @@ class AllCoursesTab extends ConsumerWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isActive ? primaryColor : Colors.transparent,
           borderRadius: BorderRadius.horizontal(
-            right: isLast ? const Radius.circular(12) : Radius.zero,
+            right: isLast ? const Radius.circular(14) : Radius.zero,
           ),
         ),
         child: Icon(
           icon,
-          size: 18,
+          size: 20,
           color: isActive ? Colors.white : (isDarkMode ? Colors.grey[500] : Colors.grey[400]),
         ),
       ),

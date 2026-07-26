@@ -121,9 +121,9 @@ class TestsTab extends ConsumerWidget with UserMixin {
             }
 
             return ListView.separated(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               itemCount: quizzes.length,
-              separatorBuilder: (context, index) => const Divider(height: 16),
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final quizItem = quizzes[index];
                 final course = quizItem.course;
@@ -136,14 +136,17 @@ class TestsTab extends ConsumerWidget with UserMixin {
                 final hasAccess = !isPremium || enrolled || isPremiumUser;
 
                 return Card(
-                  elevation: 1,
+                  elevation: 1.5,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   color: isDarkMode ? Colors.grey[900] : Colors.white,
+                  margin: EdgeInsets.zero,
                   child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     leading: Container(
+                      width: 50,
+                      height: 50,
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
@@ -152,7 +155,7 @@ class TestsTab extends ConsumerWidget with UserMixin {
                       child: Icon(
                         LineIcons.lightbulb,
                         color: Theme.of(context).primaryColor,
-                        size: 24,
+                        size: 26,
                       ),
                     ),
                     title: Column(
@@ -163,28 +166,28 @@ class TestsTab extends ConsumerWidget with UserMixin {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             color: Theme.of(context).primaryColor,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           lesson.name,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            fontSize: 17,
                           ),
                         ),
                       ],
                     ),
                     subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.only(top: 6),
                       child: Text(
                         'count-questions',
                         style: TextStyle(
                           color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                          fontSize: 13,
+                          fontSize: 14,
                         ),
                       ).tr(args: [
                         '1',
@@ -214,7 +217,7 @@ class TestsTab extends ConsumerWidget with UserMixin {
   Widget _buildTrailingWidget(BuildContext context, bool isCompleted, bool hasAccess, bool isDarkMode) {
     if (isCompleted) {
       return Container(
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(5),
         decoration: const BoxDecoration(
           color: Colors.green,
           shape: BoxShape.circle,
@@ -222,20 +225,20 @@ class TestsTab extends ConsumerWidget with UserMixin {
         child: const Icon(
           Icons.check,
           color: Colors.white,
-          size: 16,
+          size: 18,
         ),
       );
     } else if (!hasAccess) {
       return Icon(
         FeatherIcons.lock,
         color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
-        size: 20,
+        size: 22,
       );
     } else {
       return Icon(
         FeatherIcons.chevronRight,
         color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
-        size: 20,
+        size: 22,
       );
     }
   }

@@ -52,60 +52,86 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
             final Lesson lesson = lessons[index];
             final bool completed = isLessonCompleted(lesson, user, course.id);
 
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: cardBgColor,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: isDarkMode
-                        ? Colors.black.withValues(alpha: 0.2)
-                        : Colors.indigo.withValues(alpha: 0.04),
-                    blurRadius: 14,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ListTile(
-                onTap: () => _onTap(context, lesson, course, user, ref),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-                leading: Container(
-                  width: 38,
-                  height: 38,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: completed
-                        ? Colors.green.withValues(alpha: 0.12)
-                        : primaryColor.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${index + 1}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: completed ? Colors.green : primaryColor,
+            return GestureDetector(
+              onTap: () => _onTap(context, lesson, course, user, ref),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  color: cardBgColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: completed
+                      ? Border.all(color: Colors.green.withValues(alpha: 0.45), width: 1.5)
+                      : null,
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDarkMode
+                          ? Colors.black.withValues(alpha: 0.25)
+                          : Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: completed
+                              ? Colors.green.withValues(alpha: 0.12)
+                              : primaryColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: completed ? Colors.green : primaryColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              lesson.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                _contentTypeIcon(lesson, isDarkMode ? Colors.grey[400]! : Colors.grey[500]!),
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  child: Text(
+                                    _contentTypeLabel(lesson),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                                    ),
+                                  ).tr(),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _trailingIcon(lesson, user, primaryColor),
+                    ],
                   ),
                 ),
-                title: Text(
-                  lesson.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
-                  ),
-                ),
-                subtitle: Text(
-                  lesson.contentType == 'document' ? 'document' : lesson.contentType,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                  ),
-                ).tr(),
-                trailing: _trailingIcon(lesson, user, primaryColor),
               ),
             );
           },
@@ -143,20 +169,48 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
     AdManager.initInterstitailAds(ref);
   }
 
+  String _contentTypeLabel(Lesson lesson) {
+    switch (lesson.contentType) {
+      case 'video':
+        return 'Video';
+      case 'article':
+        return 'Article';
+      case 'document':
+        return 'Document';
+      case 'iframe':
+        return 'Video';
+      default:
+        return 'Quiz';
+    }
+  }
+
+  Widget _contentTypeIcon(Lesson lesson, Color color) {
+    switch (lesson.contentType) {
+      case 'video':
+      case 'iframe':
+        return Icon(FeatherIcons.playCircle, size: 14, color: color);
+      case 'article':
+        return Icon(LineIcons.stickyNote, size: 14, color: color);
+      case 'document':
+        return Icon(Icons.picture_as_pdf_rounded, size: 14, color: color);
+      default:
+        return Icon(LineIcons.lightbulb, size: 14, color: color);
+    }
+  }
+
   Widget _trailingIcon(Lesson lesson, UserModel? user, Color primaryColor) {
     if (isLessonCompleted(lesson, user, course.id)) {
       return const Icon(Icons.check_circle_rounded, color: Colors.green, size: 22);
     } else {
       if (lesson.contentType == 'video' || lesson.contentType == 'iframe') {
-        return Icon(FeatherIcons.playCircle, color: primaryColor, size: 20);
+        return Icon(FeatherIcons.playCircle, color: primaryColor, size: 22);
       } else if (lesson.contentType == 'article') {
-        return Icon(LineIcons.stickyNote, color: primaryColor, size: 20);
+        return Icon(LineIcons.stickyNote, color: primaryColor, size: 22);
       } else if (lesson.contentType == 'document') {
-        return const Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: 20);
+        return const Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: 22);
       } else {
-        return Icon(LineIcons.lightbulb, color: primaryColor, size: 20);
+        return Icon(LineIcons.lightbulb, color: primaryColor, size: 22);
       }
     }
   }
 }
-

@@ -84,19 +84,23 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, T
         elevation: 0,
         backgroundColor: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
         foregroundColor: isDarkMode ? Colors.white : const Color(0xFF0F172A),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: primaryColor,
-          unselectedLabelColor: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-          indicatorColor: primaryColor,
-          indicatorWeight: 3,
-          indicatorSize: TabBarIndicatorSize.label,
-          tabs: [
-            Tab(text: 'my-courses'.tr()),
-            Tab(text: 'wishlist'.tr()),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(52),
+          child: TabBar(
+            controller: _tabController,
+            labelColor: primaryColor,
+            unselectedLabelColor: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+            indicatorColor: primaryColor,
+            indicatorWeight: 3,
+            indicatorSize: TabBarIndicatorSize.label,
+            labelPadding: const EdgeInsets.symmetric(horizontal: 24),
+            tabs: [
+              Tab(text: 'my-courses'.tr()),
+              Tab(text: 'wishlist'.tr()),
+            ],
+          ),
         ),
       ),
       body: TabBarView(

@@ -21,10 +21,10 @@ class CourseInfo extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isDarkMode
               ? Colors.white.withValues(alpha: 0.06)
@@ -69,11 +69,12 @@ class CourseInfo extends StatelessWidget {
                           color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
                         ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         course.author.name,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 17,
                           color: primaryColor,
                         ),
                       ),
@@ -84,9 +85,14 @@ class CourseInfo extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          const Divider(height: 1),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
+          Divider(
+            height: 1,
+            color: isDarkMode
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.grey.withValues(alpha: 0.2),
+          ),
+          const SizedBox(height: 20),
 
           // Info Badges
           _buildInfoRow(
@@ -135,19 +141,21 @@ class CourseInfo extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          width: 40,
+          height: 40,
+          padding: const EdgeInsets.all(9),
           decoration: BoxDecoration(
             color: primaryColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, size: 18, color: primaryColor),
+          child: Icon(icon, size: 22, color: primaryColor),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
         Expanded(
           child: Text(
             title,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
               color: isDarkMode ? Colors.grey[300] : const Color(0xFF334155),
             ),
@@ -167,4 +175,3 @@ class CourseInfo extends StatelessWidget {
     }
   }
 }
-

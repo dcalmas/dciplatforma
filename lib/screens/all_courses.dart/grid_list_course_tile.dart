@@ -15,10 +15,29 @@ class GridListCourseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final heroTag = UniqueKey();
-    return Column(
-      children: [
-        InkWell(
-          onTap: () => NextScreen.iOS(context, CourseDetailsView(course: course, heroTag: heroTag)),
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: isDarkMode
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.indigo.withValues(alpha: 0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => NextScreen.iOS(context, CourseDetailsView(course: course, heroTag: heroTag)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -26,47 +45,53 @@ class GridListCourseTile extends StatelessWidget {
                 alignment: Alignment.topRight,
                 children: [
                   Container(
-                    height: 90,
+                    height: 110,
                     width: 100,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(3)),
-                    child: Hero(tag: heroTag, child: CustomCacheImage(imageUrl: course.thumbnailUrl, radius: 3)),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Hero(tag: heroTag, child: CustomCacheImage(imageUrl: course.thumbnailUrl, radius: 14)),
                   ),
                   PremiumTag(course: course),
                 ],
               ),
+              const SizedBox(width: 16),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        course.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      course.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
                       ),
-                      const SizedBox(height: 5),
-                      Text(
-                        'By ${course.author.name}',
-                        style: const TextStyle(color: Colors.purpleAccent),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'By ${course.author.name}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDarkMode ? Colors.grey[400] : Colors.purpleAccent,
                       ),
-                      const SizedBox(height: 5),
-                      Text('count-students', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.blueGrey)).tr(args: [
-                        course.studentsCount.toString(),
-                      ]),
-                      const SizedBox(height: 5),
-                      RatingViewer(rating: course.rating),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text('count-students', style: TextStyle(fontSize: 13, color: isDarkMode ? Colors.grey[400] : Colors.blueGrey)).tr(args: [
+                      course.studentsCount.toString(),
+                    ]),
+                    const SizedBox(height: 6),
+                    RatingViewer(rating: course.rating),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 15),
-        const Divider()
-      ],
+      ),
     );
   }
 }

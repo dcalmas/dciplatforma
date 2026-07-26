@@ -24,10 +24,12 @@ class BottomBar extends ConsumerWidget {
     final currentIndex = ref.watch(navBarIndexProvider);
     final isDarkMode = ref.watch(themeProvider).isDarkMode;
     final primaryColor = Theme.of(context).primaryColor;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return SafeArea(
       child: Container(
         height: 72,
+        width: screenWidth * 0.92,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
@@ -36,10 +38,10 @@ class BottomBar extends ConsumerWidget {
             BoxShadow(
               color: isDarkMode
                   ? Colors.black.withValues(alpha: 0.4)
-                  : Colors.indigo.withValues(alpha: 0.08),
-              blurRadius: 20,
+                  : Colors.indigo.withValues(alpha: 0.12),
+              blurRadius: 24,
               spreadRadius: 0,
-              offset: const Offset(0, 8),
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -68,8 +70,8 @@ class BottomBar extends ConsumerWidget {
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
                 padding: EdgeInsets.symmetric(
-                  horizontal: isSelected ? 16 : 8,
-                  vertical: 10,
+                  horizontal: isSelected ? 18 : 10,
+                  vertical: 12,
                 ),
                 decoration: BoxDecoration(
                   gradient: isSelected
@@ -90,7 +92,7 @@ class BottomBar extends ConsumerWidget {
                   children: [
                     Icon(
                       item['icon'] as IconData,
-                      size: isSelected ? 22 : 21,
+                      size: isSelected ? 24 : 22,
                       color: isSelected
                           ? primaryColor
                           : (isDarkMode ? Colors.grey[500] : Colors.grey[400]),
@@ -108,7 +110,7 @@ class BottomBar extends ConsumerWidget {
                                 style: TextStyle(
                                   color: primaryColor,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 13,
+                                  fontSize: 12,
                                 ),
                               ),
                             )
