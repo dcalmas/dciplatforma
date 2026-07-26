@@ -71,22 +71,40 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: SafeArea(
-        child: RefreshIndicator.adaptive(
-          onRefresh: () async {
-            ref.invalidate(allCoursesProvider);
-            ref.invalidate(categoriesProvider);
-            _restartAnimations();
-          },
-          child: coursesState.when(
-            loading: () => const Center(child: LoadingIndicatorWidget()),
-            error: (error, stack) => Center(
-              child: Text(
-                'error: $error',
-                style: const TextStyle(color: Colors.red),
+      body: Column(
+        children: [
+          // Top Header with subtle bottom border
+          Container(
+            decoration: BoxDecoration(
+              color: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
+              border: Border(
+                bottom: BorderSide(
+                  color: isDarkMode
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : const Color(0xFFE2E8F0),
+                  width: 1,
+                ),
               ),
             ),
-            data: (courses) {
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+            child: _buildTopHeader(context, user, isDarkMode, primaryColor),
+          ),
+          Expanded(
+            child: RefreshIndicator.adaptive(
+              onRefresh: () async {
+                ref.invalidate(allCoursesProvider);
+                ref.invalidate(categoriesProvider);
+                _restartAnimations();
+              },
+              child: coursesState.when(
+                loading: () => const Center(child: LoadingIndicatorWidget()),
+                error: (error, stack) => Center(
+                  child: Text(
+                    'error: $error',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+                data: (courses) {
               final List<Course> filteredCourses = courses.where((course) {
                 final matchesCategory =
                     _selectedCategoryId == 'all' || course.categoryId == _selectedCategoryId;
@@ -115,10 +133,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top Header
-                    _buildTopHeader(context, user, isDarkMode, primaryColor),
-                    const SizedBox(height: 20),
-
                     // Active Course Card ("Continue Learning")
                     if (_searchQuery.isEmpty && activeCourse != null) ...[
                       _buildActiveCourseCard(context, activeCourse, user, primaryColor, isDarkMode),
@@ -219,7 +233,9 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
               );
             },
           ),
-        ),
+          ),
+          ),
+        ],
       ),
     );
   }
@@ -322,7 +338,9 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
   Widget _buildActiveCourseCard(
       BuildContext context, Course course, dynamic user, Color primaryColor, bool isDarkMode) {
     final heroTag = UniqueKey();
-    final completedCount = user?.completedLessons?.length ?? 0;
+    final completedCount = (user?.completedLessons ?? [])
+        .where((e) => e.toString().startsWith('${course.id}_'))
+        .length;
     final totalLessons = course.lessonsCount > 0 ? course.lessonsCount : 10;
     final progressRatio = (completedCount / totalLessons).clamp(0.0, 1.0);
 

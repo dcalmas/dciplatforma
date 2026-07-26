@@ -88,9 +88,13 @@ class NotificationService {
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       debugPrint('User granted permission');
       ref.read(nProvider.notifier).update((state) => true);
-      SPService().setNotificationSubscription(true);
+      await SPService().setNotificationSubscription(true);
+      await _subscribe();
     } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
       debugPrint('User granted provisional permission');
+      ref.read(nProvider.notifier).update((state) => true);
+      await SPService().setNotificationSubscription(true);
+      await _subscribe();
     } else {
       debugPrint('User declined or has not accepted permission');
     }

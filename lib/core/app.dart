@@ -25,9 +25,8 @@ class _MyAppState extends ConsumerState<MyApp> {
   void initState() {
     super.initState();
     // Пуш-хабарламаларды инициализациялау
-    Future.microtask(() {
-      NotificationService().initFirebasePushNotification(context, ref);
-      NotificationService().checkNotificationSubscription(ref);
+    Future.microtask(() async {
+      await NotificationService().initFirebasePushNotification(context, ref);
     });
   }
 

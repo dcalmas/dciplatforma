@@ -27,14 +27,18 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).primaryColor;
 
-    List validIds = widget.user.completedLessons
-            ?.where((element) => element.toString().contains(widget.course.id))
-            .toList() ??
-        [];
+    final courseId = widget.course.id;
+    final completedList = widget.user.completedLessons ?? [];
+    List validIds = completedList
+        .where((element) {
+          final id = element.toString();
+          return id.startsWith('${courseId}_');
+        })
+        .toList();
+    final int totalLessons = widget.course.lessonsCount > 0 ? widget.course.lessonsCount : 1;
     final double courseProgress = validIds.isEmpty
-        ? 0
-        : (validIds.length / (widget.course.lessonsCount != 0 ? widget.course.lessonsCount : 1))
-            .clamp(0.0, 1.0);
+        ? 0.0
+        : (validIds.length / totalLessons).clamp(0.0, 1.0);
     final String courseProgressString = (courseProgress * 100).toStringAsFixed(0);
 
     return GestureDetector(
@@ -113,10 +117,12 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: LinearProgressIndicator(
-                        value: courseProgress > 0 ? courseProgress : 0.05,
+                        value: courseProgress,
                         minHeight: 6,
                         backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          courseProgress > 0 ? primaryColor : Colors.grey[300]!,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),

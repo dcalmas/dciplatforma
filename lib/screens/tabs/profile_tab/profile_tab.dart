@@ -20,8 +20,17 @@ class ProfileTab extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('profile').tr(),
         elevation: 0,
-        backgroundColor: bgColor,
+        backgroundColor: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
         foregroundColor: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            color: isDarkMode
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE2E8F0),
+          ),
+        ),
         titleTextStyle: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 22,

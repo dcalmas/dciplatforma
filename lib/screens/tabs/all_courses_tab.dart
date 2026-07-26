@@ -30,6 +30,17 @@ class AllCoursesTab extends ConsumerWidget {
             // Header
             Container(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              decoration: BoxDecoration(
+                color: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDarkMode
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : const Color(0xFFE2E8F0),
+                    width: 1,
+                  ),
+                ),
+              ),
               child: Row(
                 children: [
                   Expanded(

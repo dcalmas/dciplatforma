@@ -67,13 +67,22 @@ class TestsTab extends ConsumerWidget with UserMixin {
     return Scaffold(
       appBar: AppBar(
         title: const Text('tests').tr(),
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              fontSize: 20,
-              color: Colors.white,
-            ),
+        backgroundColor: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
+        foregroundColor: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            color: isDarkMode
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE2E8F0),
+          ),
+        ),
+        titleTextStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 20,
+          color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+        ),
       ),
       body: RefreshIndicator.adaptive(
         onRefresh: () async => await ref.refresh(allQuizzesProvider.future),

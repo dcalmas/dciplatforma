@@ -119,119 +119,50 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
     ));
 
-    final primaryColor = Theme.of(context).primaryColor;
-
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              primaryColor,
-              primaryColor.withValues(alpha: 0.85),
-              const Color(0xFF6366F1),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Stack(
-          children: [
-            // Background decorative circles
-            Positioned(
-              top: -80,
-              right: -60,
-              child: Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: -100,
-              left: -80,
-              child: Container(
-                width: 280,
-                height: 280,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.06),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 120,
-              left: -40,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.05),
-                ),
-              ),
-            ),
-
-            // Center content
-            Center(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.3),
-                            width: 2,
-                          ),
-                        ),
-                        child: Image.asset(
-                          logo,
-                          fit: BoxFit.contain,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      Lottie.asset(
-                        splashAnimation,
-                        controller: _controller,
-                        width: 160,
-                        fit: BoxFit.contain,
-                        onLoaded: (composition) {
-                          _controller
-                            ..duration = composition.duration
-                            ..forward().whenComplete(() {
-                              _onAnimComplete();
-                            });
-
-                          HapticFeedback.mediumImpact();
-                          Timer(
-                            Duration(milliseconds: (composition.duration.inMilliseconds * 0.5).toInt()),
-                            () => HapticFeedback.heavyImpact(),
-                          );
-                        },
-                      ),
-                    ],
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    logo,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.contain,
                   ),
-                ),
+                  const SizedBox(height: 28),
+                  Lottie.asset(
+                    splashAnimation,
+                    controller: _controller,
+                    width: 160,
+                    fit: BoxFit.contain,
+                    onLoaded: (composition) {
+                      _controller
+                        ..duration = composition.duration
+                        ..forward().whenComplete(() {
+                          _onAnimComplete();
+                        });
+
+                      HapticFeedback.mediumImpact();
+                      Timer(
+                        Duration(milliseconds: (composition.duration.inMilliseconds * 0.5).toInt()),
+                        () => HapticFeedback.heavyImpact(),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

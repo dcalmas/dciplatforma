@@ -92,8 +92,8 @@
 		<false/>
 		<key>LSMinimumSystemVersion</key>
 		<string>15.0.0</string>
-		<key>UIStatusBarHidden</key>
-		<true/>
+	<key>UIStatusBarHidden</key>
+	<false/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
 	</dict>

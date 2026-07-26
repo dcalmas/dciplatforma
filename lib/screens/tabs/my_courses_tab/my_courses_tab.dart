@@ -26,6 +26,20 @@ final myCoursesProvider = FutureProvider<List<Course>>((ref) async {
   return courses;
 });
 
+final wishlistCoursesProvider = FutureProvider<List<Course>>((ref) async {
+  final List<Course> courses = [];
+  final user = ref.watch(userDataProvider);
+  final courseIds = user?.wishList ?? [];
+  if (courseIds.isEmpty) return [];
+  final chunks = partition(courseIds, 10);
+
+  final querySnapshots = await Future.wait(chunks.map((chunk) => FirebaseService().getCoursesQuery(chunk)).toList());
+  for (var element in querySnapshots) {
+    courses.addAll(element.docs.map((e) => Course.fromFirestore(e)).toList());
+  }
+  return courses;
+});
+
 class MyCoursesTab extends ConsumerStatefulWidget {
   const MyCoursesTab({super.key});
 
@@ -35,6 +49,7 @@ class MyCoursesTab extends ConsumerStatefulWidget {
 
 class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  late TabController _tabController;
 
   @override
   void initState() {
@@ -43,11 +58,13 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, S
       vsync: this,
       duration: const Duration(milliseconds: 800),
     )..forward();
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -55,7 +72,9 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, S
   Widget build(BuildContext context) {
     final user = ref.watch(userDataProvider);
     final courses = ref.watch(myCoursesProvider);
+    final wishlistCourses = ref.watch(wishlistCoursesProvider);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
     final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
 
     return Scaffold(
@@ -63,45 +82,91 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, S
       appBar: AppBar(
         title: const Text('my-courses').tr(),
         elevation: 0,
-        backgroundColor: isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE),
+        backgroundColor: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
         foregroundColor: isDarkMode ? Colors.white : const Color(0xFF0F172A),
-        titleTextStyle: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 22,
-          color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: primaryColor,
+          unselectedLabelColor: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+          indicatorColor: primaryColor,
+          indicatorWeight: 3,
+          indicatorSize: TabBarIndicatorSize.label,
+          tabs: [
+            Tab(text: 'my-courses'.tr()),
+            Tab(text: 'wishlist'.tr()),
+          ],
         ),
       ),
-      body: RefreshIndicator.adaptive(
-        onRefresh: () async {
-          ref.invalidate(myCoursesProvider);
-          _animationController.reset();
-          _animationController.forward();
-        },
-        child: user == null || user.enrolledCourses == null || user.enrolledCourses!.isEmpty
-            ? const EmptyAnimation(animationString: emptyAnimation, title: 'No courses found')
-            : courses.when(
-                skipLoadingOnRefresh: false,
-                loading: () => const LoadingListTile(height: 200),
-                error: (error, stackTrace) => Center(
-                  child: Text(error.toString()),
-                ),
-                data: (data) {
-                  return ListView.builder(
-                    padding: const EdgeInsets.only(left: 20, right: 20, bottom: 90, top: 16),
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      final Course course = data[index];
-                      return StaggeredListItem(
-                        index: index,
-                        controller: _animationController,
-                        child: MyCourseTile(course: course, user: user),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Tab 1: Enrolled Courses
+          RefreshIndicator.adaptive(
+            onRefresh: () async {
+              ref.invalidate(myCoursesProvider);
+              _animationController.reset();
+              _animationController.forward();
+            },
+            child: user == null || user.enrolledCourses == null || user.enrolledCourses!.isEmpty
+                ? const EmptyAnimation(animationString: emptyAnimation, title: 'No courses found')
+                : courses.when(
+                    skipLoadingOnRefresh: false,
+                    loading: () => const LoadingListTile(height: 200),
+                    error: (error, stackTrace) => Center(
+                      child: Text(error.toString()),
+                    ),
+                    data: (data) {
+                      return ListView.builder(
+                        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 90, top: 16),
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          final Course course = data[index];
+                          return StaggeredListItem(
+                            index: index,
+                            controller: _animationController,
+                            child: MyCourseTile(course: course, user: user),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+          ),
+
+          // Tab 2: Wishlist Courses
+          RefreshIndicator.adaptive(
+            onRefresh: () async {
+              ref.invalidate(wishlistCoursesProvider);
+              _animationController.reset();
+              _animationController.forward();
+            },
+            child: user == null || user.wishList == null || user.wishList!.isEmpty
+                ? const EmptyAnimation(animationString: emptyAnimation, title: 'No courses found')
+                : wishlistCourses.when(
+                    skipLoadingOnRefresh: false,
+                    loading: () => const LoadingListTile(height: 200),
+                    error: (error, stackTrace) => Center(
+                      child: Text(error.toString()),
+                    ),
+                    data: (data) {
+                      return ListView.builder(
+                        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 90, top: 16),
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          final Course course = data[index];
+                          return StaggeredListItem(
+                            index: index,
+                            controller: _animationController,
+                            child: MyCourseTile(course: course, user: user),
+                          );
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
 }
-
