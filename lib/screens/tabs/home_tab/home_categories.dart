@@ -37,7 +37,7 @@ class HomeCategories extends ConsumerWidget {
                 TextButton(
                   onPressed: () {
                     ref.read(navBarIndexProvider.notifier).state = 1;
-                    ref.read(homeTabControllerProvider.notifier).state.animateToPage(1, duration: const Duration(milliseconds: 250), curve: Curves.easeIn);
+                    ref.read(homeTabControllerProvider).animateToPage(1, duration: const Duration(milliseconds: 250), curve: Curves.easeIn);
                   },
                   style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
                   child: Text(

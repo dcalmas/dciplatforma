@@ -53,7 +53,7 @@ class BottomBar extends ConsumerWidget {
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 ref.read(navBarIndexProvider.notifier).state = index;
-                final controller = ref.read(homeTabControllerProvider.notifier).state;
+                final controller = ref.read(homeTabControllerProvider);
                 if (_shouldAnimate(currentIndex, index)) {
                   controller.animateToPage(
                     index,
