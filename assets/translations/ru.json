@@ -146,5 +146,9 @@
   "premium": "Премиум",
   "unread-notifications": "непрочитанных уведомлений",
   "no-notification-subtitle": "Ваши уведомления появятся здесь, как только вы их получите",
-  "all-courses": "Все курсы"
+  "all-courses": "Все курсы",
+  "change-password": "Изменить пароль",
+  "current-password": "Текущий пароль",
+  "new-password": "Новый пароль",
+  "confirm-password": "Подтвердите пароль"
 }

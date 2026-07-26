@@ -138,5 +138,9 @@
     "premium": "高级",
     "unread-notifications": "未读通知",
     "no-notification-subtitle": "收到通知后将在此处显示",
-    "all-courses": "所有课程"
+    "all-courses": "所有课程",
+    "change-password": "修改密码",
+    "current-password": "当前密码",
+    "new-password": "新密码",
+    "confirm-password": "确认密码"
 }

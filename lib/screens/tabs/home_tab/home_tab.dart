@@ -7,6 +7,7 @@ import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/category.dart';
 import 'package:lms_app/screens/course_details.dart/details_view.dart';
 import 'package:lms_app/screens/notifications/notifications.dart';
+import 'package:lms_app/screens/profile_page.dart';
 import 'package:lms_app/services/firebase_service.dart';
 import 'package:lms_app/utils/custom_cached_image.dart';
 import 'package:lms_app/utils/loading_widget.dart';
@@ -86,7 +87,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 ),
               ),
             ),
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+            padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 12, 20, 12),
             child: _buildTopHeader(context, user, isDarkMode, primaryColor),
           ),
           Expanded(
@@ -247,7 +248,9 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
     return Row(
       children: [
         // Profile Avatar
-        Container(
+        GestureDetector(
+          onTap: () => NextScreen.iOS(context, const ProfilePage()),
+          child: Container(
           width: 48,
           height: 48,
           decoration: BoxDecoration(
@@ -266,6 +269,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
             child: user?.imageUrl != null && user!.imageUrl!.isNotEmpty
                 ? CustomCacheImage(imageUrl: user.imageUrl, radius: 24)
                 : Icon(FeatherIcons.user, color: primaryColor, size: 24),
+          ),
           ),
         ),
         const SizedBox(width: 14),

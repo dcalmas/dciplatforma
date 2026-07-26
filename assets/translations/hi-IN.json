@@ -138,5 +138,9 @@
     "premium": "प्रीमियम",
     "unread-notifications": "अपठित सूचनाएँ",
     "no-notification-subtitle": "आपकी सूचनाएँ यहाँ दिखाई देंगी जैसे ही आप उन्हें प्राप्त करेंगे",
-    "all-courses": "सभी पाठ्यक्रम"
+    "all-courses": "सभी पाठ्यक्रम",
+    "change-password": "पासवर्ड बदलें",
+    "current-password": "वर्तमान पासवर्ड",
+    "new-password": "नया पासवर्ड",
+    "confirm-password": "पासवर्ड की पुष्टि करें"
 }

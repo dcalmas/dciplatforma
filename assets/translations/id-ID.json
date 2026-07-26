@@ -138,5 +138,9 @@
     "premium": "Premium",
     "unread-notifications": "notifikasi belum dibaca",
     "no-notification-subtitle": "Notifikasi Anda akan muncul di sini begitu Anda menerimanya",
-    "all-courses": "Semua Kursus"
+    "all-courses": "Semua Kursus",
+    "change-password": "Ubah Kata Sandi",
+    "current-password": "Kata Sandi Saat Ini",
+    "new-password": "Kata Sandi Baru",
+    "confirm-password": "Konfirmasi Kata Sandi"
 }

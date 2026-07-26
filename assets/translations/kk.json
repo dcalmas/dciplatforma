@@ -146,5 +146,9 @@
   "premium": "Премиум",
   "unread-notifications": "оқылмаған хабарландырулар",
   "no-notification-subtitle": "Хабарландыруларыңыз алынған кезде олар осында көрсетіледі",
-  "all-courses": "Барлық курстар"
+  "all-courses": "Барлық курстар",
+  "change-password": "Құпия сөзді ауыстыру",
+  "current-password": "Ағымдағы құпия сөз",
+  "new-password": "Жаңа құпия сөз",
+  "confirm-password": "Құпия сөзді растаңыз"
 }

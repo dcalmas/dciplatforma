@@ -138,5 +138,9 @@
     "premium": "مميز",
     "unread-notifications": "إشعارات غير مقروءة",
     "no-notification-subtitle": "ستظهر إشعاراتك هنا بمجرد استلامها",
-    "all-courses": "جميع الدورات"
+    "all-courses": "جميع الدورات",
+    "change-password": "تغيير كلمة المرور",
+    "current-password": "كلمة المرور الحالية",
+    "new-password": "كلمة المرور الجديدة",
+    "confirm-password": "تأكيد كلمة المرور"
 }

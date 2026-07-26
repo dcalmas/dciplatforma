@@ -125,4 +125,24 @@ class AuthService {
       openSnackbarFailure(context, error.message);
     }
   }
+
+  Future<bool> changePassword(BuildContext context, String currentPassword, String newPassword) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) return false;
+
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPassword);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Error changing password: $e');
+      if (!context.mounted) return false;
+      openSnackbarFailure(context, e.message);
+      return false;
+    }
+  }
 }

@@ -129,30 +129,36 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
 
                     // Bottom Row: Percent & Action Button
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '$courseProgressString% ${"percent-completed".tr(args: [""])}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                        Expanded(
+                          child: Text(
+                            '$courseProgressString% ${"percent-completed".tr(args: [""])}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () => handleOpenCourse(context, user: widget.user, course: widget.course),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                               color: primaryColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Text(
                               CourseMixin.enrollButtonText(widget.course, widget.user).tr(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: primaryColor,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 11,
+                                fontSize: 10,
                               ),
                             ),
                           ),

@@ -138,5 +138,9 @@
     "premium": "Premium",
     "unread-notifications": "ungelesene Benachrichtigungen",
     "no-notification-subtitle": "Ihre Benachrichtigungen werden hier angezeigt, sobald Sie sie erhalten",
-    "all-courses": "Alle Kurse"
+    "all-courses": "Alle Kurse",
+    "change-password": "Passwort ändern",
+    "current-password": "Aktuelles Passwort",
+    "new-password": "Neues Passwort",
+    "confirm-password": "Passwort bestätigen"
 }
