@@ -142,5 +142,12 @@
     "change-password": "Alterar senha",
     "current-password": "Senha atual",
     "new-password": "Nova senha",
-    "confirm-password": "Confirmar senha"
+    "confirm-password": "Confirmar senha",
+    "profile-updated": "Perfil atualizado",
+    "profile-update-failed": "Falha ao atualizar perfil",
+    "password-changed": "Senha alterada com sucesso",
+    "name-required": "Nome é obrigatório",
+    "min-6-chars": "Mínimo de 6 caracteres",
+    "passwords-no-match": "As senhas não coincidem",
+    "required": "Obrigatório"
 }

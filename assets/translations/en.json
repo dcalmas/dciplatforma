@@ -150,5 +150,12 @@
     "change-password": "Change Password",
     "current-password": "Current Password",
     "new-password": "New Password",
-    "confirm-password": "Confirm Password"
+    "confirm-password": "Confirm Password",
+    "profile-updated": "Profile updated",
+    "profile-update-failed": "Failed to update profile",
+    "password-changed": "Password changed successfully",
+    "name-required": "Name is required",
+    "min-6-chars": "Minimum 6 characters",
+    "passwords-no-match": "Passwords do not match",
+    "required": "Required"
 }

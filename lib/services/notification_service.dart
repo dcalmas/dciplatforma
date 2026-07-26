@@ -9,6 +9,7 @@ import 'package:lms_app/services/sp_service.dart';
 import 'package:lms_app/utils/next_screen.dart';
 import 'package:lms_app/screens/notifications/notification_dialog.dart';
 import 'package:lms_app/utils/snackbars.dart';
+import '../core/app.dart';
 import '../models/notification_model.dart';
 import '../screens/notifications/notification_permisson_dialog.dart';
 
@@ -67,7 +68,7 @@ class NotificationService {
     }
   }
 
-  Future _handleNotificationPermission(WidgetRef ref) async {
+  Future _handleNotificationPermission() async {
     try {
       NotificationSettings settings = await _fcm.requestPermission(
         alert: true,
@@ -79,7 +80,6 @@ class NotificationService {
         sound: true,
       );
 
-      // iOS үшін дыбыс шығуын мәжбүрлеу (Foreground)
       await _fcm.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
@@ -88,13 +88,11 @@ class NotificationService {
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         debugPrint('FCM: User granted permission');
-        ref.read(nProvider.notifier).update((state) => true);
         await SPService().setNotificationSubscription(true);
         await _subscribe();
         await _logToken();
       } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
         debugPrint('FCM: User granted provisional permission');
-        ref.read(nProvider.notifier).update((state) => true);
         await SPService().setNotificationSubscription(true);
         await _subscribe();
         await _logToken();
@@ -115,40 +113,49 @@ class NotificationService {
     }
   }
 
-  Future initFirebasePushNotification(BuildContext context, WidgetRef ref) async {
+  BuildContext? get _context => navigatorKey.currentContext;
+
+  Future initFirebasePushNotification() async {
     try {
-      await _handleNotificationPermission(ref);
+      await _handleNotificationPermission();
 
       RemoteMessage? initialMessage = await _fcm.getInitialMessage();
       debugPrint('FCM: initial message: $initialMessage');
       if (initialMessage != null) {
-        await HiveService().saveNotificationData(initialMessage).then((value){
-          if(!context.mounted) return;
-          _navigateToDetailsScreen(context, initialMessage);
-        });
+        await HiveService().saveNotificationData(initialMessage);
+        final ctx = _context;
+        if (ctx != null && ctx.mounted) {
+          _navigateToDetailsScreen(ctx, initialMessage);
+        }
       }
 
       FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-        debugPrint('FCM onMessage: ${message.data}');
-        await HiveService().saveNotificationData(message).then((value){
-          if(!context.mounted) return;
-          _openNotificationDialog(context, message);
-        });
+        debugPrint('FCM onMessage: ${message.messageId}');
+        debugPrint('FCM onMessage title: ${message.notification?.title}');
+        await HiveService().saveNotificationData(message);
+        final ctx = _context;
+        debugPrint('FCM: context available: ${ctx != null}, mounted: ${ctx?.mounted}');
+        if (ctx != null && ctx.mounted) {
+          _openNotificationDialog(ctx, message);
+        }
       });
 
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-        debugPrint('FCM onMessageOpenedApp: ${message.data}');
-        await HiveService().saveNotificationData(message).then((value){
-          if(!context.mounted) return;
-          _navigateToDetailsScreen(context, message);
-        });
+        debugPrint('FCM onMessageOpenedApp: ${message.messageId}');
+        await HiveService().saveNotificationData(message);
+        final ctx = _context;
+        if (ctx != null && ctx.mounted) {
+          _navigateToDetailsScreen(ctx, message);
+        }
       });
+
+      debugPrint('FCM: Listeners registered successfully');
     } catch (e) {
       debugPrint('FCM: Error initializing push notifications: $e');
     }
   }
 
-  Future _openNotificationDialog(context, RemoteMessage message) async {
+  void _openNotificationDialog(context, RemoteMessage message) {
     final NotificationModel notificationModel = NotificationModel.fromRemoteMessage(message);
     notificationDialog(context, notificationModel);
   }

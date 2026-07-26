@@ -142,5 +142,12 @@
     "change-password": "पासवर्ड बदलें",
     "current-password": "वर्तमान पासवर्ड",
     "new-password": "नया पासवर्ड",
-    "confirm-password": "पासवर्ड की पुष्टि करें"
+    "confirm-password": "पासवर्ड की पुष्टि करें",
+    "profile-updated": "प्रोफ़ाइल अपडेट हो गई",
+    "profile-update-failed": "प्रोफ़ाइल अपडेट करने में विफल",
+    "password-changed": "पासवर्ड सफलतापूर्वक बदला गया",
+    "name-required": "नाम आवश्यक है",
+    "min-6-chars": "कम से कम 6 अक्षर",
+    "passwords-no-match": "पासवर्ड मेल नहीं खाते",
+    "required": "आवश्यक"
 }

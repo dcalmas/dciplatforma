@@ -82,10 +82,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
       if (!mounted) return;
       setState(() => _selectedImageFile = null);
-      openSnackbar(context, 'Profile updated');
+      openSnackbar(context, 'profile-updated'.tr());
     } catch (e) {
       if (!mounted) return;
-      openSnackbarFailure(context, 'Failed to update profile');
+      openSnackbarFailure(context, 'profile-update-failed'.tr());
     }
 
     setState(() => _isUpdatingName = false);
@@ -107,7 +107,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       _currentPasswordController.clear();
       _newPasswordController.clear();
       _confirmPasswordController.clear();
-      openSnackbar(context, 'Password changed successfully');
+      openSnackbar(context, 'password-changed'.tr());
     }
   }
 
@@ -318,7 +318,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (value) {
-                if (value == null || value.trim().isEmpty) return 'Name is required';
+                if (value == null || value.trim().isEmpty) return 'name-required'.tr();
                 return null;
               },
             ),
@@ -491,7 +491,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (value) {
-                if (value == null || value.isEmpty) return 'Required';
+                if (value == null || value.isEmpty) return 'required'.tr();
                 return null;
               },
             ),
@@ -528,8 +528,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (value) {
-                if (value == null || value.isEmpty) return 'Required';
-                if (value.length < 6) return 'Minimum 6 characters';
+                if (value == null || value.isEmpty) return 'required'.tr();
+                if (value.length < 6) return 'min-6-chars'.tr();
                 return null;
               },
             ),
@@ -566,8 +566,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (value) {
-                if (value == null || value.isEmpty) return 'Required';
-                if (value != _newPasswordController.text) return 'Passwords do not match';
+                if (value == null || value.isEmpty) return 'required'.tr();
+                if (value != _newPasswordController.text) return 'passwords-no-match'.tr();
                 return null;
               },
             ),

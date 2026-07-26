@@ -11,6 +11,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 
 final FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.instance;
 final FirebaseAnalyticsObserver firebaseObserver =  FirebaseAnalyticsObserver(analytics: firebaseAnalytics);
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
@@ -24,9 +25,8 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-    // Пуш-хабарламаларды инициализациялау
     Future.microtask(() async {
-      await NotificationService().initFirebasePushNotification(context, ref);
+      await NotificationService().initFirebasePushNotification();
     });
   }
 
@@ -36,6 +36,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     return MaterialApp(
       title: AppConfig.appName,
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       navigatorObservers: [firebaseObserver],
       supportedLocales: context.supportedLocales,
       localizationsDelegates: context.localizationDelegates,

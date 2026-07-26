@@ -142,5 +142,12 @@
     "change-password": "تغيير كلمة المرور",
     "current-password": "كلمة المرور الحالية",
     "new-password": "كلمة المرور الجديدة",
-    "confirm-password": "تأكيد كلمة المرور"
+    "confirm-password": "تأكيد كلمة المرور",
+    "profile-updated": "تم تحديث الملف الشخصي",
+    "profile-update-failed": "فشل في تحديث الملف الشخصي",
+    "password-changed": "تم تغيير كلمة المرور بنجاح",
+    "name-required": "الاسم مطلوب",
+    "min-6-chars": "6 أحرف على الأقل",
+    "passwords-no-match": "كلمات المرور غير متطابقة",
+    "required": "مطلوب"
 }

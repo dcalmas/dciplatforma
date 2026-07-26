@@ -110,7 +110,7 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, T
               _animationController.forward();
             },
             child: user == null || user.enrolledCourses == null || user.enrolledCourses!.isEmpty
-                ? const EmptyAnimation(animationString: emptyAnimation, title: 'No courses found')
+                ? EmptyAnimation(animationString: emptyAnimation, title: 'no-course'.tr())
                 : courses.when(
                     skipLoadingOnRefresh: false,
                     loading: () => const LoadingListTile(height: 200),
@@ -142,7 +142,7 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, T
               _animationController.forward();
             },
             child: user == null || user.wishList == null || user.wishList!.isEmpty
-                ? const EmptyAnimation(animationString: emptyAnimation, title: 'No courses found')
+                ? EmptyAnimation(animationString: emptyAnimation, title: 'no-course'.tr())
                 : wishlistCourses.when(
                     skipLoadingOnRefresh: false,
                     loading: () => const LoadingListTile(height: 200),

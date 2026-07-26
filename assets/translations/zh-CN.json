@@ -142,5 +142,12 @@
     "change-password": "修改密码",
     "current-password": "当前密码",
     "new-password": "新密码",
-    "confirm-password": "确认密码"
+    "confirm-password": "确认密码",
+    "profile-updated": "个人资料已更新",
+    "profile-update-failed": "更新个人资料失败",
+    "password-changed": "密码修改成功",
+    "name-required": "请输入姓名",
+    "min-6-chars": "至少6个字符",
+    "passwords-no-match": "密码不匹配",
+    "required": "必填"
 }

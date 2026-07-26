@@ -142,5 +142,12 @@
     "change-password": "Ubah Kata Sandi",
     "current-password": "Kata Sandi Saat Ini",
     "new-password": "Kata Sandi Baru",
-    "confirm-password": "Konfirmasi Kata Sandi"
+    "confirm-password": "Konfirmasi Kata Sandi",
+    "profile-updated": "Profil diperbarui",
+    "profile-update-failed": "Gagal memperbarui profil",
+    "password-changed": "Kata sandi berhasil diubah",
+    "name-required": "Nama wajib diisi",
+    "min-6-chars": "Minimal 6 karakter",
+    "passwords-no-match": "Kata sandi tidak cocok",
+    "required": "Wajib"
 }

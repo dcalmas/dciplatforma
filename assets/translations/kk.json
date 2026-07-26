@@ -150,5 +150,12 @@
   "change-password": "Құпия сөзді ауыстыру",
   "current-password": "Ағымдағы құпия сөз",
   "new-password": "Жаңа құпия сөз",
-  "confirm-password": "Құпия сөзді растаңыз"
+  "confirm-password": "Құпия сөзді растаңыз",
+  "profile-updated": "Профиль жаңартылды",
+  "profile-update-failed": "Профильді жаңарту мүмкін болмады",
+  "password-changed": "Құпия сөз сәтті өзгертілді",
+  "name-required": "Атты енгізіңіз",
+  "min-6-chars": "Кемінде 6 таңба",
+  "passwords-no-match": "Құпия сөздер сәйкес келмейді",
+  "required": "Міндетті өріс"
 }

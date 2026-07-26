@@ -21,23 +21,30 @@ Future<void> notificationDialog(context, NotificationModel notificationModel) {
     barrierDismissible: true,
     color: Theme.of(context).scaffoldBackgroundColor,
     actionsBuilder: (context) => [
-      IconsOutlineButton(
-        onPressed: () => Navigator.pop(context),
-        text: 'close'.tr(),
-        iconData: Icons.close,
-      ),
-      IconsOutlineButton(
-        onPressed: () async {
-          Navigator.pop(context);
-          await HiveService().setNotificationRead(notificationModel);
-          if(!context.mounted) return;
-          NextScreen.iOS(context, CustomNotificationDeatils(notificationModel: notificationModel));
-        },
-        text: 'open-details'.tr(),
-        iconData: LineIcons.bell,
-        color: Theme.of(context).primaryColor,
-        iconColor: Colors.white,
-        textStyle: const TextStyle(color: Colors.white),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        alignment: WrapAlignment.center,
+        children: [
+          IconsOutlineButton(
+            onPressed: () => Navigator.pop(context),
+            text: 'close'.tr(),
+            iconData: Icons.close,
+          ),
+          IconsOutlineButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await HiveService().setNotificationRead(notificationModel);
+              if(!context.mounted) return;
+              NextScreen.iOS(context, CustomNotificationDeatils(notificationModel: notificationModel));
+            },
+            text: 'open-details'.tr(),
+            iconData: LineIcons.bell,
+            color: Theme.of(context).primaryColor,
+            iconColor: Colors.white,
+            textStyle: const TextStyle(color: Colors.white),
+          ),
+        ],
       ),
     ],
   );

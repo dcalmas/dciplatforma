@@ -150,5 +150,12 @@
   "change-password": "Изменить пароль",
   "current-password": "Текущий пароль",
   "new-password": "Новый пароль",
-  "confirm-password": "Подтвердите пароль"
+  "confirm-password": "Подтвердите пароль",
+  "profile-updated": "Профиль обновлён",
+  "profile-update-failed": "Ошибка обновления профиля",
+  "password-changed": "Пароль успешно изменён",
+  "name-required": "Введите имя",
+  "min-6-chars": "Минимум 6 символов",
+  "passwords-no-match": "Пароли не совпадают",
+  "required": "Обязательное поле"
 }
