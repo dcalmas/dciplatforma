@@ -20,6 +20,7 @@ class NotificationService {
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   StreamSubscription<RemoteMessage>? _onMessageSub;
   StreamSubscription<RemoteMessage>? _onMessageOpenedAppSub;
+  StreamSubscription<String>? _onTokenRefreshSub;
   bool _listenersRegistered = false;
 
   Future<bool?> _checkPermisson() async {
@@ -158,6 +159,10 @@ class NotificationService {
         }
       });
 
+      _onTokenRefreshSub = _fcm.onTokenRefresh.listen((String token) {
+        debugPrint('FCM Token refreshed: $token');
+      });
+
       _listenersRegistered = true;
       debugPrint('FCM: Listeners registered successfully');
     } catch (e) {
@@ -179,6 +184,7 @@ class NotificationService {
   void dispose() {
     _onMessageSub?.cancel();
     _onMessageOpenedAppSub?.cancel();
+    _onTokenRefreshSub?.cancel();
     _listenersRegistered = false;
   }
 }
