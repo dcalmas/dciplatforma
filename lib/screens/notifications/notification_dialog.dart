@@ -10,11 +10,14 @@ import '../../models/notification_model.dart';
 import 'custom_notification_details.dart';
 
 Future<void> notificationDialog(context, NotificationModel notificationModel) {
+  final String displayText = notificationModel.body.isNotEmpty
+      ? '${notificationModel.title}\n\n${notificationModel.body}'
+      : notificationModel.title;
   return Dialogs.materialDialog(
     context: context,
     title: "notification-aleart".tr(),
     titleAlign: TextAlign.start,
-    msg: notificationModel.title,
+    msg: displayText,
     titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
     msgAlign: TextAlign.start,
     msgStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),

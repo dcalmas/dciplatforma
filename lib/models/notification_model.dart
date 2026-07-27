@@ -16,10 +16,9 @@ class NotificationModel {
   factory NotificationModel.fromRemoteMessage(RemoteMessage d) {
     return NotificationModel(
       id: d.messageId.toString(),
-      title: d.notification?.title ?? d.data['title'] ?? '',
+      title: d.notification?.title ?? d.data['title'] ?? d.data['headline'] ?? '',
       recievedAt: DateTime.now(),
-      // iOS-та data['description'] болмауы мүмкін, notification.body fallback ретінде
-      body: d.data['description'] ?? d.notification?.body ?? '',
+      body: d.notification?.body ?? d.data['description'] ?? d.data['body'] ?? d.data['text'] ?? '',
     );
   }
 
