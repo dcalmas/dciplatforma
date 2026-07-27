@@ -12,6 +12,9 @@ import 'configs/language_config.dart';
 @pragma('vm:entry-point')
 Future<void> _onBackgroundMessage(RemoteMessage message) async {
   debugPrint('onBackgroundMessage: ${message.messageId}');
+  // iOS-та background isolate бөлек жұмыс істейді — Firebase мен Hive қайта инициализацияланады
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await HiveService.initHive();
   await HiveService().saveNotificationData(message);
 }
 
