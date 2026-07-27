@@ -17,7 +17,7 @@ final questionPageControllerProvider = Provider.autoDispose<PageController>((ref
   ref.onDispose(() => controller.dispose());
   return controller;
 });
-final correctAnswerCountProvider = StateProvider.autoDispose<int>((ref) => 0);
+final correctAnswerCountProvider = StateProvider<int>((ref) => 0);
 final currentPageIndexProvider = StateProvider.autoDispose<int>((ref) => 0);
 
 class QuizLesson extends ConsumerStatefulWidget {
