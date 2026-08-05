@@ -18,10 +18,10 @@ class GridListCourseTile extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
@@ -34,10 +34,10 @@ class GridListCourseTile extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         onTap: () => NextScreen.iOS(context, CourseDetailsView(course: course, heroTag: heroTag)),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -45,8 +45,8 @@ class GridListCourseTile extends StatelessWidget {
                 alignment: Alignment.topRight,
                 children: [
                   Container(
-                    height: 110,
-                    width: 100,
+                    height: 105,
+                    width: 105,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -56,7 +56,7 @@ class GridListCourseTile extends StatelessWidget {
                   PremiumTag(course: course),
                 ],
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

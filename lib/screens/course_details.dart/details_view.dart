@@ -39,12 +39,9 @@ class CourseDetailsView extends ConsumerWidget {
           color: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
           boxShadow: [
             BoxShadow(
-              color: isDarkMode
-                  ? Colors.black.withValues(alpha: 0.4)
-                  : Colors.black.withValues(alpha: 0.08),
-              blurRadius: 24,
-              spreadRadius: -2,
-              offset: const Offset(0, -6),
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, -4),
             ),
           ],
         ),
@@ -56,72 +53,106 @@ class CourseDetailsView extends ConsumerWidget {
           ],
         ),
       ),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            pinned: false,
-            floating: true,
-            expandedHeight: 320,
-            backgroundColor: bgColor,
-            elevation: 0,
-            leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(FeatherIcons.chevronLeft),
+      appBar: AppBar(
+        backgroundColor: bgColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leadingWidth: 64,
+        leading: Center(
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                FeatherIcons.chevronLeft,
+                size: 22,
+                color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+              ),
             ),
-            actions: [
-              BookmarkButton(course: course),
-              ReviewButton(course: course),
-              CourseShareButton(course: course),
-              const SizedBox(width: 10),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                color: bgColor,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 80, 20, 20),
-                  child: PreviewBox(course: course, heroTag: heroTag),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 14),
+            child: Center(
+              child: Container(
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(width: 36, height: 36, child: BookmarkButton(course: course, compact: true)),
+                    SizedBox(width: 36, height: 36, child: ReviewButton(course: course, compact: true)),
+                    SizedBox(width: 36, height: 36, child: CourseShareButton(course: course, compact: true)),
+                  ],
                 ),
               ),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                TitleInfo(course: course),
-                CourseInfo(course: course),
-                Learnings(course: course),
-                _buildSectionCard(
-                  isDarkMode: isDarkMode,
-                  cardBgColor: cardBgColor,
-                  primaryColor: primaryColor,
-                  child: Curriculam(course: course),
-                ),
-                Requirements(course: course),
-                CourseDescription(course: course),
-                _buildSectionCard(
-                  isDarkMode: isDarkMode,
-                  cardBgColor: cardBgColor,
-                  primaryColor: primaryColor,
-                  child: CourseTags(course: course),
-                ),
-                _buildSectionCard(
-                  isDarkMode: isDarkMode,
-                  cardBgColor: cardBgColor,
-                  primaryColor: primaryColor,
-                  child: RelatedCourses(course: course),
-                ),
-                _buildSectionCard(
-                  isDarkMode: isDarkMode,
-                  cardBgColor: cardBgColor,
-                  primaryColor: primaryColor,
-                  child: CourseReviews(course: course),
-                ),
-              ]),
-            ),
-          ),
         ],
+      ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(14, 8, 14, 90),
+        child: Column(
+          children: [
+            PreviewBox(course: course, heroTag: heroTag),
+            const SizedBox(height: 14),
+            TitleInfo(course: course),
+            const SizedBox(height: 14),
+            CourseInfo(course: course),
+            Learnings(course: course),
+            _buildSectionCard(
+              isDarkMode: isDarkMode,
+              cardBgColor: cardBgColor,
+              primaryColor: primaryColor,
+              child: Curriculam(course: course),
+            ),
+            Requirements(course: course),
+            CourseDescription(course: course),
+            _buildSectionCard(
+              isDarkMode: isDarkMode,
+              cardBgColor: cardBgColor,
+              primaryColor: primaryColor,
+              child: CourseTags(course: course),
+            ),
+            _buildSectionCard(
+              isDarkMode: isDarkMode,
+              cardBgColor: cardBgColor,
+              primaryColor: primaryColor,
+              child: RelatedCourses(course: course),
+            ),
+            _buildSectionCard(
+              isDarkMode: isDarkMode,
+              cardBgColor: cardBgColor,
+              primaryColor: primaryColor,
+              child: CourseReviews(course: course),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -134,8 +165,8 @@ class CourseDetailsView extends ConsumerWidget {
   }) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardBgColor,
         borderRadius: BorderRadius.circular(20),

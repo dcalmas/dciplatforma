@@ -14,29 +14,44 @@ import '../../providers/user_data_provider.dart';
 import '../../services/firebase_service.dart';
 
 class ReviewButton extends ConsumerWidget with UserMixin {
-  const ReviewButton({super.key, required this.course});
+  const ReviewButton({super.key, required this.course, this.compact = false});
   final Course course;
+  final bool compact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final UserModel? user = ref.watch(userDataProvider);
-    return IconButton(
-      tooltip: 'Rate this course',
-      onPressed: () async {
-        final UserModel? user = ref.read(userDataProvider);
-        if (user == null) {
-          NextScreen.openBottomSheet(context, const LoginScreen(popUpScreen: true));
-        } else if (!hasEnrolled(user, course)) {
-          openSnackbar(context, 'enroll-to-make-reviews'.tr());
-        } else {
-          final Review? review = await FirebaseService().getUserReview(course.id, user.id);
-          if (!context.mounted) return;
-          NextScreen.openBottomSheet(context, RatingForm(review: review, course: course));
-        }
-      },
-      icon: user != null && user.reviews!.contains(course.id)
-          ? const Icon(LineIcons.starAlt, size: 22, color: Colors.orange)
-          : const Icon(LineIcons.star, size: 22),
-    );
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDarkMode ? Colors.white : const Color(0xFF0F172A);
+    final icon = user != null && user.reviews!.contains(course.id)
+        ? const Icon(LineIcons.starAlt, size: 20, color: Colors.orange)
+        : Icon(LineIcons.star, size: 20, color: iconColor);
+
+    if (compact) {
+      return GestureDetector(
+        onTap: () => _handleReview(context, ref),
+        child: Container(
+          width: 40,
+          height: 40,
+          alignment: Alignment.center,
+          child: icon,
+        ),
+      );
+    }
+
+    return IconButton(tooltip: 'Rate this course', onPressed: () => _handleReview(context, ref), icon: icon);
+  }
+
+  Future<void> _handleReview(BuildContext context, WidgetRef ref) async {
+    final UserModel? user = ref.read(userDataProvider);
+    if (user == null) {
+      NextScreen.openBottomSheet(context, const LoginScreen(popUpScreen: true));
+    } else if (!hasEnrolled(user, course)) {
+      openSnackbar(context, 'enroll-to-make-reviews'.tr());
+    } else {
+      final Review? review = await FirebaseService().getUserReview(course.id, user.id);
+      if (!context.mounted) return;
+      NextScreen.openBottomSheet(context, RatingForm(review: review, course: course));
+    }
   }
 }

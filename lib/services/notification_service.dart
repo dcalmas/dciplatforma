@@ -127,6 +127,13 @@ class NotificationService {
         return;
       }
 
+      // iOS foreground presentation options
+      await _fcm.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
       await _handleNotificationPermission();
 
       RemoteMessage? initialMessage = await _fcm.getInitialMessage();
@@ -170,9 +177,13 @@ class NotificationService {
     }
   }
 
-  void _openNotificationDialog(context, RemoteMessage message) {
-    final NotificationModel notificationModel = NotificationModel.fromRemoteMessage(message);
-    notificationDialog(context, notificationModel);
+  void _openNotificationDialog(BuildContext context, RemoteMessage message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        final NotificationModel notificationModel = NotificationModel.fromRemoteMessage(message);
+        notificationDialog(context, notificationModel);
+      }
+    });
   }
 
   _navigateToDetailsScreen(context, RemoteMessage message) async {

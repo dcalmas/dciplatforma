@@ -17,20 +17,14 @@ class CourseInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).primaryColor;
-    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : const Color(0xFFFAFAFA);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardBgColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDarkMode
-              ? Colors.white.withValues(alpha: 0.06)
-              : primaryColor.withValues(alpha: 0.1),
-          width: 1.5,
-        ),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
@@ -50,11 +44,13 @@ class CourseInfo extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: primaryColor.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
+                  alignment: Alignment.center,
                   child: Icon(FeatherIcons.user, size: 20, color: primaryColor),
                 ),
                 const SizedBox(width: 14),
@@ -72,9 +68,11 @@ class CourseInfo extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         course.author.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 17,
+                          fontSize: 16,
                           color: primaryColor,
                         ),
                       ),
@@ -85,42 +83,38 @@ class CourseInfo extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Divider(
             height: 1,
             color: isDarkMode
                 ? Colors.white.withValues(alpha: 0.08)
-                : Colors.grey.withValues(alpha: 0.2),
+                : Colors.black.withValues(alpha: 0.06),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
 
-          // Info Badges
+          // Info Items
           _buildInfoRow(
-            context,
             icon: FeatherIcons.calendar,
             title: 'last-updated-'.tr(args: [AppService.getDate(course.updatedAt ?? course.createdAt)]),
             isDarkMode: isDarkMode,
             primaryColor: primaryColor,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildInfoRow(
-            context,
             icon: FeatherIcons.globe,
             title: 'language-'.tr(args: [course.courseMeta.language.toString()]),
             isDarkMode: isDarkMode,
             primaryColor: primaryColor,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildInfoRow(
-            context,
             icon: FeatherIcons.clock,
             title: 'duration-'.tr(args: [course.courseMeta.duration.toString()]),
             isDarkMode: isDarkMode,
             primaryColor: primaryColor,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildInfoRow(
-            context,
             icon: FeatherIcons.bookOpen,
             title: 'count-lesson'.tr(args: [course.lessonsCount.toString()]),
             isDarkMode: isDarkMode,
@@ -131,8 +125,7 @@ class CourseInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(
-    BuildContext context, {
+  Widget _buildInfoRow({
     required IconData icon,
     required String title,
     required bool isDarkMode,
@@ -141,21 +134,21 @@ class CourseInfo extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 40,
-          height: 40,
-          padding: const EdgeInsets.all(9),
-          decoration: BoxDecoration(
-            color: primaryColor.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
+          width: 32,
+          height: 32,
+          decoration: const BoxDecoration(
+            color: Color(0xFFFDE7F0),
+            shape: BoxShape.circle,
           ),
-          child: Icon(icon, size: 22, color: primaryColor),
+          alignment: Alignment.center,
+          child: Icon(icon, size: 16, color: primaryColor),
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 12),
         Expanded(
           child: Text(
             title,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: isDarkMode ? Colors.grey[300] : const Color(0xFF334155),
             ),

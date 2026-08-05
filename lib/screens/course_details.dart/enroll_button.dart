@@ -51,14 +51,15 @@ class EnrollButton extends ConsumerWidget with UserMixin {
             ],
             Expanded(
               child: SizedBox(
-                height: 50,
+                height: 56,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                     elevation: 0,
                     shadowColor: primaryColor.withValues(alpha: 0.4),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   onPressed: () async {
                     ref.read(_isLoadingEnrollmentProvider.notifier).state = true;
@@ -72,7 +73,7 @@ class EnrollButton extends ConsumerWidget with UserMixin {
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ).tr(),
                 ),

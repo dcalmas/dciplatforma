@@ -75,18 +75,34 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
       backgroundColor: bgColor,
       body: Column(
         children: [
-          // Top Header with subtle bottom border
+          // Top Header with gradient background and subtle divider
           Container(
             decoration: BoxDecoration(
-              color: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
+              gradient: isDarkMode
+                  ? null
+                  : const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFFFFFFF), Color(0xFFF7F6FB)],
+                    ),
+              color: isDarkMode ? const Color(0xFF0F111A) : null,
               border: Border(
                 bottom: BorderSide(
                   color: isDarkMode
                       ? Colors.white.withValues(alpha: 0.08)
-                      : const Color(0xFFE2E8F0),
+                      : const Color(0x0F000000),
                   width: 1,
                 ),
               ),
+              boxShadow: isDarkMode
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
             ),
             padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 16, 20, 16),
             child: _buildTopHeader(context, user, isDarkMode, primaryColor),
@@ -131,19 +147,19 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
 
               return SingleChildScrollView(
                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 90),
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 90),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Active Course Card ("Continue Learning")
                     if (_searchQuery.isEmpty && activeCourse != null) ...[
                       _buildActiveCourseCard(context, activeCourse, user, primaryColor, isDarkMode),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 20),
                     ],
 
                     // Search & Filter input
                     _buildSearchBar(context, isDarkMode, primaryColor),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
                     // Categories Horizontal Selector
                     if (_searchQuery.isEmpty)
@@ -377,12 +393,12 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: primaryColor.withValues(alpha: 0.35),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
+              color: primaryColor.withValues(alpha: 0.3),
+              blurRadius: 28,
+              offset: const Offset(0, 14),
             ),
           ],
         ),
@@ -397,7 +413,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 height: 160,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.08),
+                  color: Colors.white.withValues(alpha: 0.15),
                 ),
               ),
             ),
@@ -409,7 +425,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: Colors.white.withValues(alpha: 0.15),
                 ),
               ),
             ),
@@ -442,7 +458,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Course Title
                   Text(
@@ -456,7 +472,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                       height: 1.25,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
                   // Bottom Row: Duration/Progress + Circular Play Button
                   Row(
@@ -481,16 +497,13 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                               ],
                             ),
                             const SizedBox(height: 10),
-                            SizedBox(
-                              width: 160,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: LinearProgressIndicator(
-                                  value: progressRatio > 0 ? progressRatio : 0.25,
-                                  backgroundColor: Colors.white.withValues(alpha: 0.25),
-                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                                  minHeight: 6,
-                                ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: LinearProgressIndicator(
+                                value: progressRatio > 0 ? progressRatio : 0.25,
+                                backgroundColor: Colors.white.withValues(alpha: 0.25),
+                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                minHeight: 8,
                               ),
                             ),
                           ],
@@ -499,23 +512,23 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
 
                       // Prominent Circular Play Button
                       Container(
-                        width: 60,
-                        height: 60,
+                        width: 66,
+                        height: 66,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
-                              blurRadius: 16,
-                              offset: const Offset(0, 6),
+                              color: Colors.black.withValues(alpha: 0.18),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
                           ],
                         ),
                         child: Icon(
                           Icons.play_arrow_rounded,
                           color: primaryColor,
-                          size: 36,
+                          size: 38,
                         ),
                       ),
                     ],
@@ -577,7 +590,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
   Widget _buildCategoryList(List<Category> categories, bool isDarkMode, Color primaryColor) {
     return Container(
       height: 44,
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 4),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -641,7 +654,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
       BuildContext context, Course course, bool isDarkMode, Color cardBgColor, Color primaryColor) {
     final heroTag = UniqueKey();
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: cardBgColor,
         borderRadius: BorderRadius.circular(20),
@@ -649,9 +662,9 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
           BoxShadow(
             color: isDarkMode
                 ? Colors.black.withValues(alpha: 0.3)
-                : Colors.indigo.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+                : Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -679,8 +692,15 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.6),
+                    color: Colors.black.withValues(alpha: 0.55),
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Text(
                     course.priceStatus == 'free' ? 'free'.tr() : 'premium'.tr(),
@@ -695,7 +715,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

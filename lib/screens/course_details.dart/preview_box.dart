@@ -31,29 +31,29 @@ class PreviewBox extends StatelessWidget {
             }
           },
           child: Container(
-            height: 210,
+            height: 220,
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
                   color: isDarkMode
                       ? Colors.black.withValues(alpha: 0.4)
                       : Colors.indigo.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(20),
               child: HeroMode(
                 enabled: heroTag != null,
                 child: Hero(
                   tag: heroTag ?? '',
                   child: hasVideoPreview
-                      ? CustomCacheImageWithDarkFilterFull(imageUrl: course.thumbnailUrl, radius: 24)
-                      : CustomCacheImage(imageUrl: course.thumbnailUrl, radius: 24),
+                      ? CustomCacheImageWithDarkFilterFull(imageUrl: course.thumbnailUrl, radius: 20)
+                      : CustomCacheImage(imageUrl: course.thumbnailUrl, radius: 20),
                 ),
               ),
             ),

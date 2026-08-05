@@ -18,18 +18,18 @@ class TitleInfo extends ConsumerWidget {
     final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
 
     return Container(
-      margin: const EdgeInsets.only(top: 16, bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
                 ? Colors.black.withValues(alpha: 0.3)
-                : Colors.indigo.withValues(alpha: 0.05),
+                : Colors.indigo.withValues(alpha: 0.08),
             blurRadius: 18,
-            offset: const Offset(0, 6),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -45,42 +45,42 @@ class TitleInfo extends ConsumerWidget {
               color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           // Rating Pill & Students count
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFFFF4D6),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
-                    const SizedBox(width: 4),
+                    const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+                    const SizedBox(width: 3),
                     Text(
                       rating.toStringAsFixed(1),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: Colors.amber,
+                        fontSize: 12,
+                        color: Color(0xFF92400E),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Row(
                 children: [
-                  Icon(FeatherIcons.users, size: 15, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
-                  const SizedBox(width: 6),
+                  Icon(FeatherIcons.users, size: 14, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+                  const SizedBox(width: 5),
                   Text(
                     'count-students',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontSize: 12,
                       color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                     ),
                   ).tr(args: [course.studentsCount.toString()]),
@@ -90,7 +90,7 @@ class TitleInfo extends ConsumerWidget {
           ),
 
           if (course.courseMeta.summary != null && course.courseMeta.summary.toString().isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
               course.courseMeta.summary.toString(),
               style: TextStyle(

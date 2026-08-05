@@ -21,12 +21,12 @@ class Learnings extends StatelessWidget {
     return Visibility(
       visible: course.courseMeta.learnings!.isNotEmpty,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.all(22),
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
         width: double.infinity,
         decoration: BoxDecoration(
           color: cardBgColor,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isDarkMode
                 ? Colors.white.withValues(alpha: 0.06)

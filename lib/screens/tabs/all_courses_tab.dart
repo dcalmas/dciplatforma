@@ -124,13 +124,13 @@ class AllCoursesTab extends ConsumerWidget {
 
                     if (isGrid) {
                       return GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
+                        padding: const EdgeInsets.fromLTRB(14, 14, 14, 90),
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           childAspectRatio: 0.68,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
                         ),
                         itemCount: courses.length,
                         itemBuilder: (context, index) => GridCourseTile(course: courses[index], gridStyle: GridStyle.grid),
@@ -138,7 +138,7 @@ class AllCoursesTab extends ConsumerWidget {
                     }
 
                     return ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 14, 20, 90),
+                      padding: const EdgeInsets.fromLTRB(14, 14, 14, 90),
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       itemCount: courses.length,
                       itemBuilder: (context, index) => GridListCourseTile(course: courses[index]),

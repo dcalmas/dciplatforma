@@ -1,3 +1,4 @@
+import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/models/course.dart';
@@ -36,7 +37,7 @@ class Sections extends ConsumerWidget {
           itemCount: sections.length,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          separatorBuilder: (context, index) => const SizedBox(height: 14),
+          separatorBuilder: (context, index) => const SizedBox(height: 10),
           itemBuilder: (BuildContext context, int index) {
             final Section section = sections[index];
             final bool isExpanded = ref.watch(isSectionExpnadedProvider(section.id));
@@ -60,15 +61,44 @@ class Sections extends ConsumerWidget {
                 child: ExpansionTile(
                   tilePadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
                   maintainState: true,
-                  title: Text(
-                    '${index + 1}. ${section.name}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isExpanded
-                          ? primaryColor
-                          : (isDarkMode ? Colors.white : const Color(0xFF0F172A)),
-                      fontSize: 16,
-                    ),
+                  trailing: AnimatedRotation(
+                    turns: isExpanded ? 0.5 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(FeatherIcons.chevronDown, color: isDarkMode ? Colors.grey[400] : const Color(0xFF64748B)),
+                  ),
+                  title: Row(
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFDE7F0),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: primaryColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          section.name,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isExpanded
+                                ? primaryColor
+                                : (isDarkMode ? Colors.white : const Color(0xFF0F172A)),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   initiallyExpanded: index == 0 && isInitialSectionOpen,
                   children: [Lessons(course: course, sectionId: section.id)],
