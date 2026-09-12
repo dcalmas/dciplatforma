@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_badge_control/flutter_app_badge_control.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/firebase_options.dart';
 import 'package:lms_app/services/app_service.dart';
@@ -16,6 +17,16 @@ Future<void> _onBackgroundMessage(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await HiveService.initHive();
   await HiveService().saveNotificationData(message);
+  
+  // Badge жаңарту
+  try {
+    if (await FlutterAppBadgeControl.isAppBadgeSupported().timeout(const Duration(seconds: 2))) {
+      int unreadCount = HiveService().getUnreadCount();
+      await FlutterAppBadgeControl.updateBadgeCount(unreadCount).timeout(const Duration(seconds: 2));
+    }
+  } catch (e) {
+    debugPrint('Badge error in background: $e');
+  }
 }
 
 void main() async { 

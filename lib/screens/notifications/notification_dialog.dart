@@ -6,6 +6,7 @@ import 'package:lms_app/utils/next_screen.dart';
 import 'package:material_dialogs/dialogs.dart';
 import 'package:material_dialogs/widgets/buttons/icon_outline_button.dart';
 
+import 'package:lms_app/services/notification_service.dart';
 import '../../models/notification_model.dart';
 import 'custom_notification_details.dart';
 
@@ -38,6 +39,7 @@ Future<void> notificationDialog(context, NotificationModel notificationModel) {
             onPressed: () async {
               Navigator.pop(context);
               await HiveService().setNotificationRead(notificationModel);
+              await NotificationService().updateBadgeCount();
               if(!context.mounted) return;
               NextScreen.iOS(context, CustomNotificationDeatils(notificationModel: notificationModel));
             },

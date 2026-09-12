@@ -17,6 +17,11 @@ class SPService {
     return value;
   }
 
+  Future<bool> hasNotificationSubscriptionPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey('n_subscribe');
+  }
+
   Future<bool> isGuestUser() async {
     final prefs = await SharedPreferences.getInstance();
     final bool isGuest = prefs.getBool('guest_user') ?? false;

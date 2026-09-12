@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_badge_control/flutter_app_badge_control.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/constants/app_constants.dart';
 import 'package:lms_app/screens/notifications/custom_notification_details.dart';
@@ -17,11 +19,85 @@ import '../screens/notifications/notification_permisson_dialog.dart';
 final nProvider = StateProvider<bool>((ref) => false);
 
 class NotificationService {
+  NotificationService._internal();
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
+
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   StreamSubscription<RemoteMessage>? _onMessageSub;
   StreamSubscription<RemoteMessage>? _onMessageOpenedAppSub;
   StreamSubscription<String>? _onTokenRefreshSub;
   bool _listenersRegistered = false;
+
+  Future<void> updateBadgeCount() async {
+    try {
+      bool isSupported = await FlutterAppBadgeControl.isAppBadgeSupported()
+          .timeout(const Duration(seconds: 2));
+      if (isSupported) {
+        final int unreadCount = HiveService().getUnreadCount();
+        // NOTE: flutter_app_badge_control 0.0.2 Android-та removeBadge()
+        // result.success() шақырмайды (hang). Сондықтан 0-ге орнатамыз.
+        await FlutterAppBadgeControl.updateBadgeCount(unreadCount)
+            .timeout(const Duration(seconds: 2));
+      }
+    } catch (e) {
+      debugPrint('FCM: Error updating badge count: $e');
+    }
+  }
+
+  Future<void> _initLocalNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/launcher_icon');
+    const DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    const InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+    );
+    await _localNotifications.initialize(
+      settings: initializationSettings,
+    );
+
+    // Create high importance channel for Android
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'high_importance_channel',
+      'High Importance Notifications',
+      description: 'This channel is used for important notifications.',
+      importance: Importance.max,
+    );
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+  }
+
+  Future<void> _showLocalNotification(RemoteMessage message) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'high_importance_channel',
+      'High Importance Notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: true,
+    );
+    const DarwinNotificationDetails iOSPlatformChannelSpecifics = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics,
+    );
+    await _localNotifications.show(
+      id: message.messageId?.hashCode ?? message.hashCode,
+      title: message.notification?.title ?? message.data['title'] ?? message.data['headline'] ?? 'Notification',
+      body: message.notification?.body ?? message.data['description'] ?? message.data['body'] ?? message.data['text'] ?? '',
+      notificationDetails: platformChannelSpecifics,
+    );
+  }
 
   Future<bool?> _checkPermisson() async {
     bool? accepted;
@@ -75,6 +151,10 @@ class NotificationService {
 
   Future _handleNotificationPermission() async {
     try {
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+
       NotificationSettings settings = await _fcm.requestPermission(
         alert: true,
         announcement: false,
@@ -85,21 +165,25 @@ class NotificationService {
         sound: true,
       );
 
+      // iOS foreground-та жүйе автоматты көрсетпейді — хабарламаны app өзі
+      // _showLocalNotification арқылы көрсетеді (алert-payload-да қосарланбау үшін).
+      // Android бұл опцияға әсер етпейді.
       await _fcm.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
+        alert: false,
+        badge: false,
+        sound: false,
       );
 
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      if (settings.authorizationStatus == AuthorizationStatus.authorized || settings.authorizationStatus == AuthorizationStatus.provisional) {
         debugPrint('FCM: User granted permission');
-        await SPService().setNotificationSubscription(true);
-        await _subscribe();
-        await _logToken();
-      } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-        debugPrint('FCM: User granted provisional permission');
-        await SPService().setNotificationSubscription(true);
-        await _subscribe();
+        // Егер пайдаланушы баптаулардан өшірген болса (SP=false) — subscribe етпейміз.
+        // Алғашқы іске қосылымда pref жоқ болса — автоматты түрде қосамыз.
+        final bool hasPref = await SPService().hasNotificationSubscriptionPref();
+        final bool saved = await SPService().getNotificationSubscription();
+        if (!hasPref || saved) {
+          await SPService().setNotificationSubscription(true);
+          await _subscribe();
+        }
         await _logToken();
       } else {
         debugPrint('FCM: User declined or has not accepted permission');
@@ -127,29 +211,19 @@ class NotificationService {
         return;
       }
 
-      // iOS foreground presentation options
-      await _fcm.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-
-      await _handleNotificationPermission();
-
-      RemoteMessage? initialMessage = await _fcm.getInitialMessage();
-      debugPrint('FCM: initial message: $initialMessage');
-      if (initialMessage != null) {
-        await HiveService().saveNotificationData(initialMessage);
-        final ctx = _context;
-        if (ctx != null && ctx.mounted) {
-          _navigateToDetailsScreen(ctx, initialMessage);
-        }
-      }
-
+      // Listeners бірінші регистрацияланады — badge/notification init
+      // кезінде қандай да бір қате/hang болса да push жұмысы бұзылмайды.
       _onMessageSub = FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
         debugPrint('FCM onMessage: ${message.messageId}');
         debugPrint('FCM onMessage title: ${message.notification?.title}');
-        await HiveService().saveNotificationData(message);
+        try {
+          await HiveService().saveNotificationData(message);
+          await updateBadgeCount();
+          await _showLocalNotification(message);
+        } catch (e) {
+          debugPrint('FCM: Error processing message: $e');
+        }
+
         final ctx = _context;
         debugPrint('FCM: context available: ${ctx != null}, mounted: ${ctx?.mounted}');
         if (ctx != null && ctx.mounted) {
@@ -160,6 +234,7 @@ class NotificationService {
       _onMessageOpenedAppSub = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
         debugPrint('FCM onMessageOpenedApp: ${message.messageId}');
         await HiveService().saveNotificationData(message);
+        await updateBadgeCount();
         final ctx = _context;
         if (ctx != null && ctx.mounted) {
           _navigateToDetailsScreen(ctx, message);
@@ -172,6 +247,28 @@ class NotificationService {
 
       _listenersRegistered = true;
       debugPrint('FCM: Listeners registered successfully');
+
+      // iOS foreground presentation options (app өзі көрсетеді)
+      await _fcm.setForegroundNotificationPresentationOptions(
+        alert: false,
+        badge: false,
+        sound: false,
+      );
+
+      await _initLocalNotifications();
+      await _handleNotificationPermission();
+      await updateBadgeCount();
+
+      RemoteMessage? initialMessage = await _fcm.getInitialMessage();
+      debugPrint('FCM: initial message: $initialMessage');
+      if (initialMessage != null) {
+        await HiveService().saveNotificationData(initialMessage);
+        await updateBadgeCount();
+        final ctx = _context;
+        if (ctx != null && ctx.mounted) {
+          _navigateToDetailsScreen(ctx, initialMessage);
+        }
+      }
     } catch (e) {
       debugPrint('FCM: Error initializing push notifications: $e');
     }
@@ -188,7 +285,8 @@ class NotificationService {
 
   _navigateToDetailsScreen(context, RemoteMessage message) async {
     final NotificationModel notification = NotificationModel.fromRemoteMessage(message);
-    HiveService().setNotificationRead(notification);
+    await HiveService().setNotificationRead(notification);
+    await updateBadgeCount();
     NextScreen.normal(context, CustomNotificationDeatils(notificationModel: notification));
   }
 

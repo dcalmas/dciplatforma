@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/configs/app_config.dart';
 import 'package:lms_app/screens/splash.dart';
 import 'package:lms_app/services/notification_service.dart';
-import 'package:lms_app/services/sp_service.dart';
 import 'package:lms_app/theme/dark_theme.dart';
 import 'package:lms_app/theme/light_theme.dart';
 import 'package:lms_app/theme/theme_provider.dart';
@@ -28,9 +27,8 @@ class _MyAppState extends ConsumerState<MyApp> {
     super.initState();
     Future.microtask(() async {
       await NotificationService().initFirebasePushNotification();
-      // nProvider-ды SP-мен синхрондау
-      final savedSubscription = await SPService().getNotificationSubscription();
-      ref.read(nProvider.notifier).state = savedSubscription;
+      // nProvider-ды SP-мен синхрондау + topic күйін қолдану
+      await NotificationService().checkNotificationSubscription(ref);
     });
   }
 

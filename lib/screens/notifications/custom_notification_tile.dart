@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:lms_app/services/hive_service.dart';
+import 'package:lms_app/services/notification_service.dart';
 import 'package:lms_app/utils/string_extension.dart';
 import '../../models/notification_model.dart';
 import '../../utils/next_screen.dart';
@@ -32,6 +33,7 @@ class _CustomNotificationTileState extends State<CustomNotificationTile> {
           setState(() => _scale = 1.0);
           if (widget.notificationModel.read == false) {
             await HiveService().setNotificationRead(widget.notificationModel);
+            await NotificationService().updateBadgeCount();
           }
           if (!context.mounted) return;
           NextScreen.openBottomSheet(
@@ -135,6 +137,7 @@ class _CustomNotificationTileState extends State<CustomNotificationTile> {
                   GestureDetector(
                     onTap: () async {
                       await HiveService().deleteNotificationData(widget.notificationModel.id);
+                      await NotificationService().updateBadgeCount();
                     },
                     child: Container(
                       padding: const EdgeInsets.all(6),

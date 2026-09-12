@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:lms_app/services/hive_service.dart';
+import 'package:lms_app/services/notification_service.dart';
 import 'package:material_dialogs/dialogs.dart';
 import 'package:material_dialogs/widgets/buttons/icon_outline_button.dart';
 
@@ -29,6 +30,7 @@ void openClearAllDialog(BuildContext context) {
           onPressed: () async {
             Navigator.pop(context);
             await HiveService().deleteAllNotificationData();
+            await NotificationService().updateBadgeCount();
           },
         ),
       ];

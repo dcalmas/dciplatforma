@@ -37,4 +37,11 @@ class HiveService {
     final notificationList = Hive.box(notificationTag);
     await notificationList.clear();
   }
+
+  int getUnreadCount() {
+    final box = Hive.box(notificationTag);
+    final items = box.values.toList();
+    final notifications = items.map((e) => NotificationModel.fromHive(e)).toList();
+    return notifications.where((n) => n.read != true).length;
+  }
 }
