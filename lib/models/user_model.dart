@@ -4,6 +4,7 @@ import 'package:lms_app/models/subscription.dart';
 
 class UserModel {
   final String id, email, name;
+  final String? phone;
   DateTime? createdAt;
   DateTime? updatedAt;
   final String? imageUrl;
@@ -20,6 +21,7 @@ class UserModel {
   UserModel({
     required this.id,
     required this.email,
+    this.phone,
     this.imageUrl,
     required this.name,
     this.role,
@@ -48,6 +50,7 @@ class UserModel {
     return UserModel(
       id: snap.id,
       email: d['email'] ?? '',
+      phone: d['phone'],
       imageUrl: d['image_url'],
       name: d['name'] ?? '',
       role: d['role'] ?? [],
@@ -67,6 +70,7 @@ class UserModel {
   static Map<String, dynamic> getMap(UserModel user) {
     return {
       'email': user.email,
+      'phone': user.phone,
       'name': user.name,
       'image_url': user.imageUrl,
       'created_at': user.createdAt,

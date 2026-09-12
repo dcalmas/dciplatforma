@@ -36,10 +36,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   IconData lockIcon = LineIcons.lock;
 
   UserModel _userModel(UserCredential userCredential) {
+    final norm = AuthService.normalizeIdentifier(emailCtlr.text.trim());
+    final phone = norm?['type'] == 'phone' ? norm!['value'] : null;
+
     return UserModel(
       id: userCredential.user!.uid,
-      email: userCredential.user!.email ?? emailCtlr.text,
-      name: userCredential.user!.displayName ?? nameCtlr.text,
+      email: userCredential.user!.email ?? emailCtlr.text.trim(),
+      phone: phone,
+      name: userCredential.user!.displayName ?? nameCtlr.text.trim(),
       createdAt: DateTime.now().toUtc(),
       imageUrl: userCredential.user?.photoURL,
       platform: Platform.isAndroid ? 'Android' : 'iOS',
@@ -51,7 +55,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       formKey.currentState!.save();
       setState(() => isLoading = true);
       final UserCredential? userCredential =
-          await AuthService().signUpWithEmailPassword(context, emailCtlr.text.trim(), passwordCtrl.text.trim()).onError((error, stackTrace) {
+          await AuthService().signUpWithEmailOrPhone(context, emailCtlr.text.trim(), passwordCtrl.text.trim()).onError((error, stackTrace) {
         if (mounted) setState(() => isLoading = false);
         return null;
       });
@@ -184,15 +188,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Email input
+                    // Email or Phone input
                     TextFormField(
                       controller: emailCtlr,
                       keyboardType: TextInputType.emailAddress,
                       style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                        hintText: 'enter-email'.tr(),
-                        labelText: 'email'.tr(),
+                        hintText: 'Email немесе телефон нөмірі',
+                        labelText: 'Email / Телефон',
                         filled: true,
                         fillColor: isDarkMode ? const Color(0xFF141622) : const Color(0xFFF8F9FE),
                         border: OutlineInputBorder(
@@ -204,7 +208,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           onPressed: () => emailCtlr.clear(),
                         ),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Email is required' : null,
+                      validator: (value) => (value == null || value.trim().isEmpty)
+                          ? 'Email немесе телефон нөмірін енгізіңіз'
+                          : (AuthService.normalizeIdentifier(value) == null
+                              ? 'Жарамсыз email немесе телефон нөмірі'
+                              : null),
                     ),
                     const SizedBox(height: 16),
 

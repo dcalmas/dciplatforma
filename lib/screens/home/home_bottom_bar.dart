@@ -10,7 +10,6 @@ const List<Map<String, dynamic>> homeTabItems = [
   {'key': 'courses', 'icon': FeatherIcons.home, 'label': 'home'},
   {'key': 'all-courses', 'icon': FeatherIcons.bookOpen, 'label': 'all-courses'},
   {'key': 'my-courses', 'icon': LineIcons.graduationCap, 'label': 'my-courses'},
-  {'key': 'tests', 'icon': FeatherIcons.barChart2, 'label': 'tests'},
   {'key': 'profile', 'icon': FeatherIcons.user, 'label': 'menu'},
 ];
 

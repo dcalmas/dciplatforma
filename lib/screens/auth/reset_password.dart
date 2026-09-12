@@ -19,7 +19,11 @@ class ResetPasswordState extends State<ResetPassword> {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
       setState(() => isLoading = true);
-      await AuthService().sendPasswordRestEmail(context, emailCtrl.text.trim());
+      final norm = AuthService.normalizeIdentifier(emailCtrl.text.trim());
+      final targetEmail = norm?['type'] == 'email'
+          ? norm!['value']!
+          : AuthService.syntheticEmailForPhone(norm?['value'] ?? emailCtrl.text.trim());
+      await AuthService().sendPasswordRestEmail(context, targetEmail);
       if (mounted) setState(() => isLoading = false);
     }
   }
@@ -91,8 +95,8 @@ class ResetPasswordState extends State<ResetPassword> {
                       style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                        hintText: 'username@mail.com',
-                        labelText: 'email'.tr(),
+                        hintText: 'Email немесе телефон нөмірі',
+                        labelText: 'Email / Телефон',
                         filled: true,
                         fillColor: isDarkMode ? const Color(0xFF141622) : const Color(0xFFF8F9FE),
                         border: OutlineInputBorder(
@@ -105,7 +109,8 @@ class ResetPasswordState extends State<ResetPassword> {
                         ),
                       ),
                       validator: (String? value) {
-                        if (value!.isEmpty) return "Email can't be empty";
+                        if (value == null || value.trim().isEmpty) return 'Email немесе телефон нөмірін енгізіңіз';
+                        if (AuthService.normalizeIdentifier(value) == null) return 'Жарамсыз email немесе телефон нөмірі';
                         return null;
                       },
                     ),

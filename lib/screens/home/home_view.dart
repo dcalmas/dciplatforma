@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/screens/home/home_bottom_bar.dart';
 import 'package:lms_app/screens/tabs/home_tab/home_tab.dart';
 import 'package:lms_app/screens/tabs/profile_tab/profile_tab.dart';
-import 'package:lms_app/screens/tabs/tests_tab/tests_tab.dart';
 import 'package:lms_app/screens/tabs/all_courses_tab.dart';
 import '../tabs/my_courses_tab/my_courses_tab.dart';
 
@@ -33,7 +32,6 @@ class HomeView extends ConsumerWidget {
           HomeTab(),
           AllCoursesTab(),
           MyCoursesTab(),
-          TestsTab(),
           ProfileTab(),
         ],
       ),

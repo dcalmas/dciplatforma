@@ -40,14 +40,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       formKey.currentState!.save();
       setState(() => isLoading = true);
       final UserCredential? user =
-          await AuthService().loginWithEmailPassword(context, emailCtlr.text.trim(), passwordCtrl.text);
+          await AuthService().loginWithEmailOrPhone(context, emailCtlr.text.trim(), passwordCtrl.text);
       if (mounted) setState(() => isLoading = false);
       if (user != null && user.user != null) {
         final bool userExists = await FirebaseService().isUserExists(user.user!.uid);
         if (!userExists) {
+          final norm = AuthService.normalizeIdentifier(emailCtlr.text.trim());
+          final phone = norm?['type'] == 'phone' ? norm!['value'] : null;
           final newUser = UserModel(
             id: user.user!.uid,
             email: user.user!.email ?? emailCtlr.text.trim(),
+            phone: phone,
             name: user.user!.displayName ?? emailCtlr.text.trim().split('@').first,
             createdAt: DateTime.now().toUtc(),
             imageUrl: user.user?.photoURL,
@@ -290,8 +293,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                              hintText: 'enter-email'.tr(),
-                              labelText: 'email'.tr(),
+                              hintText: 'Email немесе телефон нөмірі',
+                              labelText: 'Email / Телефон',
                               filled: true,
                               fillColor: isDarkMode ? const Color(0xFF141622) : const Color(0xFFF8F9FE),
                               border: OutlineInputBorder(
@@ -316,7 +319,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 onPressed: () => emailCtlr.clear(),
                               ),
                             ),
-                            validator: (value) => value!.isEmpty ? 'Email is required' : null,
+                            validator: (value) => (value == null || value.trim().isEmpty)
+                                ? 'Email немесе телефон нөмірін енгізіңіз'
+                                : (AuthService.normalizeIdentifier(value) == null
+                                    ? 'Жарамсыз email немесе телефон нөмірі'
+                                    : null),
                           ),
                           const SizedBox(height: 16),
 
