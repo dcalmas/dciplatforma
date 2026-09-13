@@ -32,15 +32,9 @@ class NotificationService {
 
   Future<void> updateBadgeCount() async {
     try {
-      bool isSupported = await FlutterAppBadgeControl.isAppBadgeSupported()
+      final int unreadCount = HiveService().getUnreadCount();
+      await FlutterAppBadgeControl.updateBadgeCount(unreadCount)
           .timeout(const Duration(seconds: 2));
-      if (isSupported) {
-        final int unreadCount = HiveService().getUnreadCount();
-        // NOTE: flutter_app_badge_control 0.0.2 Android-та removeBadge()
-        // result.success() шақырмайды (hang). Сондықтан 0-ге орнатамыз.
-        await FlutterAppBadgeControl.updateBadgeCount(unreadCount)
-            .timeout(const Duration(seconds: 2));
-      }
     } catch (e) {
       debugPrint('FCM: Error updating badge count: $e');
     }
@@ -168,11 +162,11 @@ class NotificationService {
       // iOS foreground-та жүйе автоматты көрсетпейді — хабарламаны app өзі
       // _showLocalNotification арқылы көрсетеді (алert-payload-да қосарланбау үшін).
       // Android бұл опцияға әсер етпейді.
-      await _fcm.setForegroundNotificationPresentationOptions(
-        alert: false,
-        badge: false,
-        sound: false,
-      );
+await _fcm.setForegroundNotificationPresentationOptions(
+         alert: false,
+         badge: false,
+         sound: false,
+       );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized || settings.authorizationStatus == AuthorizationStatus.provisional) {
         debugPrint('FCM: User granted permission');
@@ -227,7 +221,13 @@ class NotificationService {
         final ctx = _context;
         debugPrint('FCM: context available: ${ctx != null}, mounted: ${ctx?.mounted}');
         if (ctx != null && ctx.mounted) {
-          _openNotificationDialog(ctx, message);
+          final NotificationModel model = NotificationModel.fromRemoteMessage(message);
+          // Диалогпен көрсетілген соң — оқылды деп белгілейміз,
+          // келесі ашқанда қайта шықпау үшін.
+          await HiveService().setNotificationRead(model);
+          await updateBadgeCount();
+          if (!ctx.mounted) return;
+          _openNotificationDialog(ctx, model);
         }
       });
 
@@ -248,7 +248,8 @@ class NotificationService {
       _listenersRegistered = true;
       debugPrint('FCM: Listeners registered successfully');
 
-      // iOS foreground presentation options (app өзі көрсетеді)
+// iOS foreground presentation options: false — хабарламаны app өзі
+      // _showLocalNotification арқылы көрсетеді, қосарланбау үшін.
       await _fcm.setForegroundNotificationPresentationOptions(
         alert: false,
         badge: false,
@@ -274,10 +275,9 @@ class NotificationService {
     }
   }
 
-  void _openNotificationDialog(BuildContext context, RemoteMessage message) {
+  void _openNotificationDialog(BuildContext context, NotificationModel notificationModel) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
-        final NotificationModel notificationModel = NotificationModel.fromRemoteMessage(message);
         notificationDialog(context, notificationModel);
       }
     });
@@ -288,6 +288,40 @@ class NotificationService {
     await HiveService().setNotificationRead(notification);
     await updateBadgeCount();
     NextScreen.normal(context, CustomNotificationDeatils(notificationModel: notification));
+  }
+
+  /// Апп ашылғанда оқылмаған хабарламаларды тексеріп,
+  /// егер болса — экранға диалог шығарады.
+  DateTime? _lastUnreadDialogShown;
+
+  Future<void> checkUnreadNotificationsOnStart() async {
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+      final ctx = _context;
+      if (ctx == null || !ctx.mounted) return;
+
+      final List<NotificationModel> unread = HiveService().getUnreadNotifications();
+      if (unread.isEmpty) return;
+
+      // Cold start / resume бірге шақырылса бір ғана диалог көрсетіледі
+      if (_lastUnreadDialogShown != null &&
+          DateTime.now().difference(_lastUnreadDialogShown!) < const Duration(seconds: 10)) {
+        return;
+      }
+      _lastUnreadDialogShown = DateTime.now();
+
+      final NotificationModel notification = unread.first;
+      debugPrint('FCM: Showing unread notification on start: ${notification.id}');
+      // Оқылмаған хабарламаны оқылды деп белгілейміз —
+      // диалог тек бір рет, қайта ашқанда қайталанбауы үшін.
+      // Хабарламалар тізімінде оқылған күйінде қалады.
+      await HiveService().setNotificationRead(notification);
+      await updateBadgeCount();
+      if (!ctx.mounted) return;
+      _openNotificationDialog(ctx, notification);
+    } catch (e) {
+      debugPrint('FCM: Error checking unread notifications on start: $e');
+    }
   }
 
   void dispose() {

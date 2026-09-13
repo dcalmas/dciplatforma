@@ -20,16 +20,34 @@ class MyApp extends ConsumerStatefulWidget {
   ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends ConsumerState<MyApp> {
+class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     Future.microtask(() async {
       await NotificationService().initFirebasePushNotification();
       // nProvider-ды SP-мен синхрондау + topic күйін қолдану
       await NotificationService().checkNotificationSubscription(ref);
+      // Cold start-та оқылмаған хабарламаларды экранға шығару
+      await NotificationService().checkUnreadNotificationsOnStart();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Апп фоннан қайта ашылғанда оқылмаған хабарламаларды тексереміз
+    if (state == AppLifecycleState.resumed) {
+      debugPrint('App resumed - checking unread notifications');
+      Future.microtask(() => NotificationService().checkUnreadNotificationsOnStart());
+    }
   }
 
   @override

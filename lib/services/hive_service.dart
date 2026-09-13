@@ -44,4 +44,12 @@ class HiveService {
     final notifications = items.map((e) => NotificationModel.fromHive(e)).toList();
     return notifications.where((n) => n.read != true).length;
   }
+
+  List<NotificationModel> getUnreadNotifications() {
+    final box = Hive.box(notificationTag);
+    final items = box.values.toList();
+    final notifications = items.map((e) => NotificationModel.fromHive(e)).toList();
+    notifications.sort((a, b) => b.recievedAt.compareTo(a.recievedAt));
+    return notifications.where((n) => n.read != true).toList();
+  }
 }
