@@ -163,9 +163,9 @@ class NotificationService {
       // _showLocalNotification арқылы көрсетеді (алert-payload-да қосарланбау үшін).
       // Android бұл опцияға әсер етпейді.
 await _fcm.setForegroundNotificationPresentationOptions(
-         alert: false,
-         badge: false,
-         sound: false,
+         alert: true,
+         badge: true,
+         sound: true,
        );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized || settings.authorizationStatus == AuthorizationStatus.provisional) {
@@ -251,9 +251,9 @@ await _fcm.setForegroundNotificationPresentationOptions(
 // iOS foreground presentation options: false — хабарламаны app өзі
       // _showLocalNotification арқылы көрсетеді, қосарланбау үшін.
       await _fcm.setForegroundNotificationPresentationOptions(
-        alert: false,
-        badge: false,
-        sound: false,
+        alert: true,
+        badge: true,
+        sound: true,
       );
 
       await _initLocalNotifications();
