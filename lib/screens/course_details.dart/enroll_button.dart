@@ -7,9 +7,11 @@ import 'package:lms_app/mixins/course_mixin.dart';
 import 'package:lms_app/mixins/user_mixin.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/utils/loading_widget.dart';
+import 'package:lms_app/utils/snackbars.dart';
 import '../../providers/user_data_provider.dart';
 
-final _isLoadingEnrollmentProvider = StateProvider.autoDispose((ref) => false);
+final _isLoadingEnrollmentProvider =
+    StateProvider.autoDispose.family<bool, String>((ref, courseId) => false);
 
 class EnrollButton extends ConsumerWidget with UserMixin {
   const EnrollButton({super.key, required this.course});
@@ -19,7 +21,7 @@ class EnrollButton extends ConsumerWidget with UserMixin {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userDataProvider);
-    final bool isLoading = ref.watch(_isLoadingEnrollmentProvider);
+    final bool isLoading = ref.watch(_isLoadingEnrollmentProvider(course.id));
     final String text = CourseMixin.enrollButtonText(course, user);
     final bool isPremium = course.priceStatus != priceStatus.keys.first;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -46,7 +48,9 @@ class EnrollButton extends ConsumerWidget with UserMixin {
         child: Row(
           children: [
             if (!hasEnrolled(user, course)) ...[
-              isPremium ? _PremiumTag(primaryColor: primaryColor) : _FreeTag(primaryColor: primaryColor),
+              isPremium
+                  ? _PremiumTag(primaryColor: primaryColor)
+                  : _FreeTag(primaryColor: primaryColor),
               const SizedBox(width: 14),
             ],
             Expanded(
@@ -56,16 +60,34 @@ class EnrollButton extends ConsumerWidget with UserMixin {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18)),
                     elevation: 0,
                     shadowColor: primaryColor.withValues(alpha: 0.4),
                     textStyle: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  onPressed: () async {
-                    ref.read(_isLoadingEnrollmentProvider.notifier).state = true;
-                    await handleEnrollment(context, user: user, course: course, ref: ref);
-                    ref.read(_isLoadingEnrollmentProvider.notifier).state = false;
-                  },
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          final loading = ref.read(
+                              _isLoadingEnrollmentProvider(course.id).notifier);
+                          if (loading.state) return;
+                          loading.state = true;
+                          try {
+                            await handleEnrollment(context,
+                                    user: user, course: course, ref: ref)
+                                .timeout(const Duration(seconds: 30));
+                          } catch (error, stackTrace) {
+                            debugPrint(
+                                'Enrollment failed: $error\n$stackTrace');
+                            if (context.mounted) {
+                              openSnackbarFailure(
+                                  context, 'enrollment-error'.tr());
+                            }
+                          } finally {
+                            if (loading.mounted) loading.state = false;
+                          }
+                        },
                   child: isLoading
                       ? const LoadingIndicatorWidget(color: Colors.white)
                       : Text(
@@ -122,8 +144,8 @@ class _PremiumTag extends StatelessWidget {
         shape: BoxShape.circle,
         color: primaryColor.withValues(alpha: 0.1),
       ),
-      child: Image.asset(premiumImage, fit: BoxFit.contain, height: 22, width: 22),
+      child:
+          Image.asset(premiumImage, fit: BoxFit.contain, height: 22, width: 22),
     );
   }
 }
-

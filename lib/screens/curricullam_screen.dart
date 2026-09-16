@@ -9,17 +9,25 @@ class CurriculamScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final background = dark ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    final foreground = dark ? Colors.white : const Color(0xFF0F172A);
     return Scaffold(
+        backgroundColor: background,
         appBar: AppBar(
-          toolbarHeight: 80,
+          leading: const BackButton(),
+          toolbarHeight: 64,
           centerTitle: false,
           titleSpacing: 0,
-          backgroundColor: Theme.of(context).primaryColor,
-          foregroundColor: Colors.white,
+          backgroundColor: background,
+          foregroundColor: foreground,
           title: Text(
             course.name,
             maxLines: 2,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: Colors.white),
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w600, color: foreground),
           ),
           elevation: 0,
         ),

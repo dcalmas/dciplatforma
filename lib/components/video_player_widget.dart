@@ -24,13 +24,14 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   void initState() {
-    final String videoType = AppService.getVideoType(widget.videoUrl);
+    final cleanUrl = AppService.cleanVideoUrl(widget.videoUrl);
+    final String videoType = AppService.getVideoType(cleanUrl);
     controller = PodPlayerController(
         playVideoFrom: videoType == 'network'
-            ? PlayVideoFrom.network(widget.videoUrl)
+            ? PlayVideoFrom.network(cleanUrl)
             : videoType == 'vimeo'
-                ? PlayVideoFrom.vimeo(widget.videoUrl)
-                : PlayVideoFrom.youtube(widget.videoUrl),
+                ? PlayVideoFrom.vimeo(cleanUrl)
+                : PlayVideoFrom.youtube(cleanUrl),
         podPlayerConfig: const PodPlayerConfig(
           autoPlay: false,
           isLooping: false,

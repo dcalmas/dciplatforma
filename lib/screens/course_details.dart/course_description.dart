@@ -16,7 +16,8 @@ class CourseDescription extends StatelessWidget {
     final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
 
     return Visibility(
-      visible: course.courseMeta.description != null && course.courseMeta.description!.isNotEmpty,
+      visible: course.courseMeta.description != null &&
+          course.courseMeta.description!.isNotEmpty,
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.all(16),
@@ -45,35 +46,31 @@ class CourseDescription extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: primaryColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(FeatherIcons.fileText, size: 20, color: primaryColor),
+                  child: Icon(FeatherIcons.fileText,
+                      size: 18, color: primaryColor),
                 ),
-                const SizedBox(width: 14),
-                Text(
+                const SizedBox(width: 10),
+                Expanded(
+                    child: Text(
                   'course-details'.tr(),
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
                     color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
                   ),
-                ),
+                )),
               ],
             ),
             const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isDarkMode
-                    ? Colors.white.withValues(alpha: 0.03)
-                    : primaryColor.withValues(alpha: 0.03),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: HtmlBody(description: course.courseMeta.description.toString()),
+            HtmlBody(
+              description: course.courseMeta.description ?? '',
+              fontSize: 15,
+              compact: true,
             ),
           ],
         ),

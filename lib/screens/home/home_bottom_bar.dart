@@ -22,22 +22,23 @@ class BottomBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navBarIndexProvider);
     final isDarkMode = ref.watch(themeProvider).isDarkMode;
-    final primaryColor = Theme.of(context).primaryColor;
+    const pink = Color(0xFFF00080);
+    const pinkSoft = Color(0xFFFCDCE9);
     final screenWidth = MediaQuery.of(context).size.width;
 
     return SafeArea(
       child: Container(
-        height: 72,
         width: screenWidth * 0.92,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
           color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(26),
           boxShadow: [
             BoxShadow(
               color: isDarkMode
                   ? Colors.black.withValues(alpha: 0.4)
-                  : Colors.indigo.withValues(alpha: 0.12),
+                  : pink.withValues(alpha: 0.12),
               blurRadius: 24,
               spreadRadius: 0,
               offset: const Offset(0, 10),
@@ -69,54 +70,54 @@ class BottomBar extends ConsumerWidget {
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
                 padding: EdgeInsets.symmetric(
-                  horizontal: isSelected ? 18 : 10,
-                  vertical: 12,
+                  horizontal: isSelected ? 16 : 10,
+                  vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  gradient: isSelected
-                      ? LinearGradient(
-                          colors: [
-                            primaryColor.withValues(alpha: 0.15),
-                            primaryColor.withValues(alpha: 0.05),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                      : null,
-                  color: isSelected ? null : Colors.transparent,
-                  borderRadius: BorderRadius.circular(22),
+                  color: isSelected
+                      ? (isDarkMode ? pink.withValues(alpha: 0.2) : pinkSoft)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      item['icon'] as IconData,
-                      size: isSelected ? 24 : 22,
-                      color: isSelected
-                          ? primaryColor
-                          : (isDarkMode ? Colors.grey[500] : Colors.grey[400]),
-                    ),
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      child: isSelected
-                          ? Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                (item['label'] as String).tr(),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: primaryColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
+                child: isSelected
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(item['icon'] as IconData, size: 22, color: pink),
+                          const SizedBox(width: 6),
+                          Text(
+                            (item['label'] as String).tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: pink,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            item['icon'] as IconData,
+                            size: 22,
+                            color: isDarkMode ? Colors.grey[500] : const Color(0xFF9CA3AF),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            (item['label'] as String).tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: isDarkMode ? Colors.grey[500] : const Color(0xFF9CA3AF),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             );
           }),

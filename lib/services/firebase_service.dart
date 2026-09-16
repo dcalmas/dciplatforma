@@ -20,24 +20,34 @@ import 'package:lms_app/utils/toasts.dart';
 import '../models/user_model.dart';
 
 class FirebaseService {
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  FirebaseService({FirebaseFirestore? firestore})
+      : firestore = firestore ?? FirebaseFirestore.instance;
 
-  static String getUID(String collectionName) => FirebaseFirestore.instance.collection(collectionName).doc().id;
+  final FirebaseFirestore firestore;
+
+  CollectionReference<Map<String, dynamic>> _courseReviews(String courseId) =>
+      firestore.collection('courses').doc(courseId).collection('reviews');
+
+  static String getUID(String collectionName) =>
+      FirebaseFirestore.instance.collection(collectionName).doc().id;
 
   Future updateStudentCountsOnCourse(bool isIncrement, String courseId) async {
-    final DocumentReference docRef = firestore.collection('courses').doc(courseId);
+    final DocumentReference docRef =
+        firestore.collection('courses').doc(courseId);
     await firestore.runTransaction((transaction) {
       return transaction.get(docRef).then((DocumentSnapshot snapshot) {
         final Course course = Course.fromFirestore(snapshot);
         final int count = course.studentsCount;
         final int newCount = isIncrement ? (count + 1) : (count - 1);
-        transaction.set(docRef, {'students': newCount}, SetOptions(merge: true));
+        transaction.set(
+            docRef, {'students': newCount}, SetOptions(merge: true));
       });
     }).then((value) => debugPrint('new count: $value'));
   }
 
   Future updateStudentCountsOnAuthor(bool isIncrement, String authorId) async {
-    final DocumentReference docRef = firestore.collection('users').doc(authorId);
+    final DocumentReference docRef =
+        firestore.collection('users').doc(authorId);
     await firestore.runTransaction((transaction) {
       return transaction.get(docRef).then((DocumentSnapshot snapshot) {
         final UserModel author = UserModel.fromFirebase(snapshot);
@@ -79,26 +89,48 @@ class FirebaseService {
     return data;
   }
 
-  Future<List<Course>> getRelatedCoursesByCategory(Course course, int limit) async {
-    List<Course> data = [];
-    await firestore
-        .collection('courses')
-        .where('cat_id', isEqualTo: course.categoryId)
-        .where(FieldPath.documentId, isNotEqualTo: course.id)
-        .where('status', isEqualTo: 'live')
-        .limit(limit)
-        .get()
-        .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Course.fromFirestore(e)).toList();
-    }).catchError((e) {
-      debugPrint(e);
-    });
-    return data;
+  Future<List<Course>> getRelatedCoursesByCategory(
+      Course course, int limit) async {
+    if (limit <= 0) return [];
+    final courses = <String, Course>{};
+    void addCourses(QuerySnapshot<Map<String, dynamic>> snapshot) {
+      for (final doc in snapshot.docs) {
+        if (doc.id != course.id && courses.length < limit) {
+          courses.putIfAbsent(doc.id, () => Course.fromFirestore(doc));
+        }
+      }
+    }
+
+    if (course.categoryId != null) {
+      try {
+        addCourses(await firestore.collection('courses')
+            .where('cat_id', isEqualTo: course.categoryId)
+            .where('status', isEqualTo: 'live')
+            .limit(limit + 1).get());
+      } catch (error) {
+        debugPrint('Related category courses: $error');
+      }
+    }
+    if (courses.length < limit) {
+      try {
+        addCourses(await firestore.collection('courses')
+            .where('status', isEqualTo: 'live')
+            .limit(limit + 1).get());
+      } catch (error) {
+        if (courses.isEmpty) rethrow;
+        debugPrint('Recommended courses: $error');
+      }
+    }
+    return courses.values.toList();
   }
 
   Future<List<Course>> getFeaturedCourses() async {
     List<Course> data = [];
-    await firestore.collection('courses').where('featured', isEqualTo: true).get().then((QuerySnapshot? snapshot) {
+    await firestore
+        .collection('courses')
+        .where('featured', isEqualTo: true)
+        .get()
+        .then((QuerySnapshot? snapshot) {
       data = snapshot!.docs.map((e) => Course.fromFirestore(e)).toList();
     });
     return data;
@@ -118,7 +150,8 @@ class FirebaseService {
     return data;
   }
 
-  Future<List<Course>> getHomeCategoryCourses(String categoryId, int limit) async {
+  Future<List<Course>> getHomeCategoryCourses(
+      String categoryId, int limit) async {
     List<Course> data = [];
     await firestore
         .collection('courses')
@@ -132,7 +165,8 @@ class FirebaseService {
     return data;
   }
 
-  Future<List<Course>> getCoursesByAuthorId({int limit = 3, required String authorId}) async {
+  Future<List<Course>> getCoursesByAuthorId(
+      {int limit = 3, required String authorId}) async {
     List<Course> data = [];
     await firestore
         .collection('courses')
@@ -148,7 +182,12 @@ class FirebaseService {
 
   Future<List<Category>> getHomeCategories(int limit) async {
     List<Category> data = [];
-    await firestore.collection('categories').orderBy('index', descending: false).limit(limit).get().then((QuerySnapshot? snapshot) {
+    await firestore
+        .collection('categories')
+        .orderBy('index', descending: false)
+        .limit(limit)
+        .get()
+        .then((QuerySnapshot? snapshot) {
       data = snapshot!.docs.map((e) => Category.fromFirestore(e)).toList();
     });
     return data;
@@ -156,7 +195,11 @@ class FirebaseService {
 
   Future<List<Category>> getAllCategories() async {
     List<Category> data = [];
-    await firestore.collection('categories').orderBy('index', descending: false).get().then((QuerySnapshot? snapshot) {
+    await firestore
+        .collection('categories')
+        .orderBy('index', descending: false)
+        .get()
+        .then((QuerySnapshot? snapshot) {
       data = snapshot!.docs.map((e) => Category.fromFirestore(e)).toList();
     });
     return data;
@@ -164,7 +207,11 @@ class FirebaseService {
 
   Future<List<Tag>> getAllTags(int limit) async {
     List<Tag> data = [];
-    await firestore.collection('tags').limit(limit).get().then((QuerySnapshot? snapshot) {
+    await firestore
+        .collection('tags')
+        .limit(limit)
+        .get()
+        .then((QuerySnapshot? snapshot) {
       data = snapshot!.docs.map((e) => Tag.fromFirestore(e)).toList();
     });
     return data;
@@ -202,10 +249,8 @@ class FirebaseService {
 
   Future<List<Review>> getLimitedReviews(String courseId, int limit) async {
     List<Review> data = [];
-    await firestore
-        .collection('reviews')
-        .where('course_id', isEqualTo: courseId)
-        .orderBy('created_at', descending: true)
+    await _courseReviews(courseId)
+        .orderBy('createdAt', descending: true)
         .limit(limit)
         .get()
         .then((QuerySnapshot? snapshot) {
@@ -214,15 +259,23 @@ class FirebaseService {
     return data;
   }
 
-  Future<QuerySnapshot?> getAllReviews(String courseId, DocumentSnapshot? lastDocument) async {
+  Future<QuerySnapshot?> getAllReviews(
+      String courseId, DocumentSnapshot? lastDocument) async {
     QuerySnapshot? result;
-    final CollectionReference ref = firestore.collection('reviews');
+    final CollectionReference ref = _courseReviews(courseId);
     if (lastDocument == null) {
-      await ref.orderBy('created_at', descending: false).get().then((QuerySnapshot? snap) {
+      await ref
+          .orderBy('createdAt', descending: false)
+          .get()
+          .then((QuerySnapshot? snap) {
         result = snap;
       });
     } else {
-      await ref.orderBy('created_at', descending: false).startAfterDocument(lastDocument).get().then((QuerySnapshot? snap) {
+      await ref
+          .orderBy('createdAt', descending: false)
+          .startAfterDocument(lastDocument)
+          .get()
+          .then((QuerySnapshot? snap) {
         result = snap;
       });
     }
@@ -233,7 +286,11 @@ class FirebaseService {
   Future<List<Tag>> getCourseTags(List tagIds) async {
     final List ids = tagIds.length > 10 ? tagIds.take(10).toList() : tagIds;
     List<Tag> data = [];
-    await firestore.collection('tags').where(FieldPath.documentId, whereIn: ids).get().then((QuerySnapshot? snapshot) {
+    await firestore
+        .collection('tags')
+        .where(FieldPath.documentId, whereIn: ids)
+        .get()
+        .then((QuerySnapshot? snapshot) {
       data = snapshot!.docs.map((e) => Tag.fromFirestore(e)).toList();
     });
     return data;
@@ -243,7 +300,11 @@ class FirebaseService {
     UserModel? user;
     try {
       final String userId = FirebaseAuth.instance.currentUser!.uid;
-      final DocumentSnapshot snap = await firestore.collection('users').doc(userId).get().timeout(const Duration(seconds: 10));
+      final DocumentSnapshot snap = await firestore
+          .collection('users')
+          .doc(userId)
+          .get()
+          .timeout(const Duration(seconds: 10));
       user = UserModel.fromFirebase(snap);
     } catch (e) {
       debugPrint('error on getting user data: $e');
@@ -261,7 +322,8 @@ class FirebaseService {
   }
 
   Future<UserModel?> getAuthorData(String authorId) async {
-    final DocumentSnapshot snap = await firestore.collection('users').doc(authorId).get();
+    final DocumentSnapshot snap =
+        await firestore.collection('users').doc(authorId).get();
     UserModel? user = UserModel.fromFirebase(snap);
     return user;
   }
@@ -269,7 +331,11 @@ class FirebaseService {
   Future<AppSettingsModel?> getAppSettingsData() async {
     AppSettingsModel? settings;
     try {
-      final DocumentSnapshot snap = await firestore.collection('settings').doc('app').get().timeout(const Duration(seconds: 10));
+      final DocumentSnapshot snap = await firestore
+          .collection('settings')
+          .doc('app')
+          .get()
+          .timeout(const Duration(seconds: 10));
       settings = AppSettingsModel.fromFirestore(snap);
     } catch (e) {
       debugPrint('error on getting app settings data: $e');
@@ -292,22 +358,38 @@ class FirebaseService {
     }
   }
 
-  Future updateEnrollment(UserModel user, Course course) async {
-    final DocumentReference ref = firestore.collection('users').doc(user.id);
-    final newCourseId = course.id;
-    final List courses = user.enrolledCourses ?? [];
-
-    if (courses.contains(newCourseId)) {
-      await ref.update({
-        'enrolled': FieldValue.arrayRemove([newCourseId])
+  Future<UserModel> updateEnrollment(UserModel user, Course course) async {
+    final userRef = firestore.collection('users').doc(user.id);
+    final courseRef = firestore.collection('courses').doc(course.id);
+    // Commit enrollment and its counter together; retries must never unenroll.
+    return firestore.runTransaction((transaction) async {
+      final userSnapshot = await transaction.get(userRef);
+      final courseSnapshot = await transaction.get(courseRef);
+      if (!userSnapshot.exists || !courseSnapshot.exists) {
+        throw StateError('User or course no longer exists');
+      }
+      final userData = userSnapshot.data()!;
+      if (userData['disabled'] == true || userData['deleted'] == true) {
+        throw StateError('Account is inactive');
+      }
+      final enrolled = List<String>.from(userData['enrolled'] ?? []);
+      final updatedUser = UserModel.fromFirebase(userSnapshot);
+      if (enrolled.contains(course.id)) return updatedUser;
+      transaction.update(userRef, {
+        'enrolled': FieldValue.arrayUnion([course.id]),
+        'enrolled_at.${course.id}': FieldValue.serverTimestamp(),
       });
-    } else {
-      courses.add(newCourseId);
-      await ref.update({'enrolled': FieldValue.arrayUnion(courses)});
-    }
+      transaction.update(courseRef, {
+        'students':
+            (courseSnapshot.data()!['students'] as num? ?? 0).toInt() + 1,
+      });
+      updatedUser.enrolledCourses = [...enrolled, course.id];
+      return updatedUser;
+    });
   }
 
-  Future updateLessonMarkComplete(UserModel user, Course course, Lesson lesson) async {
+  Future updateLessonMarkComplete(
+      UserModel user, Course course, Lesson lesson) async {
     final DocumentReference ref = firestore.collection('users').doc(user.id);
 
     //course_id + lesson_id
@@ -337,7 +419,12 @@ class FirebaseService {
 
   Future<List<UserModel>> getTopAuthors({int limit = 5}) async {
     List<UserModel> data = [];
-    await firestore.collection('users').where('role', arrayContainsAny: ['author', 'admin']).limit(limit).get().then((QuerySnapshot? snapshot) {
+    await firestore
+        .collection('users')
+        .where('role', arrayContainsAny: ['author', 'admin'])
+        .limit(limit)
+        .get()
+        .then((QuerySnapshot? snapshot) {
           data = snapshot!.docs.map((e) => UserModel.fromFirebase(e)).toList();
         });
     return data;
@@ -345,24 +432,40 @@ class FirebaseService {
 
   Future<List<UserModel>> getAllAuthors() async {
     List<UserModel> data = [];
-    await firestore.collection('users').where('role', arrayContainsAny: ['author', 'admin']).get().then((QuerySnapshot? snapshot) {
+    await firestore
+        .collection('users')
+        .where('role', arrayContainsAny: ['author', 'admin'])
+        .get()
+        .then((QuerySnapshot? snapshot) {
           data = snapshot!.docs.map((e) => UserModel.fromFirebase(e)).toList();
         });
     return data;
   }
 
-  Future saveUserData(UserModel user) async {
-    try {
-      final data = UserModel.getMap(user);
-      await firestore.collection('users').doc(user.id).set(data, SetOptions(merge: true));
-    } catch (e) {
-      debugPrint('error on saving user data: $e');
-    }
+  Future<void> saveUserData(UserModel user) async {
+    final document = firestore.collection('users').doc(user.id);
+    await firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(document);
+      if (!snapshot.exists) {
+        transaction.set(document, {
+          ...UserModel.getMap(user),
+          'role': ['student'],
+          'disabled': false,
+          'enrolled': [],
+          'wishlist': [],
+          'completed_lessons': [],
+          'reviews': [],
+        });
+      }
+    });
   }
 
   Future updateUserProfile(UserModel user) async {
     try {
-      await firestore.collection('users').doc(user.id).update({'name': user.name, 'image_url': user.imageUrl});
+      await firestore
+          .collection('users')
+          .doc(user.id)
+          .update({'name': user.name, 'image_url': user.imageUrl});
     } catch (e) {
       debugPrint('Error on updating user profile: $e');
       openToast('Failed to update data');
@@ -370,7 +473,8 @@ class FirebaseService {
   }
 
   Future<bool> isUserExists(String userId) async {
-    DocumentSnapshot snap = await firestore.collection('users').doc(userId).get();
+    DocumentSnapshot snap =
+        await firestore.collection('users').doc(userId).get();
     if (snap.exists) {
       debugPrint('User Exists');
       return true;
@@ -382,30 +486,40 @@ class FirebaseService {
 
   //for wishlish and my courses
   Future<QuerySnapshot> getCoursesQuery(chunk) {
-    Query itemsQuery = FirebaseFirestore.instance.collection('courses').where(FieldPath.documentId, whereIn: chunk);
+    Query itemsQuery = FirebaseFirestore.instance
+        .collection('courses')
+        .where(FieldPath.documentId, whereIn: chunk);
     return itemsQuery.get();
   }
 
   Future saveReview(String courseId, Review review) async {
     final Map<String, dynamic> data = Review.getMap(review);
-    final DocumentReference ref = firestore.collection('reviews').doc(review.id);
+    final DocumentReference ref = _courseReviews(courseId).doc(review.id);
     await ref.set(data, SetOptions(merge: true));
   }
 
   Future<Review?> getUserReview(String courseId, String userId) async {
     Review? review;
-    final QuerySnapshot snap =
-        await firestore.collection('reviews').where('course_id', isEqualTo: courseId).where('user.id', isEqualTo: userId).limit(1).get();
+    final QuerySnapshot snap = await _courseReviews(courseId)
+        .where('userId', isEqualTo: userId)
+        .limit(1)
+        .get();
     if (snap.size != 0) {
       review = Review.fromFirebase(snap.docs.first);
     }
     return review;
   }
 
-  Future<QuerySnapshot> getCoursesSnapshotByCategory({required String categoryId, DocumentSnapshot? lastDocument}) async {
+  Future<QuerySnapshot> getCoursesSnapshotByCategory(
+      {required String categoryId, DocumentSnapshot? lastDocument}) async {
     QuerySnapshot snapshot;
     if (lastDocument == null) {
-      snapshot = await firestore.collection('courses').where('cat_id', isEqualTo: categoryId).where('status', isEqualTo: 'live').limit(10).get();
+      snapshot = await firestore
+          .collection('courses')
+          .where('cat_id', isEqualTo: categoryId)
+          .where('status', isEqualTo: 'live')
+          .limit(10)
+          .get();
     } else {
       snapshot = await firestore
           .collection('courses')
@@ -418,10 +532,16 @@ class FirebaseService {
     return snapshot;
   }
 
-  Future<QuerySnapshot> getCoursesSnapshotByLatest({DocumentSnapshot? lastDocument}) async {
+  Future<QuerySnapshot> getCoursesSnapshotByLatest(
+      {DocumentSnapshot? lastDocument}) async {
     QuerySnapshot snapshot;
     if (lastDocument == null) {
-      snapshot = await firestore.collection('courses').where('status', isEqualTo: 'live').orderBy('created_at', descending: true).limit(10).get();
+      snapshot = await firestore
+          .collection('courses')
+          .where('status', isEqualTo: 'live')
+          .orderBy('created_at', descending: true)
+          .limit(10)
+          .get();
     } else {
       snapshot = await firestore
           .collection('courses')
@@ -434,10 +554,16 @@ class FirebaseService {
     return snapshot;
   }
 
-  Future<QuerySnapshot> getCoursesSnapshotByFreeCourses({DocumentSnapshot? lastDocument}) async {
+  Future<QuerySnapshot> getCoursesSnapshotByFreeCourses(
+      {DocumentSnapshot? lastDocument}) async {
     QuerySnapshot snapshot;
     if (lastDocument == null) {
-      snapshot = await firestore.collection('courses').where('price_status', isEqualTo: 'free').where('status', isEqualTo: 'live').limit(10).get();
+      snapshot = await firestore
+          .collection('courses')
+          .where('price_status', isEqualTo: 'free')
+          .where('status', isEqualTo: 'live')
+          .limit(10)
+          .get();
     } else {
       snapshot = await firestore
           .collection('courses')
@@ -450,10 +576,16 @@ class FirebaseService {
     return snapshot;
   }
 
-  Future<QuerySnapshot> getCoursesSnapshotByTag({required String tagId, DocumentSnapshot? lastDocument}) async {
+  Future<QuerySnapshot> getCoursesSnapshotByTag(
+      {required String tagId, DocumentSnapshot? lastDocument}) async {
     QuerySnapshot snapshot;
     if (lastDocument == null) {
-      snapshot = await firestore.collection('courses').where('tag_ids', arrayContains: tagId).where('status', isEqualTo: 'live').limit(10).get();
+      snapshot = await firestore
+          .collection('courses')
+          .where('tag_ids', arrayContains: tagId)
+          .where('status', isEqualTo: 'live')
+          .limit(10)
+          .get();
     } else {
       snapshot = await firestore
           .collection('courses')
@@ -466,10 +598,16 @@ class FirebaseService {
     return snapshot;
   }
 
-  Future<QuerySnapshot> getCoursesSnapshotByAuhtor({required String authorId, DocumentSnapshot? lastDocument}) async {
+  Future<QuerySnapshot> getCoursesSnapshotByAuhtor(
+      {required String authorId, DocumentSnapshot? lastDocument}) async {
     QuerySnapshot snapshot;
     if (lastDocument == null) {
-      snapshot = await firestore.collection('courses').where('author.id', isEqualTo: authorId).where('status', isEqualTo: 'live').limit(10).get();
+      snapshot = await firestore
+          .collection('courses')
+          .where('author.id', isEqualTo: authorId)
+          .where('status', isEqualTo: 'live')
+          .limit(10)
+          .get();
     } else {
       snapshot = await firestore
           .collection('courses')
@@ -482,16 +620,17 @@ class FirebaseService {
     return snapshot;
   }
 
-  Future<QuerySnapshot> getReviewsSnapshot({required String courseId, DocumentSnapshot? lastDocument}) async {
+  Future<QuerySnapshot> getReviewsSnapshot(
+      {required String courseId, DocumentSnapshot? lastDocument}) async {
     QuerySnapshot snapshot;
     if (lastDocument == null) {
-      snapshot =
-          await firestore.collection('reviews').where('course_id', isEqualTo: courseId).orderBy('created_at', descending: true).limit(10).get();
+      snapshot = await _courseReviews(courseId)
+          .orderBy('createdAt', descending: true)
+          .limit(10)
+          .get();
     } else {
-      snapshot = await firestore
-          .collection('reviews')
-          .where('course_id', isEqualTo: courseId)
-          .orderBy('created_at', descending: true)
+      snapshot = await _courseReviews(courseId)
+          .orderBy('createdAt', descending: true)
           .startAfterDocument(lastDocument)
           .limit(10)
           .get();
@@ -503,7 +642,8 @@ class FirebaseService {
     String? imageUrl;
     final File image = File(imageFile.path);
     final String imageName = imageFile.name;
-    final Reference storageReference = FirebaseStorage.instance.ref().child('user_images/$imageName');
+    final Reference storageReference =
+        FirebaseStorage.instance.ref().child('user_images/$imageName');
     final UploadTask uploadTask = storageReference.putFile(image);
     await uploadTask.whenComplete(() async {
       imageUrl = await storageReference.getDownloadURL();
@@ -512,16 +652,24 @@ class FirebaseService {
   }
 
   Future<int> getAuthorReviewsCount(String auhtorId) async {
-    final CollectionReference collectionReference = firestore.collection('reviews');
-    final AggregateQuerySnapshot snap = await collectionReference.where('course_author_id', isEqualTo: auhtorId).count().get();
+    final CollectionReference collectionReference =
+        firestore.collection('reviews');
+    final AggregateQuerySnapshot snap = await collectionReference
+        .where('course_author_id', isEqualTo: auhtorId)
+        .count()
+        .get();
     int count = snap.count ?? 0;
     return count;
   }
 
   Future<int> getAuthorCourseCount(String auhtorId) async {
-    final CollectionReference collectionReference = firestore.collection('courses');
-    final AggregateQuerySnapshot snap =
-        await collectionReference.where('author.id', isEqualTo: auhtorId).where('status', isEqualTo: 'live').count().get();
+    final CollectionReference collectionReference =
+        firestore.collection('courses');
+    final AggregateQuerySnapshot snap = await collectionReference
+        .where('author.id', isEqualTo: auhtorId)
+        .where('status', isEqualTo: 'live')
+        .count()
+        .get();
     int count = snap.count ?? 0;
     return count;
   }
@@ -532,9 +680,9 @@ class FirebaseService {
 
   Future<double> getCourseAverageRating(String courseId) async {
     double averageRating = 0.0;
-    final CollectionReference collectionReference = firestore.collection('reviews');
-    final QuerySnapshot snapshot = await collectionReference.where('course_id', isEqualTo: courseId).get();
-    final List<Review> reviews = snapshot.docs.map((e) => Review.fromFirebase(e)).toList();
+    final QuerySnapshot snapshot = await _courseReviews(courseId).get();
+    final List<Review> reviews =
+        snapshot.docs.map((e) => Review.fromFirebase(e)).toList();
 
     if (reviews.isEmpty) {
       averageRating = 0.0;
@@ -543,7 +691,8 @@ class FirebaseService {
     } else {
       final int totalRatingCount = reviews.length;
       double totalRatingValue = 0;
-      reviews.forEach((element) => totalRatingValue = totalRatingValue + element.rating);
+      reviews.forEach(
+          (element) => totalRatingValue = totalRatingValue + element.rating);
       averageRating = totalRatingValue / totalRatingCount;
     }
 
@@ -551,8 +700,12 @@ class FirebaseService {
   }
 
   Future saveCourseRating(String courseId, double rating) async {
-    final CollectionReference collectionReference = firestore.collection('courses');
-    await collectionReference.doc(courseId).update({'rating': rating}).catchError((error) => openToast('Failed to update course rating'));
+    final CollectionReference collectionReference =
+        firestore.collection('courses');
+    await collectionReference
+        .doc(courseId)
+        .update({'rating': rating}).catchError(
+            (error) => openToast('Failed to update course rating'));
   }
 
   Future updateUserStats() async {
@@ -562,11 +715,15 @@ class FirebaseService {
       return transaction.get(docRef).then((DocumentSnapshot snapshot) {
         if (snapshot.exists) {
           final ChartModel chartModel = ChartModel.fromFirestore(snapshot);
-          final newChartModel = ChartModel(id: chartModel.id, count: chartModel.count + 1, timestamp: chartModel.timestamp);
+          final newChartModel = ChartModel(
+              id: chartModel.id,
+              count: chartModel.count + 1,
+              timestamp: chartModel.timestamp);
           final Map<String, dynamic> data = ChartModel.getMap(newChartModel);
           transaction.set(docRef, data, SetOptions(merge: true));
         } else {
-          final newChartModel = ChartModel(id: id, count: 1, timestamp: DateTime.now().toUtc());
+          final newChartModel =
+              ChartModel(id: id, count: 1, timestamp: DateTime.now().toUtc());
           final Map<String, dynamic> data = ChartModel.getMap(newChartModel);
           transaction.set(docRef, data, SetOptions(merge: true));
         }
@@ -576,16 +733,21 @@ class FirebaseService {
 
   Future updatePurchaseStats() async {
     final String id = AppService.getTodaysID();
-    final DocumentReference docRef = firestore.collection('purchase_stats').doc(id);
+    final DocumentReference docRef =
+        firestore.collection('purchase_stats').doc(id);
     await firestore.runTransaction((transaction) {
       return transaction.get(docRef).then((DocumentSnapshot snapshot) {
         if (snapshot.exists) {
           final ChartModel chartModel = ChartModel.fromFirestore(snapshot);
-          final newChartModel = ChartModel(id: chartModel.id, count: chartModel.count + 1, timestamp: chartModel.timestamp);
+          final newChartModel = ChartModel(
+              id: chartModel.id,
+              count: chartModel.count + 1,
+              timestamp: chartModel.timestamp);
           final Map<String, dynamic> data = ChartModel.getMap(newChartModel);
           transaction.set(docRef, data, SetOptions(merge: true));
         } else {
-          final newChartModel = ChartModel(id: id, count: 1, timestamp: DateTime.now().toUtc());
+          final newChartModel =
+              ChartModel(id: id, count: 1, timestamp: DateTime.now().toUtc());
           final Map<String, dynamic> data = ChartModel.getMap(newChartModel);
           transaction.set(docRef, data, SetOptions(merge: true));
         }

@@ -118,16 +118,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final user = ref.watch(userDataProvider);
     final isDarkMode = ref.watch(themeProvider).isDarkMode;
     final primaryColor = Theme.of(context).primaryColor;
-    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    const lightBg = Color(0xFFFDE9F1);
     final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: isDarkMode ? const Color(0xFF0F111A) : lightBg,
       appBar: AppBar(
         title: const Text('profile').tr(),
         elevation: 0,
-        backgroundColor: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
-        foregroundColor: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+        backgroundColor: isDarkMode ? const Color(0xFF0F111A) : lightBg,
+        foregroundColor: isDarkMode ? Colors.white : const Color(0xFF1B1E2E),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(
@@ -143,26 +143,42 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Avatar Section
-            _buildAvatarSection(isDarkMode, primaryColor, cardBgColor),
-            const SizedBox(height: 24),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDarkMode
+                ? [const Color(0xFF0F111A), const Color(0xFF141726)]
+                : [
+                    lightBg,
+                    const Color(0xFFFDE9F1),
+                    const Color(0xFFFFF2F7),
+                  ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Avatar Section
+              _buildAvatarSection(isDarkMode, primaryColor, cardBgColor),
+              const SizedBox(height: 14),
 
-            // Name Section
-            _buildNameSection(isDarkMode, primaryColor, cardBgColor),
-            const SizedBox(height: 24),
+              // Name Section
+              _buildNameSection(isDarkMode, primaryColor, cardBgColor),
+              const SizedBox(height: 14),
 
-            // Email Section (read-only)
-            _buildEmailSection(user, isDarkMode, cardBgColor),
-            const SizedBox(height: 24),
+              // Email Section (read-only)
+              _buildEmailSection(user, isDarkMode, primaryColor, cardBgColor),
+              const SizedBox(height: 14),
 
-            // Password Section
-            _buildPasswordSection(isDarkMode, primaryColor, cardBgColor),
-          ],
+              // Password Section
+              _buildPasswordSection(isDarkMode, primaryColor, cardBgColor),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
@@ -171,16 +187,26 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _buildAvatarSection(bool isDarkMode, Color primaryColor, Color cardBgColor) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: cardBgColor,
-        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          colors: isDarkMode
+              ? [const Color(0xFF262B40), const Color(0xFF1E202C)]
+              : [Colors.white, primaryColor.withValues(alpha: 0.12)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: primaryColor.withValues(alpha: isDarkMode ? 0.35 : 0.2),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
                 ? Colors.black.withValues(alpha: 0.3)
-                : Colors.indigo.withValues(alpha: 0.05),
-            blurRadius: 18,
+                : primaryColor.withValues(alpha: 0.12),
+            blurRadius: 16,
             offset: const Offset(0, 6),
           ),
         ],
@@ -192,17 +218,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             child: Stack(
               children: [
                 Container(
-                  decoration: BoxDecoration(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: primaryColor.withValues(alpha: 0.3),
-                      width: 3,
-                    ),
+                    color: Color(0xFFFCDCE9),
                   ),
                   child: UserAvatar(
                     imageUrl: _imageUrl,
                     imageFile: _selectedImageFile,
-                    radius: 60,
+                    radius: 56,
                     iconSize: 30,
                   ),
                 ),
@@ -249,10 +273,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _buildNameSection(bool isDarkMode, Color primaryColor, Color cardBgColor) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: primaryColor.withValues(alpha: isDarkMode ? 0.25 : 0.14),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
@@ -362,13 +390,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildEmailSection(UserModel? user, bool isDarkMode, Color cardBgColor) {
+  Widget _buildEmailSection(UserModel? user, bool isDarkMode, Color primaryColor, Color cardBgColor) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: primaryColor.withValues(alpha: isDarkMode ? 0.25 : 0.14),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
@@ -427,10 +459,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _buildPasswordSection(bool isDarkMode, Color primaryColor, Color cardBgColor) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: cardBgColor,
-        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          colors: isDarkMode
+              ? [const Color(0xFF232738), cardBgColor]
+              : [cardBgColor, primaryColor.withValues(alpha: 0.05)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: primaryColor.withValues(alpha: isDarkMode ? 0.25 : 0.14),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: isDarkMode

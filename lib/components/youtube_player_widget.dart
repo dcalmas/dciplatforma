@@ -9,11 +9,15 @@ class YoutubePlayerWidget extends StatefulWidget {
     required this.videoUrl,
     this.thumbnailUrl,
     this.body,
+    this.pageBuilder,
+    this.autoPlay = true,
   });
 
   final String videoUrl;
   final String? thumbnailUrl;
   final Widget? body;
+  final Widget Function(BuildContext context, Widget player)? pageBuilder;
+  final bool autoPlay;
 
   @override
   State<YoutubePlayerWidget> createState() => _YoutubePlayerWidgetState();
@@ -27,8 +31,8 @@ class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
     final String? videoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
     _controller = YoutubePlayerController(
       initialVideoId: videoId ?? '',
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
+      flags: YoutubePlayerFlags(
+        autoPlay: widget.autoPlay,
         mute: false,
         loop: false,
         forceHD: true, // HD сапасына басымдық беру
@@ -58,13 +62,13 @@ class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
         controller: _controller,
         showVideoProgressIndicator: true,
         progressIndicatorColor: Colors.blueAccent,
-        bottomActions: [
-          const SizedBox(width: 14.0),
+        bottomActions: const [
+          SizedBox(width: 14.0),
           CurrentPosition(),
-          const SizedBox(width: 8.0),
+          SizedBox(width: 8.0),
           ProgressBar(isExpanded: true),
           RemainingDuration(),
-          const PlaybackSpeedButton(),
+          PlaybackSpeedButton(),
           FullScreenButton(),
         ],
         onReady: () {
@@ -72,6 +76,9 @@ class _YoutubePlayerWidgetState extends State<YoutubePlayerWidget> {
         },
       ),
       builder: (context, player) {
+        if (widget.pageBuilder != null) {
+          return widget.pageBuilder!(context, player);
+        }
         return Scaffold(
           backgroundColor: Colors.grey.shade900,
           appBar: AppBar(

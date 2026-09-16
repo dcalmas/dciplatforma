@@ -29,23 +29,24 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
 
     final courseId = widget.course.id;
     final completedList = widget.user.completedLessons ?? [];
-    List validIds = completedList
-        .where((element) {
-          final id = element.toString();
-          return id.startsWith('${courseId}_');
-        })
-        .toList();
-    final int totalLessons = widget.course.lessonsCount > 0 ? widget.course.lessonsCount : 1;
+    List validIds = completedList.where((element) {
+      final id = element.toString();
+      return id.startsWith('${courseId}_');
+    }).toList();
+    final int totalLessons =
+        widget.course.lessonsCount > 0 ? widget.course.lessonsCount : 1;
     final double courseProgress = validIds.isEmpty
         ? 0.0
         : (validIds.length / totalLessons).clamp(0.0, 1.0);
-    final String courseProgressString = (courseProgress * 100).toStringAsFixed(0);
+    final String courseProgressString =
+        (courseProgress * 100).toStringAsFixed(0);
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _scale = 0.97),
       onTapUp: (_) {
         setState(() => _scale = 1.0);
-        NextScreen.iOS(context, CourseDetailsView(course: widget.course, heroTag: heroTag));
+        NextScreen.iOS(context,
+            CourseDetailsView(course: widget.course, heroTag: heroTag));
       },
       onTapCancel: () => setState(() => _scale = 1.0),
       child: AnimatedScale(
@@ -54,10 +55,12 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
         curve: Curves.easeOutCubic,
         child: Container(
           margin: const EdgeInsets.only(bottom: 14),
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color: primaryColor.withValues(alpha: isDarkMode ? 0.4 : 0.25)),
             boxShadow: [
               BoxShadow(
                 color: isDarkMode
@@ -68,107 +71,119 @@ class _MyCourseTileState extends State<MyCourseTile> with UserMixin {
               ),
             ],
           ),
-          child: Row(
-            children: [
-              // Course Thumbnail with rounded corners
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: Hero(
-                    tag: heroTag,
-                    child: CustomCacheImage(imageUrl: widget.course.thumbnailUrl, radius: 16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final coverWidth = (constraints.maxWidth * 0.4).clamp(0.0, 180.0);
+              return Stack(
+                children: [
+                  PositionedDirectional(
+                    start: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: coverWidth,
+                    child: Hero(
+                      tag: heroTag,
+                      child: CustomCacheImage(
+                        imageUrl: widget.course.thumbnailUrl,
+                        radius: 14,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 16),
-
-              // Course Details & Progress
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.course.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        height: 1.3,
-                        color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      widget.course.author.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: primaryColor,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Progress Bar
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: LinearProgressIndicator(
-                        value: courseProgress,
-                        minHeight: 6,
-                        backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          courseProgress > 0 ? primaryColor : Colors.grey[300]!,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Bottom Row: Percent & Action Button
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '$courseProgressString% ${"percent-completed".tr(args: [""])}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                  Padding(
+                    padding: EdgeInsetsDirectional.only(start: coverWidth + 14),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 150),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.course.name,
                             style: TextStyle(
-                              fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                              fontSize: 16,
+                              height: 1.3,
+                              color: isDarkMode
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () => handleOpenCourse(context, user: widget.user, course: widget.course),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: primaryColor.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(14),
+                          const SizedBox(height: 6),
+                          Text(
+                            widget.course.author.name,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: primaryColor,
                             ),
-                            child: Text(
-                              CourseMixin.enrollButtonText(widget.course, widget.user).tr(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: primaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                          ),
+                          const SizedBox(height: 16),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: LinearProgressIndicator(
+                              value: courseProgress,
+                              minHeight: 7,
+                              backgroundColor: isDarkMode
+                                  ? Colors.grey[800]
+                                  : Colors.grey[200],
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(primaryColor),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          // Keep progress readable when the action needs its own line.
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                'percent-completed'
+                                    .tr(args: [courseProgressString]),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDarkMode
+                                      ? Colors.grey[400]
+                                      : const Color(0xFF686B82),
+                                ),
                               ),
-                            ),
+                              TextButton(
+                                onPressed: () => handleOpenCourse(
+                                  context,
+                                  user: widget.user,
+                                  course: widget.course,
+                                ),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: primaryColor,
+                                  backgroundColor:
+                                      primaryColor.withValues(alpha: 0.08),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  minimumSize: const Size(0, 36),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                ),
+                                child: Text(
+                                  CourseMixin.enrollButtonText(
+                                          widget.course, widget.user)
+                                      .tr(),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

@@ -1,3 +1,4 @@
+import 'home_course_cards.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,8 @@ class HomeTab extends ConsumerStatefulWidget {
   ConsumerState<HomeTab> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerProviderStateMixin {
+class _HomeTabState extends ConsumerState<HomeTab>
+    with UserMixin, SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedCategoryId = 'all';
@@ -68,7 +70,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).primaryColor;
 
-    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    final bgColor =
+        isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
     final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
 
     return Scaffold(
@@ -104,7 +107,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                       ),
                     ],
             ),
-            padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 16, 20, 16),
+            padding: EdgeInsets.fromLTRB(
+                20, MediaQuery.of(context).padding.top + 8, 16, 10),
             child: _buildTopHeader(context, user, isDarkMode, primaryColor),
           ),
           Expanded(
@@ -123,148 +127,171 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                   ),
                 ),
                 data: (courses) {
-              final List<Course> filteredCourses = courses.where((course) {
-                final matchesCategory =
-                    _selectedCategoryId == 'all' || course.categoryId == _selectedCategoryId;
-                final matchesSearch = _searchQuery.isEmpty ||
-                    course.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                    course.author.name.toLowerCase().contains(_searchQuery.toLowerCase());
-                return matchesCategory && matchesSearch;
-              }).toList();
+                  final List<Course> filteredCourses = courses.where((course) {
+                    final matchesCategory = _selectedCategoryId == 'all' ||
+                        course.categoryId == _selectedCategoryId;
+                    final matchesSearch = _searchQuery.isEmpty ||
+                        course.name
+                            .toLowerCase()
+                            .contains(_searchQuery.toLowerCase()) ||
+                        course.author.name
+                            .toLowerCase()
+                            .contains(_searchQuery.toLowerCase());
+                    return matchesCategory && matchesSearch;
+                  }).toList();
 
-              Course? activeCourse;
-              if (courses.isNotEmpty) {
-                if (user?.enrolledCourses != null && user!.enrolledCourses!.isNotEmpty) {
-                  final enrolledId = user.enrolledCourses!.last;
-                  activeCourse = courses.firstWhere(
-                    (c) => c.id == enrolledId,
-                    orElse: () => courses.first,
-                  );
-                } else {
-                  activeCourse = courses.first;
-                }
-              }
+                  Course? activeCourse;
+                  if (courses.isNotEmpty) {
+                    if (user?.enrolledCourses != null &&
+                        user!.enrolledCourses!.isNotEmpty) {
+                      final enrolledId = user.enrolledCourses!.last;
+                      activeCourse = courses.firstWhere(
+                        (c) => c.id == enrolledId,
+                        orElse: () => courses.first,
+                      );
+                    } else {
+                      activeCourse = courses.first;
+                    }
+                  }
 
-              return SingleChildScrollView(
-                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 90),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Active Course Card ("Continue Learning")
-                    if (_searchQuery.isEmpty && activeCourse != null) ...[
-                      _buildActiveCourseCard(context, activeCourse, user, primaryColor, isDarkMode),
-                      const SizedBox(height: 20),
-                    ],
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics()),
+                    padding: const EdgeInsets.only(
+                        left: 16, right: 16, top: 10, bottom: 110),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Active Course Card ("Continue Learning")
+                        if (_searchQuery.isEmpty && activeCourse != null) ...[
+                          _buildActiveCourseCard(context, activeCourse, user,
+                              primaryColor, isDarkMode),
+                          const SizedBox(height: 14),
+                        ],
 
-                    // Search & Filter input
-                    _buildSearchBar(context, isDarkMode, primaryColor),
-                    const SizedBox(height: 16),
+                        // Search & Filter input
+                        _buildSearchBar(context, isDarkMode, primaryColor),
+                        const SizedBox(height: 16),
 
-                    // Categories Horizontal Selector
-                    if (_searchQuery.isEmpty)
-                      categoriesState.when(
-                        loading: () => const SizedBox(height: 44),
-                        error: (err, stack) => const SizedBox(height: 44),
-                        data: (categories) => _buildCategoryList(categories, isDarkMode, primaryColor),
-                      ),
-
-                    // Header for Search Results or Section Title
-                    if (_searchQuery.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Text(
-                          '${"search".tr()}: "$_searchQuery"',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: isDarkMode ? Colors.white : const Color(0xFF1E293B),
+                        // Categories Horizontal Selector
+                        if (_searchQuery.isEmpty)
+                          categoriesState.when(
+                            loading: () => const SizedBox(height: 44),
+                            error: (err, stack) => _buildCategoryList(
+                                [], isDarkMode, primaryColor),
+                            data: (categories) => _buildCategoryList(
+                                categories, isDarkMode, primaryColor),
                           ),
-                        ),
-                      ),
-                    ] else ...[
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'courses'.tr(),
+
+                        // Header for Search Results or Section Title
+                        if (_searchQuery.isNotEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Text(
+                              '${"search".tr()}: "$_searchQuery"',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
-                                color: isDarkMode ? Colors.white : const Color(0xFF1E293B),
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : const Color(0xFF1E293B),
                               ),
                             ),
-                            Text(
-                              '${filteredCourses.length} ${"courses".tr().toLowerCase()}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    // Staggered Course List
-                    if (filteredCourses.isNotEmpty)
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: filteredCourses.length,
-                        itemBuilder: (context, index) {
-                          final course = filteredCourses[index];
-                          return StaggeredListItem(
-                            index: index,
-                            controller: _animationController,
-                            child: _BouncingCard(
-                              onTap: () {
-                                NextScreen.iOS(
-                                  context,
-                                  CourseDetailsView(course: course, heroTag: UniqueKey()),
-                                );
-                              },
-                              child: _buildCourseCard(context, course, isDarkMode, cardBgColor, primaryColor),
-                            ),
-                          );
-                        },
-                      ),
-
-                    // Empty State
-                    if (filteredCourses.isEmpty)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 60),
-                          child: Column(
-                            children: [
-                              Icon(FeatherIcons.inbox, size: 48, color: Colors.grey[400]),
-                              const SizedBox(height: 12),
-                              Text(
-                                'no-course'.tr(),
-                                style: TextStyle(color: Colors.grey[500], fontSize: 15),
-                              ),
-                            ],
                           ),
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
-          ),
+                        ] else ...[
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'courses'.tr(),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: isDarkMode
+                                        ? Colors.white
+                                        : const Color(0xFF1E293B),
+                                  ),
+                                ),
+                                Text(
+                                  '${filteredCourses.length} ${"courses".tr().toLowerCase()}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: isDarkMode
+                                        ? Colors.grey[400]
+                                        : Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+
+                        // Staggered Course List
+                        if (filteredCourses.isNotEmpty)
+                          ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: filteredCourses.length,
+                            itemBuilder: (context, index) {
+                              final course = filteredCourses[index];
+                              return StaggeredListItem(
+                                index: index,
+                                controller: _animationController,
+                                child: _BouncingCard(
+                                  onTap: () {
+                                    NextScreen.iOS(
+                                      context,
+                                      CourseDetailsView(
+                                          course: course, heroTag: UniqueKey()),
+                                    );
+                                  },
+                                  child: _buildCourseCard(context, course,
+                                      isDarkMode, cardBgColor, primaryColor),
+                                ),
+                              );
+                            },
+                          ),
+
+                        // Empty State
+                        if (filteredCourses.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 60),
+                              child: Column(
+                                children: [
+                                  Icon(FeatherIcons.inbox,
+                                      size: 48, color: Colors.grey[400]),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'no-course'.tr(),
+                                    style: TextStyle(
+                                        color: Colors.grey[500], fontSize: 15),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTopHeader(BuildContext context, dynamic user, bool isDarkMode, Color primaryColor) {
+  Widget _buildTopHeader(
+      BuildContext context, dynamic user, bool isDarkMode, Color primaryColor) {
     final now = DateTime.now();
-    final monthName = DateFormat('d MMM', context.locale.languageCode).format(now);
+    final monthName =
+        DateFormat('d MMM', context.locale.languageCode).format(now);
 
     return Row(
       children: [
@@ -273,34 +300,36 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
           onTap: () {
             final currentUser = ref.read(userDataProvider);
             if (currentUser == null) {
-              NextScreen.openBottomSheet(context, const LoginScreen(popUpScreen: true));
+              NextScreen.normal(
+                  context, const LoginScreen(popUpScreen: true));
             } else {
               NextScreen.iOS(context, const ProfilePage());
             }
           },
           child: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: primaryColor.withValues(alpha: 0.1),
-            border: Border.all(color: primaryColor.withValues(alpha: 0.3), width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: ClipOval(
-            child: user?.imageUrl != null && user!.imageUrl!.isNotEmpty
-                ? CustomCacheImage(imageUrl: user.imageUrl, radius: 24)
-                : Icon(FeatherIcons.user, color: primaryColor, size: 24),
-          ),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: primaryColor.withValues(alpha: 0.1),
+              border: Border.all(
+                  color: primaryColor.withValues(alpha: 0.3), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipOval(
+              child: user?.imageUrl != null && user!.imageUrl!.isNotEmpty
+                  ? CustomCacheImage(imageUrl: user.imageUrl, radius: 24)
+                  : Icon(FeatherIcons.user, color: primaryColor, size: 24),
+            ),
           ),
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 10),
 
         // Greeting Text
         Expanded(
@@ -313,15 +342,17 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 22,
+                  fontSize: 17,
                   color: isDarkMode ? Colors.white : const Color(0xFF1E293B),
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'courses'.tr(),
+                'home-continue-learning'.tr(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 10,
                   fontWeight: FontWeight.w500,
                   color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
                 ),
@@ -332,7 +363,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
 
         // Date Pill
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -353,7 +384,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
-                  color: isDarkMode ? Colors.grey[300] : const Color(0xFF334155),
+                  color:
+                      isDarkMode ? Colors.grey[300] : const Color(0xFF334155),
                 ),
               ),
             ],
@@ -367,184 +399,18 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
     );
   }
 
-  Widget _buildActiveCourseCard(
-      BuildContext context, Course course, dynamic user, Color primaryColor, bool isDarkMode) {
-    final heroTag = UniqueKey();
-    final completedCount = (user?.completedLessons ?? [])
-        .where((e) => e.toString().startsWith('${course.id}_'))
-        .length;
-    final totalLessons = course.lessonsCount > 0 ? course.lessonsCount : 10;
-    final progressRatio = (completedCount / totalLessons).clamp(0.0, 1.0);
-
+  Widget _buildActiveCourseCard(BuildContext context, Course course,
+      dynamic user, Color primaryColor, bool isDarkMode) {
     return _BouncingCard(
-      onTap: () {
-        NextScreen.iOS(context, CourseDetailsView(course: course, heroTag: heroTag));
-      },
-      child: Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(minHeight: 200),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              primaryColor,
-              primaryColor.withValues(alpha: 0.85),
-              const Color(0xFF6366F1),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: primaryColor.withValues(alpha: 0.3),
-              blurRadius: 28,
-              offset: const Offset(0, 14),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Soft background circle design element
-            Positioned(
-              right: -24,
-              top: -24,
-              child: Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.15),
-                ),
-              ),
-            ),
-            Positioned(
-              right: 40,
-              bottom: -30,
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.15),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Badge: "Оқуды жалғастыру"
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 16),
-                        const SizedBox(width: 8),
-                        Text(
-                          'my-courses'.tr(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Course Title
-                  Text(
-                    course.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 22,
-                      height: 1.25,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Bottom Row: Duration/Progress + Circular Play Button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(FeatherIcons.clock, color: Colors.white70, size: 15),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'count-lesson'.tr(args: [course.lessonsCount.toString()]),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6),
-                              child: LinearProgressIndicator(
-                                value: progressRatio > 0 ? progressRatio : 0.25,
-                                backgroundColor: Colors.white.withValues(alpha: 0.25),
-                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                                minHeight: 8,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Prominent Circular Play Button
-                      Container(
-                        width: 66,
-                        height: 66,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.18),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.play_arrow_rounded,
-                          color: primaryColor,
-                          size: 38,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      onTap: () => NextScreen.iOS(context, CourseDetailsView(course: course)),
+      child: HomeCourseBanner(course: course, user: user),
     );
   }
 
-  Widget _buildSearchBar(BuildContext context, bool isDarkMode, Color primaryColor) {
+  Widget _buildSearchBar(
+      BuildContext context, bool isDarkMode, Color primaryColor) {
     return Container(
-      height: 52,
+      height: 46,
       padding: const EdgeInsets.symmetric(horizontal: 18),
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
@@ -567,13 +433,13 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
         },
         style: TextStyle(
           color: isDarkMode ? Colors.white : Colors.black87,
-          fontSize: 15,
+          fontSize: 13,
         ),
         decoration: InputDecoration(
           hintText: 'search-placeholder'.tr(),
           hintStyle: TextStyle(
             color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
-            fontSize: 15,
+            fontSize: 13,
           ),
           icon: Icon(
             FeatherIcons.search,
@@ -587,194 +453,81 @@ class _HomeTabState extends ConsumerState<HomeTab> with UserMixin, SingleTickerP
     );
   }
 
-  Widget _buildCategoryList(List<Category> categories, bool isDarkMode, Color primaryColor) {
+  IconData _categoryIcon(String name) {
+    final label = name.toLowerCase();
+    if (RegExp(r'design|дизайн|ui/ux|граф').hasMatch(label)) {
+      return Icons.palette_outlined;
+    }
+    if (RegExp(r'business|бизнес|маркет|қаржы|финанс').hasMatch(label)) {
+      return Icons.bar_chart_rounded;
+    }
+    if (RegExp(r'code|program|програм|web|веб|it|технолог').hasMatch(label)) {
+      return Icons.laptop_mac_rounded;
+    }
+    if (RegExp(r'язык|тіл|language').hasMatch(label)) {
+      return Icons.language_rounded;
+    }
+    if (RegExp(r'текст|копирайт|writing').hasMatch(label)) {
+      return Icons.edit_note_rounded;
+    }
+    return Icons.auto_stories_outlined;
+  }
+
+  Widget _buildCategoryList(
+      List<Category> categories, bool isDarkMode, Color primaryColor) {
     return Container(
-      height: 44,
-      margin: const EdgeInsets.only(bottom: 4),
+      height: 40,
+      margin: const EdgeInsets.only(bottom: 18),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 0),
         itemCount: categories.length + 1,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final isAll = index == 0;
           final categoryId = isAll ? 'all' : categories[index - 1].id;
-          final categoryName = isAll ? 'all-categories'.tr() : categories[index - 1].name;
-          final isSelected = _selectedCategoryId == categoryId;
-
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedCategoryId = categoryId;
-              });
+          final name = isAll ? 'home-all'.tr() : categories[index - 1].name;
+          final selected = _selectedCategoryId == categoryId;
+          final color = selected
+              ? primaryColor
+              : (isDarkMode ? Colors.grey.shade300 : const Color(0xFF686B82));
+          return ActionChip(
+            onPressed: () {
+              setState(() => _selectedCategoryId = categoryId);
               _restartAnimations();
             },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? primaryColor
-                    : (isDarkMode ? const Color(0xFF1E202C) : Colors.white),
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [
-                  if (isSelected)
-                    BoxShadow(
-                      color: primaryColor.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    )
-                  else
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                ],
-              ),
-              child: Text(
-                categoryName,
+            avatar: Icon(isAll ? Icons.grid_view_rounded : _categoryIcon(name),
+                size: 18, color: color),
+            label: Text(name,
                 style: TextStyle(
-                  color: isSelected
-                      ? Colors.white
-                      : (isDarkMode ? Colors.grey[300] : const Color(0xFF475569)),
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  fontSize: 14,
-                ),
-              ),
-            ),
+                    fontSize: 12, color: color, fontWeight: FontWeight.w600)),
+            backgroundColor: selected
+                ? primaryColor.withValues(alpha: .12)
+                : (isDarkMode ? const Color(0xFF1E202C) : Colors.white),
+            side: BorderSide.none,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
           );
         },
       ),
     );
   }
 
-  Widget _buildCourseCard(
-      BuildContext context, Course course, bool isDarkMode, Color cardBgColor, Color primaryColor) {
-    final heroTag = UniqueKey();
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: cardBgColor,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: isDarkMode
-                ? Colors.black.withValues(alpha: 0.3)
-                : Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Card Header Image with Overlay Badges
-          Stack(
-            children: [
-              SizedBox(
-                height: 190,
-                width: double.infinity,
-                child: Hero(
-                  tag: heroTag,
-                  child: CustomCacheImage(
-                    imageUrl: course.thumbnailUrl,
-                    radius: 0,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 14,
-                right: 14,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    course.priceStatus == 'free' ? 'free'.tr() : 'premium'.tr(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title
-                Text(
-                  course.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    height: 1.3,
-                    color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Author & Rating
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        course.author.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
-                    const SizedBox(width: 4),
-                    Text(
-                      course.rating.toStringAsFixed(1),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: isDarkMode ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${course.studentsCount})',
-                      style: TextStyle(
-                        color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget _buildCourseCard(BuildContext context, Course course, bool isDarkMode,
+      Color cardBgColor, Color primaryColor) {
+    final categories =
+        ref.watch(categoriesProvider).asData?.value ?? <Category>[];
+    String? categoryName;
+    for (final category in categories) {
+      if (category.id == course.categoryId) {
+        categoryName = category.name;
+        break;
+      }
+    }
+    return HomeCourseCard(
+        course: course,
+        user: ref.watch(userDataProvider),
+        categoryName: categoryName);
   }
 }
 
@@ -821,7 +574,8 @@ class _NotificationBell extends StatelessWidget {
   final bool isDarkMode;
   final Color primaryColor;
 
-  const _NotificationBell({required this.isDarkMode, required this.primaryColor});
+  const _NotificationBell(
+      {required this.isDarkMode, required this.primaryColor});
 
   @override
   Widget build(BuildContext context) {
@@ -859,7 +613,9 @@ class _NotificationBell extends StatelessWidget {
                 Icon(
                   hasUnread ? FeatherIcons.bell : FeatherIcons.bell,
                   size: 20,
-                  color: hasUnread ? primaryColor : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+                  color: hasUnread
+                      ? primaryColor
+                      : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                 ),
                 if (hasUnread)
                   Positioned(

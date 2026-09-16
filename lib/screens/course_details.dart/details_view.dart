@@ -28,9 +28,21 @@ class CourseDetailsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    final bgColor =
+        isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
     final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
     final primaryColor = Theme.of(context).primaryColor;
+    final tagIds = course.tagIDs;
+    final hasTags = tagIds != null &&
+        tagIds.isNotEmpty &&
+        (ref.watch(courseTagsProvider(tagIds)).asData?.value.isNotEmpty ??
+            false);
+    final hasRelatedCourses =
+        ref.watch(relatedCoursesProvider(course)).asData?.value.isNotEmpty ??
+            false;
+    final reviews = ref.watch(courseReviewProvider(course.id));
+    final showReviews =
+        reviews.hasError || (reviews.asData?.value.isNotEmpty ?? false);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -48,7 +60,9 @@ class CourseDetailsView extends ConsumerWidget {
         child: Wrap(
           alignment: WrapAlignment.center,
           children: [
-            AdManager.isBannerEnbaled(ref) ? const BannerAdWidget() : Container(),
+            AdManager.isBannerEnbaled(ref)
+                ? const BannerAdWidget()
+                : Container(),
             EnrollButton(course: course),
           ],
         ),
@@ -104,9 +118,19 @@ class CourseDetailsView extends ConsumerWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(width: 36, height: 36, child: BookmarkButton(course: course, compact: true)),
-                    SizedBox(width: 36, height: 36, child: ReviewButton(course: course, compact: true)),
-                    SizedBox(width: 36, height: 36, child: CourseShareButton(course: course, compact: true)),
+                    SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: BookmarkButton(course: course, compact: true)),
+                    SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: ReviewButton(course: course, compact: true)),
+                    SizedBox(
+                        width: 36,
+                        height: 36,
+                        child:
+                            CourseShareButton(course: course, compact: true)),
                   ],
                 ),
               ),
@@ -116,7 +140,7 @@ class CourseDetailsView extends ConsumerWidget {
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(14, 8, 14, 90),
+        padding: const EdgeInsets.fromLTRB(14, 8, 14, 16),
         child: Column(
           children: [
             PreviewBox(course: course, heroTag: heroTag),
@@ -133,24 +157,27 @@ class CourseDetailsView extends ConsumerWidget {
             ),
             Requirements(course: course),
             CourseDescription(course: course),
-            _buildSectionCard(
-              isDarkMode: isDarkMode,
-              cardBgColor: cardBgColor,
-              primaryColor: primaryColor,
-              child: CourseTags(course: course),
-            ),
-            _buildSectionCard(
-              isDarkMode: isDarkMode,
-              cardBgColor: cardBgColor,
-              primaryColor: primaryColor,
-              child: RelatedCourses(course: course),
-            ),
-            _buildSectionCard(
-              isDarkMode: isDarkMode,
-              cardBgColor: cardBgColor,
-              primaryColor: primaryColor,
-              child: CourseReviews(course: course),
-            ),
+            if (hasTags)
+              _buildSectionCard(
+                isDarkMode: isDarkMode,
+                cardBgColor: cardBgColor,
+                primaryColor: primaryColor,
+                child: CourseTags(course: course),
+              ),
+            if (hasRelatedCourses)
+              _buildSectionCard(
+                isDarkMode: isDarkMode,
+                cardBgColor: cardBgColor,
+                primaryColor: primaryColor,
+                child: RelatedCourses(course: course),
+              ),
+            if (showReviews)
+              _buildSectionCard(
+                isDarkMode: isDarkMode,
+                cardBgColor: cardBgColor,
+                primaryColor: primaryColor,
+                child: CourseReviews(course: course),
+              ),
           ],
         ),
       ),

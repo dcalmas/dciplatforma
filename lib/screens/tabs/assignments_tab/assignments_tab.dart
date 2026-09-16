@@ -6,52 +6,74 @@ import 'package:lms_app/mixins/user_mixin.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/lesson.dart';
 import 'package:lms_app/providers/user_data_provider.dart';
+import 'package:lms_app/screens/article_lesson.dart';
+import 'package:lms_app/screens/auth/login.dart';
 import 'package:lms_app/screens/course_details.dart/details_view.dart';
+import 'package:lms_app/screens/quiz_lesson/quiz_screen.dart';
+import 'package:lms_app/screens/video_lesson.dart';
 import 'package:lms_app/services/firebase_service.dart';
+import 'package:lms_app/services/homework_service.dart';
 import 'package:lms_app/utils/loading_widget.dart';
 import 'package:lms_app/utils/next_screen.dart';
 import 'package:lms_app/utils/snackbars.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AssignmentItem {
+class HomeworkTaskItem {
   final Course course;
   final Lesson lesson;
-  AssignmentItem({required this.course, required this.lesson});
+  final Map<String, dynamic>? submission;
+  HomeworkTaskItem(
+      {required this.course, required this.lesson, this.submission});
 }
 
-final allAssignmentsProvider = FutureProvider<List<AssignmentItem>>((ref) async {
-  final List<Course> courses = await FirebaseService().getAllCourses();
-  final List<AssignmentItem> assignments = [];
+final homeworkTasksProvider =
+    FutureProvider<List<HomeworkTaskItem>>((ref) async {
+  final user = ref.watch(userDataProvider);
+  if (user == null) return [];
+  final service = FirebaseService();
+  final List<Course> courses = await service.getAllCourses();
+  final enrolledIds = user.enrolledCourses?.map((e) => e.toString()).toSet() ?? {};
+  final enrolled =
+      courses.where((c) => enrolledIds.contains(c.id)).toList();
+  final List<HomeworkTaskItem> tasks = [];
 
-  // Fetch sections and lessons in parallel
-  await Future.wait(courses.map((course) async {
+  await Future.wait(enrolled.map((course) async {
     try {
-      final sections = await FirebaseService().getSections(course.id);
+      final sections = await service.getSections(course.id);
+      Map<String, Map<String, dynamic>> submissions = {};
+      try {
+        submissions =
+            await HomeworkService().fetchCourseSubmissions(course.id);
+      } catch (e) {
+        debugPrint('homework submissions load failed: $e');
+      }
       await Future.wait(sections.map((section) async {
         try {
-          final lessons = await FirebaseService().getLessons(course.id, section.id);
-          for (var lesson in lessons) {
-            if (lesson.contentType == 'document' || (lesson.attachmentUrl != null && lesson.attachmentUrl!.isNotEmpty)) {
-              assignments.add(AssignmentItem(course: course, lesson: lesson));
+          final lessons = await service.getLessons(course.id, section.id);
+          for (final lesson in lessons) {
+            if (lesson.hasHomework) {
+              tasks.add(HomeworkTaskItem(
+                course: course,
+                lesson: lesson,
+                submission: submissions[lesson.id],
+              ));
             }
           }
         } catch (e) {
-          debugPrint('Error loading lessons for course ${course.id}: $e');
+          debugPrint('homework lessons load failed: $e');
         }
       }));
     } catch (e) {
-      debugPrint('Error loading sections for course ${course.id}: $e');
+      debugPrint('homework sections load failed: $e');
     }
   }));
 
-  // Sort by course name and then by lesson order
-  assignments.sort((a, b) {
-    int comp = a.course.name.compareTo(b.course.name);
+  tasks.sort((a, b) {
+    final comp = a.course.name.compareTo(b.course.name);
     if (comp != 0) return comp;
     return a.lesson.order.compareTo(b.lesson.order);
   });
-
-  return assignments;
+  return tasks;
 });
 
 class AssignmentsTab extends ConsumerWidget with UserMixin {
@@ -59,10 +81,12 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final assignmentsState = ref.watch(allAssignmentsProvider);
+    final tasksState = ref.watch(homeworkTasksProvider);
     final user = ref.watch(userDataProvider);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    final primaryColor = Theme.of(context).primaryColor;
+    final bgColor =
+        isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -82,35 +106,53 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
         ),
       ),
       body: RefreshIndicator.adaptive(
-        onRefresh: () async => await ref.refresh(allAssignmentsProvider.future),
-        child: assignmentsState.when(
+        onRefresh: () async => ref.invalidate(homeworkTasksProvider),
+        child: tasksState.when(
           loading: () => const Center(child: LoadingIndicatorWidget()),
-          error: (error, stack) => Center(
-            child: Text(
-              'error: $error',
-              style: const TextStyle(color: Colors.red),
-            ),
+          error: (error, stack) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height * 0.35),
+              Center(child: Text('error: $error')),
+            ],
           ),
-          data: (assignments) {
-            if (assignments.isEmpty) {
+          data: (tasks) {
+            if (user == null) {
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height * 0.3),
                   const Center(
-                    child: Icon(
-                      FeatherIcons.checkSquare,
-                      size: 64,
-                      color: Colors.grey,
+                      child: Icon(FeatherIcons.user,
+                          size: 64, color: Colors.grey)),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () => NextScreen.normal(
+                          context, const LoginScreen(popUpScreen: true)),
+                      child: const Text('login').tr(),
                     ),
+                  ),
+                ],
+              );
+            }
+            if (tasks.isEmpty) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                  const Center(
+                    child: Icon(FeatherIcons.checkSquare,
+                        size: 64, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
                   Center(
                     child: Text(
-                      'no-course'.tr(),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.grey,
-                          ),
+                      'homework_empty_list'.tr(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(color: Colors.grey),
                     ),
                   ),
                 ],
@@ -118,39 +160,48 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
             }
 
             return ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: assignments.length,
-              separatorBuilder: (context, index) => const Divider(height: 16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              itemCount: tasks.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                final item = assignments[index];
+                final item = tasks[index];
                 final course = item.course;
                 final lesson = item.lesson;
-
-                final isCompleted = user?.completedLessons?.contains(lesson.id) ?? false;
+                final submitted = HomeworkService.hasSubmittedHomework(
+                    item.submission);
                 final enrolled = hasEnrolled(user, course);
                 final isPremium = course.priceStatus != 'free';
                 final isPremiumUser = UserMixin.isUserPremium(user);
-                final hasAccess = !isPremium || enrolled || isPremiumUser;
+                final hasAccess =
+                    !isPremium || enrolled || isPremiumUser;
 
-                return Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                return Container(
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDarkMode
+                            ? Colors.black.withValues(alpha: 0.25)
+                            : Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  color: isDarkMode ? Colors.grey[900] : Colors.white,
                   child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 6),
                     leading: Container(
-                      padding: const EdgeInsets.all(10),
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
+                        color: primaryColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(
-                        FeatherIcons.fileText,
-                        color: Theme.of(context).primaryColor,
-                        size: 24,
-                      ),
+                      child: Icon(FeatherIcons.fileText,
+                          color: primaryColor, size: 22),
                     ),
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,53 +212,79 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(context).primaryColor,
+                            color: primaryColor,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          lesson.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                        const SizedBox(height: 3),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                lesson.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            if (lesson.homeworkRequired) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color:
+                                      primaryColor.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  'homework_badge'.tr(),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: primaryColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
-                    subtitle: lesson.description != null && lesson.description!.isNotEmpty
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              lesson.description!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                                fontSize: 13,
-                              ),
-                            ),
-                          )
-                        : null,
-                    trailing: _buildTrailingWidget(context, isCompleted, hasAccess, isDarkMode),
-                    onTap: () async {
-                      if (hasAccess) {
-                        if (lesson.attachmentUrl != null && lesson.attachmentUrl!.isNotEmpty) {
-                          final uri = Uri.parse(lesson.attachmentUrl!);
-                          if (await canLaunchUrl(uri)) {
-                            await launchUrl(uri, mode: LaunchMode.externalApplication);
-                          } else {
-                            if (context.mounted) {
-                              openSnackbar(context, 'Could not open task URL');
-                            }
-                          }
-                        } else {
-                          openSnackbar(context, 'No attachment file for this task');
-                        }
-                      } else {
-                        openSnackbar(context, 'subscribe-to-access-features'.tr());
-                        NextScreen.iOS(context, CourseDetailsView(course: course, heroTag: UniqueKey()));
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: _StatusLine(
+                          submission: item.submission,
+                          submitted: submitted,
+                          isDarkMode: isDarkMode),
+                    ),
+                    trailing: Icon(
+                      !hasAccess
+                          ? FeatherIcons.lock
+                          : submitted
+                              ? Icons.check_circle_rounded
+                              : FeatherIcons.chevronRight,
+                      color: submitted
+                          ? Colors.green
+                          : (isDarkMode
+                              ? Colors.grey[600]
+                              : Colors.grey[400]),
+                      size: 22,
+                    ),
+                    onTap: () {
+                      if (!hasAccess) {
+                        openSnackbar(context,
+                            'subscribe-to-access-features'.tr());
+                        NextScreen.iOS(
+                            context,
+                            CourseDetailsView(
+                                course: course, heroTag: UniqueKey()));
+                        return;
                       }
+                      _openLesson(context, course, lesson);
                     },
                   ),
                 );
@@ -219,32 +296,57 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
     );
   }
 
-  Widget _buildTrailingWidget(BuildContext context, bool isCompleted, bool hasAccess, bool isDarkMode) {
-    if (isCompleted) {
-      return Container(
-        padding: const EdgeInsets.all(4),
-        decoration: const BoxDecoration(
-          color: Colors.green,
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(
-          Icons.check,
-          color: Colors.white,
-          size: 16,
-        ),
-      );
-    } else if (!hasAccess) {
-      return Icon(
-        FeatherIcons.lock,
-        color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
-        size: 20,
-      );
+  void _openLesson(BuildContext context, Course course, Lesson lesson) {
+    if (lesson.contentType == 'document' && lesson.attachmentUrl != null) {
+      launchUrl(Uri.parse(lesson.attachmentUrl!),
+          mode: LaunchMode.externalApplication);
+    } else if ((lesson.contentType == 'video' && lesson.videoUrl != null) ||
+        lesson.contentType == 'iframe') {
+      NextScreen.iOS(context, VideoLesson(course: course, lesson: lesson));
+    } else if (lesson.contentType == 'article') {
+      NextScreen.iOS(context, ArticleLesson(lesson: lesson, course: course));
     } else {
-      return Icon(
-        FeatherIcons.download,
-        color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
-        size: 20,
-      );
+      NextScreen.iOS(context, QuizLesson(course: course, lesson: lesson));
     }
+  }
+}
+
+class _StatusLine extends StatelessWidget {
+  const _StatusLine(
+      {required this.submission,
+      required this.submitted,
+      required this.isDarkMode});
+
+  final Map<String, dynamic>? submission;
+  final bool submitted;
+  final bool isDarkMode;
+
+  @override
+  Widget build(BuildContext context) {
+    final String status = submission?['status'] as String? ?? 'none';
+    Color fg;
+    String label;
+    switch (status) {
+      case 'approved':
+        fg = Colors.green;
+        label = 'homework_status_approved'.tr();
+        break;
+      case 'rejected':
+        fg = Colors.red;
+        label = 'homework_status_rejected'.tr();
+        break;
+      case 'pending':
+        fg = Colors.amber.shade700;
+        label = 'homework_status_pending'.tr();
+        break;
+      default:
+        fg = isDarkMode ? Colors.grey[400]! : Colors.grey[500]!;
+        label = 'homework_hint'.tr();
+    }
+    return Text(
+      label,
+      style: TextStyle(
+          fontSize: 13, fontWeight: FontWeight.w600, color: fg),
+    );
   }
 }

@@ -38,7 +38,7 @@ class BookmarkButton extends ConsumerWidget {
   Future<void> _handleBookmark(BuildContext context, WidgetRef ref) async {
     final UserModel? user = ref.read(userDataProvider);
     if (user == null) {
-      NextScreen.openBottomSheet(context, const LoginScreen(popUpScreen: true));
+      NextScreen.normal(context, const LoginScreen(popUpScreen: true));
     } else {
       if (!user.wishList!.contains(course.id)) {
         openSnackbar(context, 'added-wishlist'.tr());

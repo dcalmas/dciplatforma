@@ -11,7 +11,7 @@ import '../../services/auth_service.dart';
 
 class SocialLogins extends StatefulWidget {
   const SocialLogins({super.key, required this.afterSignIn});
-  final VoidCallback afterSignIn;
+  final Future<void> Function() afterSignIn;
 
   @override
   State<SocialLogins> createState() => _SocialLoginsState();
@@ -34,58 +34,35 @@ class _SocialLoginsState extends State<SocialLogins> {
     return user;
   }
 
-  _validateData(UserCredential userCredential) async {
-    bool userExists = await FirebaseService().isUserExists(userCredential.user!.uid);
-    if (!userExists) {
-      await FirebaseService().saveUserData(_userModel(userCredential)).then((value) async {
-        await FirebaseService().updateUserStats();
-        widget.afterSignIn();
-      });
-    } else {
-      widget.afterSignIn();
+  bool _busy = false;
+
+  Future<void> _handleSignIn(
+    RoundedLoadingButtonController controller,
+    Future<UserCredential?> Function() authenticate,
+  ) async {
+    if (_busy) return;
+    _busy = true;
+    controller.start();
+    try {
+      final credential = await authenticate();
+      if (credential?.user == null) return;
+      await FirebaseService().saveUserData(_userModel(credential!));
+      if (mounted) await widget.afterSignIn();
+    } catch (error) {
+      if (mounted)
+        openSnackbarFailure(context, AuthService.errorMessage(error));
+    } finally {
+      _busy = false;
+      if (mounted) controller.reset();
     }
   }
 
-  _handleGoogleSignIn() async {
-    googleCtlr.start();
-    UserCredential? userCredential = await AuthService().signInWithGoogle().onError((error, stackTrace) {
-      googleCtlr.reset();
-      return null;
-    });
-    if (userCredential != null && userCredential.user != null) {
-      _validateData(userCredential);
-    } else {
-      googleCtlr.reset();
-    }
-  }
-
-  _handleFacebookSignIn() async {
-    fbController.start();
-    UserCredential? userCredential = await AuthService().signInWithFacebook().onError((error, stackTrace) {
-      fbController.reset();
-      return null;
-    });
-    if (userCredential != null && userCredential.user != null) {
-      _validateData(userCredential);
-    } else {
-      fbController.reset();
-      if (!mounted) return;
-      openSnackbarFailure(context, 'Error on Facebbok Login. Please try again!');
-    }
-  }
-
-  _handleAppleSignIn() async {
-    appleController.start();
-    UserCredential? userCredential = await AuthService().signInWithApple().onError((error, stackTrace) {
-      appleController.reset();
-      return null;
-    });
-    if (userCredential != null && userCredential.user != null) {
-      _validateData(userCredential);
-    } else {
-      appleController.reset();
-    }
-  }
+  Future<void> _handleGoogleSignIn() =>
+      _handleSignIn(googleCtlr, () => AuthService().signInWithGoogle());
+  Future<void> _handleFacebookSignIn() =>
+      _handleSignIn(fbController, () => AuthService().signInWithFacebook());
+  Future<void> _handleAppleSignIn() =>
+      _handleSignIn(appleController, () => AuthService().signInWithApple());
 
   @override
   Widget build(BuildContext context) {
@@ -197,6 +174,8 @@ class _GradientBorderButton extends StatelessWidget {
         ],
       ),
       child: RoundedLoadingButton(
+        width: MediaQuery.sizeOf(context).width,
+        height: 56,
         controller: controller,
         animateOnTap: false,
         color: Colors.transparent,
@@ -205,11 +184,12 @@ class _GradientBorderButton extends StatelessWidget {
         onPressed: onPressed,
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             gradient: LinearGradient(
-              colors: gradientColors.map((c) => c.withValues(alpha: 0.08)).toList(),
+              colors:
+                  gradientColors.map((c) => c.withValues(alpha: 0.08)).toList(),
             ),
             border: Border.all(
               color: gradientColors.first.withValues(alpha: 0.3),
@@ -224,15 +204,18 @@ class _GradientBorderButton extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: gradientColors.map((c) => c.withValues(alpha: 0.15)).toList(),
+                    colors: gradientColors
+                        .map((c) => c.withValues(alpha: 0.15))
+                        .toList(),
                   ),
                   shape: BoxShape.circle,
                 ),
                 child: FaIcon(icon, color: iconColors.first, size: 18),
               ),
               const SizedBox(width: 14),
-              Text(
-                'Sign in with $label',
+              Flexible(
+                  child: Text(
+                'Войти через $label',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -240,7 +223,7 @@ class _GradientBorderButton extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
                 ),
-              ),
+              )),
             ],
           ),
         ),

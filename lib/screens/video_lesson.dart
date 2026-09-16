@@ -4,10 +4,10 @@ import 'package:lms_app/components/youtube_player_widget.dart';
 import 'package:lms_app/services/app_service.dart';
 import 'package:lms_app/services/content_security_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import '../components/mark_complete_button.dart';
+import '../components/video_player_widget.dart';
 import '../models/course.dart';
 import '../models/lesson.dart';
-import 'video_player_screen.dart';
+import 'lesson_content_page.dart';
 
 class VideoLesson extends ConsumerStatefulWidget {
   const VideoLesson({super.key, required this.course, required this.lesson});
@@ -24,14 +24,24 @@ class _VideoLessonState extends ConsumerState<VideoLesson> {
 
   @override
   void initState() {
+    super.initState();
     ContentSecurityService().initContentSecurity(ref);
-    if (widget.lesson.contentType == 'iframe') {
+    if (widget.lesson.contentType == 'iframe' &&
+        (widget.lesson.videoUrl?.trim().isNotEmpty ?? false)) {
       _initIframe();
     }
-    super.initState();
   }
 
   void _initIframe() {
+    final source = widget.lesson.videoUrl!.trim();
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.black);
+    final uri = Uri.tryParse(source);
+    if (uri != null && (uri.scheme == 'https' || uri.scheme == 'http')) {
+      _webViewController!.loadRequest(uri);
+      return;
+    }
     String htmlContent = """
       <!DOCTYPE html>
       <html>
@@ -52,11 +62,8 @@ class _VideoLessonState extends ConsumerState<VideoLesson> {
       </html>
     """;
 
-    _webViewController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setUserAgent("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Mobile Safari/537.36")
-      ..loadHtmlString(htmlContent, baseUrl: 'https://kinescope.io/');
+    _webViewController!
+        .loadHtmlString(htmlContent, baseUrl: 'https://kinescope.io/');
   }
 
   @override
@@ -67,58 +74,34 @@ class _VideoLessonState extends ConsumerState<VideoLesson> {
 
   @override
   Widget build(BuildContext context) {
-    // Iframe жағдайы
-    if (widget.lesson.contentType == 'iframe' && _webViewController != null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(widget.lesson.name), elevation: 0),
-        body: Column(
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Container(
-                color: Colors.black,
-                child: WebViewWidget(controller: _webViewController!),
-              ),
-            ),
-            Expanded(child: _button()),
-          ],
-        ),
-      );
-    }
+    final rawUrl = widget.lesson.videoUrl?.trim() ?? '';
+    if (rawUrl.isEmpty) return _page(null);
 
-    // YouTube жағдайы
-    final String videoType = AppService.getVideoType(widget.lesson.videoUrl.toString());
-    if (videoType == 'youtube') {
+    final url = AppService.cleanVideoUrl(rawUrl);
+
+    // 1. YouTube-ты бірінші тексеру керек, тіпті contentType 'iframe' болса да
+    if (AppService.getVideoType(url) == 'youtube') {
       return YoutubePlayerWidget(
-        videoUrl: widget.lesson.videoUrl.toString(),
-        body: _button(),
+        videoUrl: url,
+        autoPlay: false,
+        pageBuilder: (context, player) => _page(player),
       );
     }
 
-    // Басқа видеолар (Vimeo, т.б.)
-    return Scaffold(
-      body: Stack(
-        children: [
-          VideoPlayerScreen(videoUrl: widget.lesson.videoUrl.toString()),
-          _button(),
-        ],
-      ),
-    );
+    // 2. Егер YouTube емес болса және iframe болса, WebView қолданамыз
+    if (widget.lesson.contentType == 'iframe' && _webViewController != null) {
+      return _page(ColoredBox(
+          color: Colors.black,
+          child: WebViewWidget(controller: _webViewController!)));
+    }
+
+    // 3. Басқа жағдайда қарапайым VideoPlayer
+    return _page(VideoPlayerWidget(videoUrl: url));
   }
 
-  Widget _button() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: FutureBuilder(
-        future: Future.delayed(const Duration(seconds: 1)),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return MarkCompleteButton(course: widget.course, lesson: widget.lesson);
-          } else {
-            return const SizedBox.shrink();
-          }
-        },
-      ),
-    );
-  }
+  Widget _page(Widget? player) => LessonContentPage(
+        course: widget.course,
+        lesson: widget.lesson,
+        player: player,
+      );
 }

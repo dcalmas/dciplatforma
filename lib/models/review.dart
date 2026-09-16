@@ -23,13 +23,20 @@ class Review {
     Map d = snap.data() as Map<String, dynamic>;
     return Review(
       id: snap.id,
-      courseId: d['course_id'],
+      courseId: d['course_id'] ?? snap.reference.parent.parent?.id ?? '',
       courseAuthorId: d['course_author_id'] ?? '',
       courseTitle: d['course_title'] ?? '',
       rating: d['rating'].toDouble(),
-      review: d['review'],
-      createdAt: (d['created_at'] as Timestamp).toDate(),
-      reviewUser: ReviewUser.fromFirebase(d['user']),
+      review: d['text'] ?? d['review'],
+      createdAt:
+          ((d['createdAt'] ?? d['created_at']) as Timestamp?)?.toDate() ??
+              DateTime.fromMillisecondsSinceEpoch(0),
+      reviewUser: d['userId'] != null
+          ? ReviewUser(
+              id: d['userId'],
+              name: d['userName'] ?? '',
+              imageUrl: d['userImage'])
+          : ReviewUser.fromFirebase(d['user']),
     );
   }
 
@@ -42,6 +49,11 @@ class Review {
       'review': d.review,
       'created_at': d.createdAt,
       'user': ReviewUser.getMap(d.reviewUser),
+      'userId': d.reviewUser.id,
+      'userName': d.reviewUser.name,
+      'userImage': d.reviewUser.imageUrl ?? '',
+      'text': d.review ?? '',
+      'createdAt': d.createdAt,
     };
   }
 }

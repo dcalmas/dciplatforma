@@ -84,10 +84,44 @@ class AppService {
     }
   }
 
+  static String cleanVideoUrl(String input) {
+    if (input.isEmpty) return '';
+
+    // If it's not an iframe, return as is
+    if (!input.contains('src=')) return input;
+
+    try {
+      // Manual extraction to avoid RegExp syntax errors during compilation
+      int srcIndex = input.indexOf('src=');
+      if (srcIndex == -1) return input;
+
+      // Find the first quote after 'src='
+      int quoteStart = -1;
+      for (int i = srcIndex + 4; i < input.length; i++) {
+        if (input[i] == '"' || input[i] == '\'') {
+          quoteStart = i;
+          break;
+        }
+      }
+
+      if (quoteStart == -1) return input;
+
+      final String quoteChar = input[quoteStart];
+      int quoteEnd = input.indexOf(quoteChar, quoteStart + 1);
+
+      if (quoteEnd == -1) return input;
+
+      return input.substring(quoteStart + 1, quoteEnd);
+    } catch (e) {
+      return input;
+    }
+  }
+
   static String getVideoType(String videoSource) {
-    if (videoSource.contains('youtu')) {
+    final cleanUrl = cleanVideoUrl(videoSource);
+    if (cleanUrl.contains('youtu')) {
       return 'youtube';
-    } else if (videoSource.contains('vimeo')) {
+    } else if (cleanUrl.contains('vimeo')) {
       return 'vimeo';
     } else {
       return 'network';
@@ -129,7 +163,7 @@ class AppService {
   }
 
   static void svgPrecacheImage() {
-    
+
     // SVG Images
     const svgImages = [
       introImage1,

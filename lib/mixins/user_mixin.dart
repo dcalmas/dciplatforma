@@ -10,6 +10,7 @@ import 'package:lms_app/screens/curricullam_screen.dart';
 import 'package:lms_app/screens/home/home_bottom_bar.dart';
 import 'package:lms_app/screens/home/home_view.dart';
 import 'package:lms_app/screens/intro.dart';
+import 'package:lms_app/screens/course_details.dart/sections.dart';
 import 'package:lms_app/screens/auth/login.dart';
 import 'package:lms_app/services/auth_service.dart';
 import 'package:lms_app/services/firebase_service.dart';
@@ -20,8 +21,12 @@ import '../providers/user_data_provider.dart';
 
 mixin UserMixin {
   void handleLogout(context, {required WidgetRef ref}) async {
-    await AuthService().userLogOut().onError((error, stackTrace) => debugPrint('error: $error'));
-    await AuthService().googleLogout().onError((error, stackTrace) => debugPrint('error1: $error'));
+    await AuthService()
+        .userLogOut()
+        .onError((error, stackTrace) => debugPrint('error: $error'));
+    await AuthService()
+        .googleLogout()
+        .onError((error, stackTrace) => debugPrint('error1: $error'));
     ref.invalidate(userDataProvider);
     ref.invalidate(homeTabControllerProvider);
     ref.invalidate(navBarIndexProvider);
@@ -29,7 +34,9 @@ mixin UserMixin {
   }
 
   bool hasEnrolled(UserModel? user, Course course) {
-    if (user != null && user.enrolledCourses != null && user.enrolledCourses!.contains(course.id)) {
+    if (user != null &&
+        user.enrolledCourses != null &&
+        user.enrolledCourses!.contains(course.id)) {
       return true;
     } else {
       return false;
@@ -38,7 +45,7 @@ mixin UserMixin {
 
   static bool isExpired(UserModel user) {
     if (user.subscription == null) return true;
-    
+
     final DateTime expireDate = user.subscription!.expireAt;
     final DateTime now = DateTime.now().toUtc();
     final difference = expireDate.difference(now).inDays;
@@ -50,12 +57,14 @@ mixin UserMixin {
   }
 
   static bool isUserPremium(UserModel? user) {
-    return user != null && user.subscription != null && isExpired(user) == false ? true : false;
+    return user != null && user.subscription != null && isExpired(user) == false
+        ? true
+        : false;
   }
 
   int remainingDays(UserModel user) {
     if (user.subscription == null) return 0;
-    
+
     final DateTime expireDate = user.subscription!.expireAt;
     final DateTime now = DateTime.now().toUtc();
     final difference = expireDate.difference(now).inDays;
@@ -71,38 +80,41 @@ mixin UserMixin {
     if (user != null) {
       if (course.priceStatus == 'free') {
         if (hasEnrolled(user, course)) {
-          NextScreen.popup(context, CurriculamScreen(course: course));
+          NextScreen.iOS(context, CurriculamScreen(course: course));
         } else {
           AdManager.initInterstitailAds(ref);
           await _comfirmEnrollment(context, user, course, ref);
         }
       } else {
-        if ((user.subscription != null && !isExpired(user)) || hasEnrolled(user, course)) {
+        if ((user.subscription != null && !isExpired(user)) ||
+            hasEnrolled(user, course)) {
           if (hasEnrolled(user, course)) {
-            NextScreen.popup(context, CurriculamScreen(course: course));
+            NextScreen.iOS(context, CurriculamScreen(course: course));
           } else {
             await _comfirmEnrollment(context, user, course, ref);
           }
         } else {
           final settings = ref.read(appSettingsProvider);
-          if (IAPConfig.iAPEnabled && settings?.license == LicenseType.extended) {
-            NextScreen.openBottomSheet(context, const IAPScreen(), isDismissable: false);
+          if (IAPConfig.iAPEnabled &&
+              settings?.license == LicenseType.extended) {
+            NextScreen.openBottomSheet(context, const IAPScreen(),
+                isDismissable: false);
           } else {
             openSnackbarFailure(context, 'Extended license required!');
           }
         }
       }
     } else {
-      NextScreen.openBottomSheet(context, const LoginScreen(popUpScreen: true));
+      NextScreen.normal(context, const LoginScreen(popUpScreen: true));
     }
   }
 
-  Future _comfirmEnrollment(BuildContext context, UserModel user, Course course, WidgetRef ref) async {
-    await FirebaseService().updateEnrollment(user, course);
-    await FirebaseService().updateStudentCountsOnCourse(true, course.id);
-    await FirebaseService().updateStudentCountsOnAuthor(true, course.author.id);
-    await ref.read(userDataProvider.notifier).getData();
+  Future _comfirmEnrollment(BuildContext context, UserModel user, Course course,
+      WidgetRef ref) async {
+    final updatedUser = await FirebaseService().updateEnrollment(user, course);
     if (!context.mounted) return;
+    ref.read(userDataProvider.notifier).applyEnrollment(updatedUser);
+    ref.invalidate(sectionsProvider(course.id));
     openSnackbar(context, 'Enrolled Succesfully');
   }
 
@@ -112,8 +124,8 @@ mixin UserMixin {
     required Course course,
   }) async {
     // ТЕК ЖАҢАРТУ: Егер қолданушы осы функцияны шақырса (батырманы басса),
-    // біз оған курсты ашуға рұқсат береміз, өйткені бұл функция тек MyCourses бөлімінде 
+    // біз оған курсты ашуға рұқсат береміз, өйткені бұл функция тек MyCourses бөлімінде
     // немесе тіркелген қолданушылар үшін шақырылуы тиіс.
-    NextScreen.popup(context, CurriculamScreen(course: course));
+    NextScreen.iOS(context, CurriculamScreen(course: course));
   }
 }

@@ -15,23 +15,39 @@ class PrivacyInfo extends ConsumerWidget {
       child: Column(
         children: [
           const Text(
-            'By SigningUp/Logging In, You agree to our',
+            'Входя или регистрируясь, вы соглашаетесь с',
+            textAlign: TextAlign.center,
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 5,
+            runSpacing: 4,
             children: [
               InkWell(
-                onTap: ()=> AppService().openLinkWithCustomTab(privacyUrl),
-                child: const Text('Terms of Services', style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),)
+                  onTap: () => AppService().openLinkWithCustomTab(privacyUrl),
+                  child: const Text(
+                    'Условиями использования',
+                    style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        color: Colors.blue),
+                  )),
+              const SizedBox(
+                width: 5,
               ),
-              const SizedBox(width: 5,),
-              const Text('and'),
-              const SizedBox(width: 5,),
+              const Text('и'),
+              const SizedBox(
+                width: 5,
+              ),
               InkWell(
-                onTap: ()=> AppService().openLinkWithCustomTab(privacyUrl),
-                child: const Text('Privacy Policy', style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),)
-              )
+                  onTap: () => AppService().openLinkWithCustomTab(privacyUrl),
+                  child: const Text(
+                    'Политикой конфиденциальности',
+                    style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        color: Colors.blue),
+                  ))
             ],
           )
         ],

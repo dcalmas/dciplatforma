@@ -13,6 +13,7 @@ import 'package:lms_app/screens/auth/login.dart';
 import 'package:lms_app/screens/quiz_lesson/quiz_screen.dart';
 import 'package:lms_app/screens/video_lesson.dart';
 import 'package:lms_app/services/firebase_service.dart';
+import 'package:lms_app/services/homework_service.dart';
 import 'package:lms_app/utils/loading_widget.dart';
 import 'package:lms_app/utils/next_screen.dart';
 import 'package:lms_app/utils/snackbars.dart';
@@ -51,6 +52,8 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
           itemBuilder: (context, index) {
             final Lesson lesson = lessons[index];
             final bool completed = isLessonCompleted(lesson, user, course.id);
+            final bool locked =
+                _isLockedByHomework(ref, course, lesson, user);
 
             return GestureDetector(
               onTap: () => _onTap(context, lesson, course, user, ref),
@@ -60,7 +63,9 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
                   color: cardBgColor,
                   borderRadius: BorderRadius.circular(16),
                   border: completed
-                      ? Border.all(color: Colors.green.withValues(alpha: 0.45), width: 1.5)
+                      ? Border.all(
+                          color: Colors.green.withValues(alpha: 0.45),
+                          width: 1.5)
                       : null,
                   boxShadow: [
                     BoxShadow(
@@ -73,7 +78,8 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: Row(
                     children: [
                       Container(
@@ -100,25 +106,61 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              lesson.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                                color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
-                              ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    lesson.name,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: isDarkMode
+                                          ? Colors.white
+                                          : const Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                ),
+                                if (lesson.homeworkRequired) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: primaryColor.withValues(
+                                          alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      'homework_badge'.tr(),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                _contentTypeIcon(lesson, isDarkMode ? Colors.grey[400]! : Colors.grey[500]!),
+                                _contentTypeIcon(
+                                    lesson,
+                                    isDarkMode
+                                        ? Colors.grey[400]!
+                                        : Colors.grey[500]!),
                                 const SizedBox(width: 5),
                                 Expanded(
                                   child: Text(
                                     _contentTypeLabel(lesson),
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                                      color: isDarkMode
+                                          ? Colors.grey[400]
+                                          : Colors.grey[500],
                                     ),
                                   ),
                                 ),
@@ -128,7 +170,7 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      _trailingIcon(lesson, user, primaryColor),
+                      _trailingIcon(lesson, user, primaryColor, locked: locked),
                     ],
                   ),
                 ),
@@ -140,31 +182,66 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
     );
   }
 
-  void _onTap(BuildContext context, Lesson lesson, Course course, UserModel? user, WidgetRef ref) {
+  /// Вебтегі getLessonBlocker: алдыңғы міндетті ДЗ тапсырылмаса құлыптау.
+  /// [watch] true болса build ішінде (watch), false болса callback ішінде (read).
+  bool _isLockedByHomework(
+      WidgetRef ref, Course course, Lesson lesson, UserModel? user,
+      {bool watch = true}) {
+    if (user == null || isAdminUser(user)) return false;
+    final flat = watch
+        ? ref.watch(courseFlatLessonsProvider(course.id)).valueOrNull
+        : ref.read(courseFlatLessonsProvider(course.id)).valueOrNull;
+    if (flat == null || flat.isEmpty) return false;
+    final submissions = watch
+        ? ref.watch(homeworkSubmissionsProvider(course.id)).valueOrNull ??
+            const {}
+        : ref.read(homeworkSubmissionsProvider(course.id)).valueOrNull ??
+            const {};
+    final completedKeys = (user.completedLessons ?? [])
+        .map((e) => e.toString())
+        .toSet();
+    final blocker = HomeworkService.blockingHomeworkLessonId(
+      flatLessons: flat,
+      lessonId: lesson.id,
+      completedLessonKeys: completedKeys,
+      courseId: course.id,
+      submissions: submissions,
+    );
+    return blocker != null && blocker != lesson.id;
+  }
+
+  void _onTap(BuildContext context, Lesson lesson, Course course,
+      UserModel? user, WidgetRef ref) {
     if (user != null) {
       bool enrolled = hasEnrolled(user, course);
       bool isPremium = course.priceStatus != 'free';
       bool isPremiumUser = UserMixin.isUserPremium(user);
 
       if (!isPremium || enrolled || isPremiumUser) {
+        if (_isLockedByHomework(ref, course, lesson, user, watch: false)) {
+          openSnackbar(context, 'homework_blocked'.tr());
+          return;
+        }
         _openLesson(context, lesson, ref);
       } else {
         openSnackbar(context, 'subscribe-to-access-features'.tr());
       }
     } else {
-      NextScreen.openBottomSheet(context, const LoginScreen());
+      NextScreen.normal(context, const LoginScreen());
     }
   }
 
   void _openLesson(BuildContext context, Lesson lesson, WidgetRef ref) {
     if (lesson.contentType == 'document' && lesson.attachmentUrl != null) {
-      launchUrl(Uri.parse(lesson.attachmentUrl!), mode: LaunchMode.externalApplication);
-    } else if ((lesson.contentType == 'video' && lesson.videoUrl != null) || lesson.contentType == 'iframe') {
+      launchUrl(Uri.parse(lesson.attachmentUrl!),
+          mode: LaunchMode.externalApplication);
+    } else if ((lesson.contentType == 'video' && lesson.videoUrl != null) ||
+        lesson.contentType == 'iframe') {
       NextScreen.iOS(context, VideoLesson(course: course, lesson: lesson));
     } else if (lesson.contentType == 'article') {
       NextScreen.iOS(context, ArticleLesson(lesson: lesson, course: course));
     } else {
-      NextScreen.popup(context, QuizLesson(course: course, lesson: lesson));
+      NextScreen.iOS(context, QuizLesson(course: course, lesson: lesson));
     }
     AdManager.initInterstitailAds(ref);
   }
@@ -198,16 +275,22 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
     }
   }
 
-  Widget _trailingIcon(Lesson lesson, UserModel? user, Color primaryColor) {
+  Widget _trailingIcon(Lesson lesson, UserModel? user, Color primaryColor,
+      {bool locked = false}) {
+    if (locked) {
+      return const Icon(FeatherIcons.lock, color: Colors.grey, size: 22);
+    }
     if (isLessonCompleted(lesson, user, course.id)) {
-      return const Icon(Icons.check_circle_rounded, color: Colors.green, size: 22);
+      return const Icon(Icons.check_circle_rounded,
+          color: Colors.green, size: 22);
     } else {
       if (lesson.contentType == 'video' || lesson.contentType == 'iframe') {
         return Icon(FeatherIcons.playCircle, color: primaryColor, size: 22);
       } else if (lesson.contentType == 'article') {
         return Icon(LineIcons.stickyNote, color: primaryColor, size: 22);
       } else if (lesson.contentType == 'document') {
-        return const Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: 22);
+        return const Icon(Icons.picture_as_pdf,
+            color: Colors.redAccent, size: 22);
       } else {
         return Icon(LineIcons.lightbulb, color: primaryColor, size: 22);
       }

@@ -54,7 +54,7 @@ class UserModel {
       imageUrl: d['image_url'],
       name: d['name'] ?? '',
       role: d['role'] ?? [],
-      isDisbaled: d['disabled'] ?? false,
+      isDisbaled: d['disabled'] == true || d['deleted'] == true,
       createdAt: d['created_at'] != null ? (d['created_at'] as Timestamp).toDate() : DateTime.now(),
       updatedAt: d['updated_at'] == null ? null : (d['updated_at'] as Timestamp).toDate(),
       authorInfo: d['author_info'] == null ? null : AuthorInfo.fromMap(d['author_info']),

@@ -19,12 +19,12 @@ class ResetPasswordState extends State<ResetPassword> {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
       setState(() => isLoading = true);
-      final norm = AuthService.normalizeIdentifier(emailCtrl.text.trim());
-      final targetEmail = norm?['type'] == 'email'
-          ? norm!['value']!
-          : AuthService.syntheticEmailForPhone(norm?['value'] ?? emailCtrl.text.trim());
-      await AuthService().sendPasswordRestEmail(context, targetEmail);
-      if (mounted) setState(() => isLoading = false);
+      try {
+        await AuthService()
+            .sendPasswordRestEmail(context, emailCtrl.text.trim());
+      } finally {
+        if (mounted) setState(() => isLoading = false);
+      }
     }
   }
 
@@ -32,7 +32,8 @@ class ResetPasswordState extends State<ResetPassword> {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).primaryColor;
-    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    final bgColor =
+        isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
     final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
 
     return Scaffold(
@@ -41,13 +42,15 @@ class ResetPasswordState extends State<ResetPassword> {
         backgroundColor: bgColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(FeatherIcons.x, color: isDarkMode ? Colors.white : Colors.black87),
+          icon: Icon(FeatherIcons.chevronLeft,
+              color: isDarkMode ? Colors.white : Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 40),
+        padding:
+            const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 40),
         child: Form(
           key: formKey,
           child: Column(
@@ -92,25 +95,32 @@ class ResetPasswordState extends State<ResetPassword> {
                     TextFormField(
                       controller: emailCtrl,
                       keyboardType: TextInputType.emailAddress,
-                      style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+                      style: TextStyle(
+                          color: isDarkMode ? Colors.white : Colors.black87),
                       decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 16),
                         hintText: 'Email немесе телефон нөмірі',
                         labelText: 'Email / Телефон',
                         filled: true,
-                        fillColor: isDarkMode ? const Color(0xFF141622) : const Color(0xFFF8F9FE),
+                        fillColor: isDarkMode
+                            ? const Color(0xFF141622)
+                            : const Color(0xFFF8F9FE),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
                         ),
                         suffixIcon: IconButton(
-                          icon: Icon(FeatherIcons.xCircle, size: 18, color: Colors.grey[400]),
+                          icon: Icon(FeatherIcons.xCircle,
+                              size: 18, color: Colors.grey[400]),
                           onPressed: () => emailCtrl.clear(),
                         ),
                       ),
                       validator: (String? value) {
-                        if (value == null || value.trim().isEmpty) return 'Email немесе телефон нөмірін енгізіңіз';
-                        if (AuthService.normalizeIdentifier(value) == null) return 'Жарамсыз email немесе телефон нөмірі';
+                        if (value == null || value.trim().isEmpty)
+                          return 'Email немесе телефон нөмірін енгізіңіз';
+                        if (AuthService.normalizeIdentifier(value) == null)
+                          return 'Жарамсыз email немесе телефон нөмірі';
                         return null;
                       },
                     ),
@@ -122,13 +132,15 @@ class ResetPasswordState extends State<ResetPassword> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24)),
                           elevation: 0,
                           shadowColor: primaryColor.withValues(alpha: 0.4),
                         ),
                         onPressed: isLoading ? null : _handleSubmit,
                         child: isLoading
-                            ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2)
                             : Text(
                                 'submit',
                                 style: const TextStyle(
@@ -149,4 +161,3 @@ class ResetPasswordState extends State<ResetPassword> {
     );
   }
 }
-

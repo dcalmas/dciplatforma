@@ -1,4 +1,5 @@
 import 'package:feather_icons/feather_icons.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/models/course.dart';
@@ -6,30 +7,53 @@ import 'package:lms_app/theme/theme_provider.dart';
 import 'package:lms_app/utils/loading_widget.dart';
 import '../../models/section.dart';
 import '../../services/firebase_service.dart';
+import '../../providers/user_data_provider.dart';
 import 'lessons.dart';
 
-final sectionsProvider = FutureProvider.family<List<Section>, String>((ref, courseId) async {
+final sectionsProvider =
+    FutureProvider.family<List<Section>, String>((ref, courseId) async {
   final sections = await FirebaseService().getSections(courseId);
   return sections;
 });
 
-final isSectionExpnadedProvider = StateProvider.autoDispose.family<bool, String>((ref, sectionId) => false);
+final isSectionExpnadedProvider =
+    StateProvider.autoDispose.family<bool, String>((ref, sectionId) => false);
 
 class Sections extends ConsumerWidget {
-  const Sections({super.key, required this.course, required this.isInitialSectionOpen});
+  const Sections(
+      {super.key, required this.course, required this.isInitialSectionOpen});
 
   final Course course;
   final bool isInitialSectionOpen;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userDataProvider);
+    final canRead = user != null &&
+        ((user.enrolledCourses?.contains(course.id) ?? false) ||
+            (user.role?.contains('admin') ?? false) ||
+            user.id == course.author.id);
+    if (!canRead) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: const Text('enroll-to-view-curriculum').tr(),
+      );
+    }
     final sections = ref.watch(sectionsProvider(course.id));
     final isDarkMode = ref.watch(themeProvider).isDarkMode;
     final primaryColor = Theme.of(context).primaryColor;
     final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
 
     return sections.when(
-      error: (e, x) => Container(),
+      error: (e, x) => Column(
+        children: [
+          const Text('curriculum-load-error').tr(),
+          TextButton(
+            onPressed: () => ref.invalidate(sectionsProvider(course.id)),
+            child: const Text('try-again').tr(),
+          ),
+        ],
+      ),
       loading: () => const LoadingIndicatorWidget(),
       data: (sections) {
         return ListView.separated(
@@ -40,7 +64,8 @@ class Sections extends ConsumerWidget {
           separatorBuilder: (context, index) => const SizedBox(height: 10),
           itemBuilder: (BuildContext context, int index) {
             final Section section = sections[index];
-            final bool isExpanded = ref.watch(isSectionExpnadedProvider(section.id));
+            final bool isExpanded =
+                ref.watch(isSectionExpnadedProvider(section.id));
             return Container(
               decoration: BoxDecoration(
                 color: cardBgColor,
@@ -57,14 +82,19 @@ class Sections extends ConsumerWidget {
               ),
               clipBehavior: Clip.antiAlias,
               child: Theme(
-                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                data: Theme.of(context)
+                    .copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
-                  tilePadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                  tilePadding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
                   maintainState: true,
                   trailing: AnimatedRotation(
                     turns: isExpanded ? 0.5 : 0.0,
                     duration: const Duration(milliseconds: 200),
-                    child: Icon(FeatherIcons.chevronDown, color: isDarkMode ? Colors.grey[400] : const Color(0xFF64748B)),
+                    child: Icon(FeatherIcons.chevronDown,
+                        color: isDarkMode
+                            ? Colors.grey[400]
+                            : const Color(0xFF64748B)),
                   ),
                   title: Row(
                     children: [
@@ -93,7 +123,9 @@ class Sections extends ConsumerWidget {
                             fontWeight: FontWeight.bold,
                             color: isExpanded
                                 ? primaryColor
-                                : (isDarkMode ? Colors.white : const Color(0xFF0F172A)),
+                                : (isDarkMode
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A)),
                             fontSize: 16,
                           ),
                         ),
@@ -102,8 +134,9 @@ class Sections extends ConsumerWidget {
                   ),
                   initiallyExpanded: index == 0 && isInitialSectionOpen,
                   children: [Lessons(course: course, sectionId: section.id)],
-                  onExpansionChanged: (bool value) =>
-                      ref.read(isSectionExpnadedProvider(section.id).notifier).update((state) => value),
+                  onExpansionChanged: (bool value) => ref
+                      .read(isSectionExpnadedProvider(section.id).notifier)
+                      .update((state) => value),
                 ),
               ),
             );
@@ -113,4 +146,3 @@ class Sections extends ConsumerWidget {
     );
   }
 }
-

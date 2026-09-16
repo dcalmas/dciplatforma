@@ -18,8 +18,9 @@ class Category {
     return Category(
       id: snap.id,
       name: d['name'],
-      thumbnailUrl: d['image_url'],
-      createdAt: (d['created_at'] as Timestamp).toDate(),
+      thumbnailUrl: d['image_url'] ?? '',
+      createdAt: (d['created_at'] as Timestamp?)?.toDate() ??
+          DateTime.fromMillisecondsSinceEpoch(0),
       index: d['index'] ?? 0,
     );
   }

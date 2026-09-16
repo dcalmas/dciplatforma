@@ -5,8 +5,10 @@ import 'package:lms_app/models/course.dart';
 import '../../components/course_tile.dart';
 import '../../services/firebase_service.dart';
 
-final relatedCoursesProvider = FutureProvider.family.autoDispose<List<Course>, Course>((ref, course) async {
-  final courses = await FirebaseService().getRelatedCoursesByCategory(course, 5);
+final relatedCoursesProvider = FutureProvider.family
+    .autoDispose<List<Course>, Course>((ref, course) async {
+  final courses =
+      await FirebaseService().getRelatedCoursesByCategory(course, 5);
   return courses;
 });
 
@@ -25,20 +27,24 @@ class RelatedCourses extends ConsumerWidget {
       data: (data) {
         if (data.isNotEmpty) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'related-courses',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ).tr(),
                 ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: data.length,
-                  separatorBuilder: (context, index) => const Divider(height: 50),
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 28),
                   itemBuilder: (context, index) {
                     final Course course = data[index];
                     return CourseTile(course: course);

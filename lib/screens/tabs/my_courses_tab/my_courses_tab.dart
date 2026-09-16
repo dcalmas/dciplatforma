@@ -19,7 +19,8 @@ final myCoursesProvider = FutureProvider<List<Course>>((ref) async {
   if (courseIds.isEmpty) return [];
   final chunks = partition(courseIds, 10);
 
-  final querySnapshots = await Future.wait(chunks.map((chunk) => FirebaseService().getCoursesQuery(chunk)).toList());
+  final querySnapshots = await Future.wait(
+      chunks.map((chunk) => FirebaseService().getCoursesQuery(chunk)).toList());
   for (var element in querySnapshots) {
     courses.addAll(element.docs.map((e) => Course.fromFirestore(e)).toList());
   }
@@ -33,7 +34,8 @@ final wishlistCoursesProvider = FutureProvider<List<Course>>((ref) async {
   if (courseIds.isEmpty) return [];
   final chunks = partition(courseIds, 10);
 
-  final querySnapshots = await Future.wait(chunks.map((chunk) => FirebaseService().getCoursesQuery(chunk)).toList());
+  final querySnapshots = await Future.wait(
+      chunks.map((chunk) => FirebaseService().getCoursesQuery(chunk)).toList());
   for (var element in querySnapshots) {
     courses.addAll(element.docs.map((e) => Course.fromFirestore(e)).toList());
   }
@@ -47,7 +49,8 @@ class MyCoursesTab extends ConsumerStatefulWidget {
   ConsumerState<MyCoursesTab> createState() => _MyCoursesTabState();
 }
 
-class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, TickerProviderStateMixin {
+class _MyCoursesTabState extends ConsumerState<MyCoursesTab>
+    with CourseMixin, TickerProviderStateMixin {
   late AnimationController _animationController;
   late TabController _tabController;
 
@@ -75,12 +78,15 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, T
     final wishlistCourses = ref.watch(wishlistCoursesProvider);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).primaryColor;
-    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
+    final bgColor =
+        isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
 
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text('my-courses').tr(),
+        title: const Text('my-courses',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold))
+            .tr(),
         elevation: 0,
         backgroundColor: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
         foregroundColor: isDarkMode ? Colors.white : const Color(0xFF0F172A),
@@ -89,9 +95,12 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, T
           child: TabBar(
             controller: _tabController,
             labelColor: primaryColor,
-            unselectedLabelColor: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+            unselectedLabelColor:
+                isDarkMode ? Colors.grey[400] : Colors.grey[600],
+            labelStyle:
+                const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            unselectedLabelStyle:
+                const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
             indicatorColor: primaryColor,
             indicatorWeight: 3,
             indicatorSize: TabBarIndicatorSize.label,
@@ -113,8 +122,11 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, T
               _animationController.reset();
               _animationController.forward();
             },
-            child: user == null || user.enrolledCourses == null || user.enrolledCourses!.isEmpty
-                ? EmptyAnimation(animationString: emptyAnimation, title: 'no-course'.tr())
+            child: user == null ||
+                    user.enrolledCourses == null ||
+                    user.enrolledCourses!.isEmpty
+                ? EmptyAnimation(
+                    animationString: emptyAnimation, title: 'no-course'.tr())
                 : courses.when(
                     skipLoadingOnRefresh: false,
                     loading: () => const LoadingListTile(height: 200),
@@ -123,7 +135,8 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, T
                     ),
                     data: (data) {
                       return ListView.builder(
-                        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 90, top: 16),
+                        padding: const EdgeInsets.only(
+                            left: 14, right: 14, bottom: 110, top: 16),
                         itemCount: data.length,
                         itemBuilder: (context, index) {
                           final Course course = data[index];
@@ -145,29 +158,33 @@ class _MyCoursesTabState extends ConsumerState<MyCoursesTab> with CourseMixin, T
               _animationController.reset();
               _animationController.forward();
             },
-            child: user == null || user.wishList == null || user.wishList!.isEmpty
-                ? EmptyAnimation(animationString: emptyAnimation, title: 'no-course'.tr())
-                : wishlistCourses.when(
-                    skipLoadingOnRefresh: false,
-                    loading: () => const LoadingListTile(height: 200),
-                    error: (error, stackTrace) => Center(
-                      child: Text(error.toString()),
-                    ),
-                    data: (data) {
-                      return ListView.builder(
-                        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 90, top: 16),
-                        itemCount: data.length,
-                        itemBuilder: (context, index) {
-                          final Course course = data[index];
-                          return StaggeredListItem(
-                            index: index,
-                            controller: _animationController,
-                            child: MyCourseTile(course: course, user: user),
+            child:
+                user == null || user.wishList == null || user.wishList!.isEmpty
+                    ? EmptyAnimation(
+                        animationString: emptyAnimation,
+                        title: 'no-course'.tr())
+                    : wishlistCourses.when(
+                        skipLoadingOnRefresh: false,
+                        loading: () => const LoadingListTile(height: 200),
+                        error: (error, stackTrace) => Center(
+                          child: Text(error.toString()),
+                        ),
+                        data: (data) {
+                          return ListView.builder(
+                            padding: const EdgeInsets.only(
+                                left: 14, right: 14, bottom: 110, top: 16),
+                            itemCount: data.length,
+                            itemBuilder: (context, index) {
+                              final Course course = data[index];
+                              return StaggeredListItem(
+                                index: index,
+                                controller: _animationController,
+                                child: MyCourseTile(course: course, user: user),
+                              );
+                            },
                           );
                         },
-                      );
-                    },
-                  ),
+                      ),
           ),
         ],
       ),

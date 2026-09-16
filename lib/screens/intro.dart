@@ -159,7 +159,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                             curve: Curves.easeOutCubic,
                           );
                         } else {
-                          NextScreen.openBottomSheet(context, const LoginScreen());
+                          NextScreen.normal(context, const LoginScreen());
                         }
                       },
                       style: ElevatedButton.styleFrom(

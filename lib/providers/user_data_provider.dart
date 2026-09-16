@@ -12,6 +12,10 @@ class UserData extends StateNotifier<UserModel?> {
   UserData() : super(null);
   StreamSubscription? _subscription;
 
+  void applyEnrollment(UserModel user) {
+    if (mounted && state?.id == user.id) state = user;
+  }
+
   // Деректерді бір рет алу (Сплеш-скрин үшін)
   Future<UserModel?> fetchUserData() async {
     final user = await FirebaseService().getUserData();

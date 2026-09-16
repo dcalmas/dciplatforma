@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'phone_identity_service.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,100 +17,77 @@ class AuthService {
   final user = FirebaseAuth.instance.currentUser;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  static const String phoneEmailDomain = 'phone.lms.kz';
+  static const String phoneEmailDomain = PhoneIdentityService.phoneEmailDomain;
+  static bool isEmail(String value) => PhoneIdentityService.isEmail(value);
+  static String normalizePhoneToE164(String input) =>
+      PhoneIdentityService.normalizePhone(input);
+  static String syntheticEmailForPhone(String phone) =>
+      PhoneIdentityService.syntheticEmail(phone);
+  static Map<String, String>? normalizeIdentifier(String input) =>
+      PhoneIdentityService.normalize(input);
 
-  static bool isEmail(String value) {
-    return RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(value.trim());
-  }
-
-  static String normalizePhoneToE164(String input) {
-    String digits = input.replaceAll(RegExp(r'\D'), '');
-    if (digits.startsWith('8') && digits.length == 11) {
-      digits = '7${digits.substring(1)}';
+  static String errorMessage(Object error) {
+    if (error is FirebaseFunctionsException) {
+      return 'Не удалось проверить номер телефона. Попробуйте позже или войдите по email.';
     }
-    if (digits.isEmpty) return '';
-    return '+$digits';
-  }
-
-  static String syntheticEmailForPhone(String phoneE164) {
-    final digits = phoneE164.replaceAll(RegExp(r'\D'), '');
-    return '$digits@$phoneEmailDomain';
-  }
-
-  static Map<String, String>? normalizeIdentifier(String input) {
-    final value = input.trim();
-    if (value.isEmpty) return null;
-    if (isEmail(value)) return {'type': 'email', 'value': value.toLowerCase()};
-    final phone = normalizePhoneToE164(value);
-    final digits = phone.replaceAll(RegExp(r'\D'), '');
-    if (digits.length < 8 || digits.length > 15) return null;
-    return {'type': 'phone', 'value': phone};
-  }
-
-  Future<UserCredential?> loginWithEmailOrPhone(BuildContext context, String identifier, String password) async {
-    final norm = normalizeIdentifier(identifier);
-    if (norm == null) {
-      openSnackbarFailure(context, 'Дұрыс email немесе телефон нөмірін енгізіңіз');
-      return null;
-    }
-
-    String targetEmail = '';
-    if (norm['type'] == 'email') {
-      targetEmail = norm['value']!;
-    } else {
-      final phone = norm['value']!;
-      final digits = phone.replaceAll(RegExp(r'\D'), '');
-
-      try {
-        final snap = await FirebaseFirestore.instance
-            .collection('users')
-            .where('phone', isEqualTo: phone)
-            .limit(1)
-            .get();
-
-        if (snap.docs.isNotEmpty) {
-          final data = snap.docs.first.data();
-          targetEmail = data['email'] ?? syntheticEmailForPhone(phone);
-        } else {
-          final altPhone = digits.startsWith('7') ? '8${digits.substring(1)}' : '7${digits.substring(1)}';
-          final altSnap = await FirebaseFirestore.instance
-              .collection('users')
-              .where('phone', isEqualTo: altPhone)
-              .limit(1)
-              .get();
-          if (altSnap.docs.isNotEmpty) {
-            targetEmail = altSnap.docs.first.data()['email'] ?? syntheticEmailForPhone(phone);
-          } else {
-            targetEmail = syntheticEmailForPhone(phone);
-          }
-        }
-      } catch (e) {
-        debugPrint('Phone lookup error: $e');
-        targetEmail = syntheticEmailForPhone(phone);
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'invalid-credential':
+        case 'wrong-password':
+        case 'user-not-found':
+          return 'Неверный email, телефон или пароль.';
+        case 'email-already-in-use':
+          return 'Аккаунт уже существует. Войдите или восстановите пароль.';
+        case 'phone-recovery-unavailable':
+          return 'У этого аккаунта нет email для восстановления. Обратитесь к администратору для сброса пароля.';
+        case 'account-email-missing':
+          return 'К аккаунту не привязан email для входа. Обратитесь к администратору.';
+        case 'invalid-email':
+          return 'Введите корректный email или номер телефона с кодом страны.';
+        case 'weak-password':
+          return 'Пароль должен содержать не менее 6 символов.';
+        case 'user-disabled':
+          return 'Аккаунт заблокирован. Обратитесь к администратору.';
+        case 'too-many-requests':
+          return 'Слишком много попыток. Попробуйте позже.';
+        case 'network-request-failed':
+          return 'Проверьте подключение к интернету.';
       }
     }
-
-    return await loginWithEmailPassword(context, targetEmail, password);
+    return 'Не удалось завершить авторизацию. Попробуйте ещё раз.';
   }
 
-  Future<UserCredential?> signUpWithEmailOrPhone(BuildContext context, String identifier, String password) async {
-    final norm = normalizeIdentifier(identifier);
-    if (norm == null) {
-      openSnackbarFailure(context, 'Дұрыс email немесе телефон нөмірін енгізіңіз');
+  Future<UserCredential?> loginWithEmailOrPhone(
+      BuildContext context, String identifier, String password) async {
+    try {
+      final email = await PhoneIdentityService().resolve(identifier);
+      return await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password);
+    } catch (error) {
+      if (context.mounted) openSnackbarFailure(context, errorMessage(error));
       return null;
     }
-
-    final email = norm['type'] == 'email'
-        ? norm['value']!
-        : syntheticEmailForPhone(norm['value']!);
-
-    return await signUpWithEmailPassword(context, email, password);
   }
 
-  Future<UserCredential?> loginWithEmailPassword(BuildContext context, String email, String password) async {
+  Future<UserCredential?> signUpWithEmailOrPhone(
+      BuildContext context, String identifier, String password) async {
+    try {
+      final email =
+          await PhoneIdentityService().resolve(identifier, registration: true);
+      return await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email, password: password);
+    } catch (error) {
+      if (context.mounted) openSnackbarFailure(context, errorMessage(error));
+      return null;
+    }
+  }
+
+  Future<UserCredential?> loginWithEmailPassword(
+      BuildContext context, String email, String password) async {
     UserCredential? user;
     try {
-      user = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+      user = await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password);
     } on FirebaseAuthException catch (e) {
       debugPrint('error: $e');
       if (!context.mounted) return null;
@@ -121,7 +99,8 @@ class AuthService {
   Future<UserCredential?> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
     if (googleUser == null) return null;
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
@@ -131,15 +110,19 @@ class AuthService {
 
   Future<UserCredential?> signInWithFacebook() async {
     final LoginResult loginResult = await FacebookAuth.instance.login();
-    if (loginResult.status != LoginStatus.success || loginResult.accessToken == null) return null;
-    final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!.token);
+    if (loginResult.status != LoginStatus.success ||
+        loginResult.accessToken == null) return null;
+    final OAuthCredential facebookAuthCredential =
+        FacebookAuthProvider.credential(loginResult.accessToken!.token);
     return await _firebaseAuth.signInWithCredential(facebookAuthCredential);
   }
 
   String generateNonce([int length = 32]) {
-    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
+        .join();
   }
 
   /// Returns the sha256 hash of [input] in hex notation.
@@ -183,10 +166,12 @@ class AuthService {
     }
   }
 
-  Future<UserCredential?> signUpWithEmailPassword(BuildContext context, String email, String password) async {
+  Future<UserCredential?> signUpWithEmailPassword(
+      BuildContext context, String email, String password) async {
     UserCredential? user;
     try {
-      user = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+      user = await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email, password: password);
     } on FirebaseAuthException catch (e) {
       debugPrint('error: $e');
       if (!context.mounted) return null;
@@ -203,23 +188,31 @@ class AuthService {
   }
 
   Future sendEmailVerification() async {
-    if (_firebaseAuth.currentUser != null) {
-      await _firebaseAuth.currentUser!.sendEmailVerification().catchError((e) => debugPrint('Email sending failed'));
+    if (_firebaseAuth.currentUser != null &&
+        !PhoneIdentityService.isSyntheticEmail(
+            _firebaseAuth.currentUser!.email ?? '')) {
+      await _firebaseAuth.currentUser!
+          .sendEmailVerification()
+          .catchError((e) => debugPrint('Email sending failed'));
     }
   }
 
   Future sendPasswordRestEmail(BuildContext context, String email) async {
     try {
-      await _firebaseAuth.sendPasswordResetEmail(email: email);
+      final targetEmail =
+          await PhoneIdentityService().resolve(email, passwordReset: true);
+      await _firebaseAuth.sendPasswordResetEmail(email: targetEmail);
       if (!context.mounted) return;
-      openSnackbar(context, 'An email has been sent to $email. Go to that link & reset your password.');
-    } on FirebaseAuthException catch (error) {
+      openSnackbar(context,
+          'Если аккаунт существует, ссылка для сброса пароля отправлена на привязанный email.');
+    } catch (error) {
       if (!context.mounted) return;
-      openSnackbarFailure(context, error.message);
+      openSnackbarFailure(context, errorMessage(error));
     }
   }
 
-  Future<bool> changePassword(BuildContext context, String currentPassword, String newPassword) async {
+  Future<bool> changePassword(
+      BuildContext context, String currentPassword, String newPassword) async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) return false;

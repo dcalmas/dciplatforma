@@ -11,69 +11,149 @@ import 'guest_user.dart';
 class ProfileTab extends ConsumerWidget {
   const ProfileTab({super.key});
 
+  static const _pink = Color(0xFFF00080);
+  static const _lightBg = Color(0xFFFDE9F1);
+  static const _iconBg = Color(0xFFFCDCE9);
+  static const _navy = Color(0xFF1B1E2E);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userDataProvider);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
 
     return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        title: const Text('profile').tr(),
-        elevation: 0,
-        backgroundColor: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
-        foregroundColor: isDarkMode ? Colors.white : const Color(0xFF0F172A),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: isDarkMode
-                ? Colors.white.withValues(alpha: 0.08)
-                : const Color(0xFFE2E8F0),
-          ),
-        ),
-        titleTextStyle: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 22,
-          color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 90),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (user != null)
-              GestureDetector(
-                onTap: () => NextScreen.iOS(context, const ProfilePage()),
-                child: _buildUserCard(context, user, isDarkMode, ref),
-              )
-            else
-              const GuestUser(),
-            const AppSettings(),
+      backgroundColor: isDarkMode ? const Color(0xFF0F111A) : _lightBg,
+      body: Stack(
+        children: [
+          if (!isDarkMode) ...[
+            Positioned(
+              top: -90,
+              right: -70,
+              child: Container(
+                width: 250,
+                height: 250,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _pink.withValues(alpha: 0.10),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 40,
+              right: 30,
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _pink.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
           ],
-        ),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 8, bottom: 110),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context, isDarkMode),
+                  const SizedBox(height: 16),
+                  if (user != null)
+                    GestureDetector(
+                      onTap: () => NextScreen.iOS(context, const ProfilePage()),
+                      child: _buildUserCard(context, user, isDarkMode),
+                    )
+                  else
+                    const GuestUser(),
+                  const SizedBox(height: 4),
+                  const AppSettings(),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildUserCard(BuildContext context, dynamic user, bool isDarkMode, WidgetRef ref) {
-    final primaryColor = Theme.of(context).primaryColor;
-    final cardBgColor = isDarkMode ? const Color(0xFF1E202C) : Colors.white;
+  Widget _buildHeader(BuildContext context, bool isDarkMode) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'profile'.tr(),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 30,
+                  color: isDarkMode ? Colors.white : _navy,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Icons.favorite, size: 16, color: _pink),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Ваш аккаунт и настройки',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      color: isDarkMode ? Colors.grey[400] : const Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        if (!isDarkMode)
+          const Padding(
+            padding: EdgeInsets.only(top: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Развивай',
+                  style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontSize: 15,
+                    color: _pink,
+                    height: 1.1,
+                  ),
+                ),
+                Text(
+                  'себя каждый день',
+                  style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontSize: 13,
+                    color: _pink,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 
+  Widget _buildUserCard(BuildContext context, dynamic user, bool isDarkMode) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 28),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: cardBgColor,
+        color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
                 ? Colors.black.withValues(alpha: 0.3)
-                : Colors.indigo.withValues(alpha: 0.05),
-            blurRadius: 18,
+                : _pink.withValues(alpha: 0.08),
+            blurRadius: 20,
             offset: const Offset(0, 6),
           ),
         ],
@@ -81,20 +161,22 @@ class ProfileTab extends ConsumerWidget {
       child: Row(
         children: [
           Container(
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.all(3),
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: primaryColor.withValues(alpha: 0.3), width: 2.5),
+              color: _iconBg,
             ),
             child: UserAvatar(
               imageUrl: user.imageUrl,
-              radius: 28,
-              iconSize: 28,
+              radius: 24,
+              iconSize: 24,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   user.name,
@@ -102,18 +184,18 @@ class ProfileTab extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 19,
-                    color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                    fontSize: 17,
+                    color: isDarkMode ? Colors.white : _navy,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 3),
                 Text(
                   user.email,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 14,
-                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                    fontSize: 13,
+                    color: isDarkMode ? Colors.grey[400] : const Color(0xFF6B7280),
                   ),
                 ),
               ],
@@ -121,7 +203,8 @@ class ProfileTab extends ConsumerWidget {
           ),
           Icon(
             Icons.chevron_right,
-            color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
+            size: 22,
+            color: isDarkMode ? Colors.grey[500] : const Color(0xFF9CA3AF),
           ),
         ],
       ),

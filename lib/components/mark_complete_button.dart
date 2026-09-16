@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lms_app/mixins/course_mixin.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/lesson.dart';
+import 'package:lms_app/services/homework_service.dart';
+import 'package:lms_app/utils/snackbars.dart';
 import '../providers/user_data_provider.dart';
 import '../services/firebase_service.dart';
 
@@ -29,6 +31,21 @@ class MarkCompleteButton extends ConsumerWidget with CourseMixin {
           icon: Icon(icon),
           label: Text(buttonText).tr(),
           onPressed: () async {
+            // Вебтегідей: міндетті ДЗ тапсырылмай сабақты аяқтауға болмайды.
+            if (!isCompleted &&
+                lesson.homeworkRequired &&
+                user != null &&
+                !isAdminUser(user)) {
+              final submissions = ref
+                      .read(homeworkSubmissionsProvider(course.id))
+                      .valueOrNull ??
+                  const {};
+              if (!HomeworkService.hasSubmittedHomework(
+                  submissions[lesson.id])) {
+                openSnackbar(context, 'homework_hint'.tr());
+                return;
+              }
+            }
             final navigator = Navigator.of(context);
             await FirebaseService().updateLessonMarkComplete(user!, course, lesson);
             await ref.read(userDataProvider.notifier).getData();
