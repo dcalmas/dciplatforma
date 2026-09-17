@@ -3,16 +3,14 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:lms_app/mixins/user_mixin.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/lesson.dart';
 import 'package:lms_app/providers/user_data_provider.dart';
-import 'package:lms_app/screens/course_details.dart/details_view.dart';
+import 'package:lms_app/screens/auth/login.dart';
 import 'package:lms_app/screens/quiz_lesson/quiz_screen.dart';
 import 'package:lms_app/services/firebase_service.dart';
 import 'package:lms_app/utils/loading_widget.dart';
 import 'package:lms_app/utils/next_screen.dart';
-import 'package:lms_app/utils/snackbars.dart';
 
 class QuizItem {
   final Course course;
@@ -55,7 +53,7 @@ final allQuizzesProvider = FutureProvider<List<QuizItem>>((ref) async {
   return quizzes;
 });
 
-class TestsTab extends ConsumerWidget with UserMixin {
+class TestsTab extends ConsumerWidget {
   const TestsTab({super.key});
 
   @override
@@ -130,10 +128,8 @@ class TestsTab extends ConsumerWidget with UserMixin {
                 final lesson = quizItem.lesson;
 
                 final isCompleted = user?.completedLessons?.contains('${course.id}_${lesson.id}') ?? false;
-                final enrolled = hasEnrolled(user, course);
-                final isPremium = course.priceStatus != 'free';
-                final isPremiumUser = UserMixin.isUserPremium(user);
-                final hasAccess = !isPremium || enrolled || isPremiumUser;
+                final enrolled = user?.enrolledCourses?.contains(course.id) ?? false;
+                final hasAccess = user != null && (course.priceStatus == 'free' || enrolled);
 
                 return Card(
                   elevation: 1.5,
@@ -199,9 +195,7 @@ class TestsTab extends ConsumerWidget with UserMixin {
                       if (hasAccess) {
                         NextScreen.popup(context, QuizLesson(course: course, lesson: lesson));
                       } else {
-                        // Open dialog/snackbar or redirect to course detail to enroll
-                        openSnackbar(context, 'subscribe-to-access-features'.tr());
-                        NextScreen.iOS(context, CourseDetailsView(course: course, heroTag: UniqueKey()));
+                        NextScreen.normal(context, const LoginScreen());
                       }
                     },
                   ),

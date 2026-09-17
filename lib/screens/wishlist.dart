@@ -15,8 +15,10 @@ import '../services/firebase_service.dart';
 
 final wishlistProvider = FutureProvider<List<Course>>((ref) async {
   final List<Course> courses = [];
-  final user = ref.watch(userDataProvider)!;
+  final user = ref.watch(userDataProvider);
+  if (user == null) return courses;
   final courseIds = user.wishList ?? [];
+  if (courseIds.isEmpty) return courses;
   final chunks = partition(courseIds, 10);
 
   final querySnapshots = await Future.wait(chunks.map((chunk) => FirebaseService().getCoursesQuery(chunk)).toList());
@@ -43,18 +45,48 @@ class Wishlist extends ConsumerWidget with CourseMixin {
       body: RefreshIndicator(
         onRefresh: () async => ref.refresh(wishlistProvider),
         child: user == null || user.wishList == null || user.wishList!.isEmpty
-            ? EmptyAnimation(animationString: emptyAnimation, title: 'no-course'.tr())
+            ? SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 60),
+                  child: EmptyAnimation(animationString: emptyAnimation, title: 'no-course'.tr()),
+                ),
+              )
             : wishlist.when(
                 skipLoadingOnRefresh: false,
                 loading: () => const LoadingListTile(height: 160),
                 error: (error, stackTrace) => Center(
-                  child: Text(error.toString()),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.cloud_off_outlined, size: 48, color: Colors.grey),
+                        const SizedBox(height: 12),
+                        Text('error'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () => ref.refresh(wishlistProvider),
+                          child: Text('retry'.tr()),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 data: (data) {
+                  if (data.isEmpty) {
+                    return SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 60),
+                        child: EmptyAnimation(animationString: emptyAnimation, title: 'no-course'.tr()),
+                      ),
+                    );
+                  }
                   return ListView.separated(
                     padding: const EdgeInsets.all(20),
                     itemCount: data.length,
-                    separatorBuilder: (context, index) => const Divider(height: 50),
+                    separatorBuilder: (context, index) => const Divider(height: 16),
                     itemBuilder: (context, index) {
                       final Course course = data[index];
                       return CourseTile(course: course);

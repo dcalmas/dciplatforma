@@ -9,20 +9,27 @@ import 'package:lms_app/screens/search/searched_courses.dart';
 import 'package:lms_app/services/firebase_service.dart';
 import 'package:lms_app/utils/empty_icon.dart';
 
-final searchTextCtlrProvider = Provider.autoDispose((ref) => TextEditingController());
+final searchTextCtlrProvider = Provider.autoDispose((ref) {
+  final ctlr = TextEditingController();
+  ref.onDispose(() => ctlr.dispose());
+  return ctlr;
+});
 final searchStartedProvider = StateProvider.autoDispose<bool>((ref) => false);
 final recentSearchDataProvider = StateProvider<List<String>>((ref) => []);
 
 final searchedCoursesProvider = FutureProvider.autoDispose<List<Course>>((ref) async {
-  final value = ref.watch(searchTextCtlrProvider).text;
+  final value = ref.watch(searchTextCtlrProvider).text.trim();
+  if (value.isEmpty || value.length < 2) return [];
   final allCourses = await FirebaseService().getAllCourses();
+  final q = value.toLowerCase();
   final List<Course> filteredCourses = allCourses
       .where((course) =>
-          course.name.toLowerCase().contains(value.toLowerCase()) ||
-          course.courseMeta.description.toString().toLowerCase().contains(value.toLowerCase()) ||
-          course.courseMeta.learnings.toString().toLowerCase().contains(value.toLowerCase()) ||
-          course.courseMeta.summary.toString().toLowerCase().contains(value.toLowerCase()) ||
-          course.courseMeta.requirements.toString().toLowerCase().contains(value.toLowerCase()))
+          course.name.toLowerCase().contains(q) ||
+          course.courseMeta.description.toString().toLowerCase().contains(q) ||
+          course.courseMeta.learnings.toString().toLowerCase().contains(q) ||
+          course.courseMeta.summary.toString().toLowerCase().contains(q) ||
+          course.courseMeta.requirements.toString().toLowerCase().contains(q))
+      .take(50)
       .toList();
 
   return filteredCourses;

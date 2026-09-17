@@ -1,24 +1,60 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lms_app/ads/ad_manager.dart';
 import 'package:lms_app/components/mark_complete_button.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/lesson.dart';
+import 'package:lms_app/providers/user_data_provider.dart';
 import 'package:lms_app/screens/quiz_lesson/quiz_screen.dart';
+import 'package:lms_app/services/gamification_service.dart';
 import 'package:lms_app/utils/next_screen.dart';
 import 'package:lms_app/theme/theme_provider.dart';
 
-class QuizComplete extends ConsumerWidget {
+class QuizComplete extends ConsumerStatefulWidget {
   const QuizComplete({super.key, required this.lesson, required this.course});
 
   final Lesson lesson;
   final Course course;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<QuizComplete> createState() => _QuizCompleteState();
+}
+
+class _QuizCompleteState extends ConsumerState<QuizComplete> {
+  bool _quizRewarded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(_maybeAwardQuizXp);
+  }
+
+  /// Вебтегі completeQuiz: тест өткенде бір рет XP (passed_quizzes idempotent).
+  Future<void> _maybeAwardQuizXp() async {
+    if (_quizRewarded) return;
+    final correctAnswerCount = ref.read(correctAnswerCountProvider);
+    final totalQuestions = widget.lesson.questions?.length ?? 0;
+    if (totalQuestions == 0) return;
+    final percentage = (correctAnswerCount / totalQuestions) * 100;
+    if (percentage < 50) return;
+
+    final uid = ref.read(userDataProvider)?.id;
+    if (uid == null) return;
+    _quizRewarded = true;
+    final gamification = GamificationService();
+    await gamification.loadSettings();
+    if (!gamification.enabled) return;
+    final quizId = '${widget.course.id}_${widget.lesson.id}';
+    await gamification.completeQuiz(uid, quizId);
+    if (mounted) {
+      await ref.read(userDataProvider.notifier).getData();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final correctAnswerCount = ref.watch(correctAnswerCountProvider);
-    final totalQuestions = lesson.questions!.length;
+    final totalQuestions = widget.lesson.questions!.length;
     final double percentage = (correctAnswerCount / totalQuestions) * 100;
     final bool isPassed = percentage >= 50;
     final primaryColor = Theme.of(context).primaryColor;
@@ -27,10 +63,10 @@ class QuizComplete extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
-        title: Text(lesson.name),
+        title: Text(widget.lesson.name),
       ),
       bottomNavigationBar: isPassed
-          ? MarkCompleteButton(course: course, lesson: lesson)
+          ? MarkCompleteButton(course: widget.course, lesson: widget.lesson)
           : Container(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
               child: SafeArea(
@@ -60,8 +96,7 @@ class QuizComplete extends ConsumerWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
                       onPressed: () {
-                        AdManager.initInterstitailAds(ref);
-                        NextScreen.replaceAnimation(context, QuizLesson(course: course, lesson: lesson));
+                        NextScreen.replaceAnimation(context, QuizLesson(course: widget.course, lesson: widget.lesson));
                       },
                       child: Text(
                         'try-again'.tr(),

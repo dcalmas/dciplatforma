@@ -1,18 +1,16 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:lms_app/models/app_settings_model.dart';
 import 'package:lms_app/models/category.dart';
 import 'package:lms_app/models/chart_model.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/lesson.dart';
-import 'package:lms_app/models/purchase_history.dart';
 import 'package:lms_app/models/review.dart';
 import 'package:lms_app/models/section.dart';
-import 'package:lms_app/models/subscription.dart';
 import 'package:lms_app/models/tag.dart';
 import 'package:lms_app/services/app_service.dart';
 import 'package:lms_app/utils/toasts.dart';
@@ -70,7 +68,8 @@ class FirebaseService {
         .orderBy('created_at', descending: true)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Course.fromFirestore(e)).toList();
+      if (snapshot == null) return;
+      data = snapshot.docs.map((e) => Course.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -84,7 +83,7 @@ class FirebaseService {
         .limit(limit)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Course.fromFirestore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Course.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -131,7 +130,7 @@ class FirebaseService {
         .where('featured', isEqualTo: true)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Course.fromFirestore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Course.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -145,7 +144,7 @@ class FirebaseService {
         .limit(5)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Course.fromFirestore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Course.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -160,7 +159,7 @@ class FirebaseService {
         .limit(5)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Course.fromFirestore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Course.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -175,7 +174,7 @@ class FirebaseService {
         .limit(3)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Course.fromFirestore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Course.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -188,7 +187,7 @@ class FirebaseService {
         .limit(limit)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Category.fromFirestore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Category.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -200,7 +199,7 @@ class FirebaseService {
         .orderBy('index', descending: false)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Category.fromFirestore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Category.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -212,7 +211,7 @@ class FirebaseService {
         .limit(limit)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Tag.fromFirestore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Tag.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -226,7 +225,7 @@ class FirebaseService {
         .orderBy('order', descending: false)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Section.fromFiresore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Section.fromFiresore(e)).toList();
     });
     return data;
   }
@@ -242,7 +241,7 @@ class FirebaseService {
         .orderBy('order', descending: false)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Lesson.fromFiresore(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Lesson.fromFiresore(e)).toList();
     });
     return data;
   }
@@ -254,7 +253,7 @@ class FirebaseService {
         .limit(limit)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Review.fromFirebase(e)).toList();
+      data = (snapshot?.docs ?? []).map((e) => Review.fromFirebase(e)).toList();
     });
     return data;
   }
@@ -284,6 +283,7 @@ class FirebaseService {
   }
 
   Future<List<Tag>> getCourseTags(List tagIds) async {
+    if (tagIds.isEmpty) return [];
     final List ids = tagIds.length > 10 ? tagIds.take(10).toList() : tagIds;
     List<Tag> data = [];
     await firestore
@@ -291,7 +291,8 @@ class FirebaseService {
         .where(FieldPath.documentId, whereIn: ids)
         .get()
         .then((QuerySnapshot? snapshot) {
-      data = snapshot!.docs.map((e) => Tag.fromFirestore(e)).toList();
+      if (snapshot == null) return;
+      data = snapshot.docs.map((e) => Tag.fromFirestore(e)).toList();
     });
     return data;
   }
@@ -299,7 +300,9 @@ class FirebaseService {
   Future<UserModel?> getUserData() async {
     UserModel? user;
     try {
-      final String userId = FirebaseAuth.instance.currentUser!.uid;
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) return null;
+      final String userId = currentUser.uid;
       final DocumentSnapshot snap = await firestore
           .collection('users')
           .doc(userId)
@@ -314,7 +317,9 @@ class FirebaseService {
   }
 
   Stream<UserModel?> userDataStream() {
-    final String userId = FirebaseAuth.instance.currentUser!.uid;
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return Stream.value(null);
+    final String userId = currentUser.uid;
     return firestore.collection('users').doc(userId).snapshots().map((snap) {
       if (!snap.exists || snap.data() == null) return null;
       return UserModel.fromFirebase(snap);
@@ -353,68 +358,67 @@ class FirebaseService {
         'wishlist': FieldValue.arrayRemove([newCourseId])
       });
     } else {
-      courses.add(newCourseId);
-      await ref.update({'wishlist': FieldValue.arrayUnion(courses)});
+      await ref.update({'wishlist': FieldValue.arrayUnion([newCourseId])});
     }
   }
 
   Future<UserModel> updateEnrollment(UserModel user, Course course) async {
     final userRef = firestore.collection('users').doc(user.id);
-    final courseRef = firestore.collection('courses').doc(course.id);
-    // Commit enrollment and its counter together; retries must never unenroll.
-    return firestore.runTransaction((transaction) async {
-      final userSnapshot = await transaction.get(userRef);
-      final courseSnapshot = await transaction.get(courseRef);
-      if (!userSnapshot.exists || !courseSnapshot.exists) {
-        throw StateError('User or course no longer exists');
-      }
-      final userData = userSnapshot.data()!;
-      if (userData['disabled'] == true || userData['deleted'] == true) {
-        throw StateError('Account is inactive');
-      }
-      final enrolled = List<String>.from(userData['enrolled'] ?? []);
-      final updatedUser = UserModel.fromFirebase(userSnapshot);
-      if (enrolled.contains(course.id)) return updatedUser;
-      transaction.update(userRef, {
-        'enrolled': FieldValue.arrayUnion([course.id]),
-        'enrolled_at.${course.id}': FieldValue.serverTimestamp(),
-      });
-      transaction.update(courseRef, {
-        'students':
-            (courseSnapshot.data()!['students'] as num? ?? 0).toInt() + 1,
-      });
-      updatedUser.enrolledCourses = [...enrolled, course.id];
-      return updatedUser;
+    // Жазылу server-side бекітіледі (promoteEnrollment триггері):
+    // free курстар ғана, платный сұраныстар алынып тасталады.
+    await userRef.update({
+      'enroll_requests': FieldValue.arrayUnion([course.id]),
     });
+    // Триггер бекіткенін күтеміз (әдетте 1-3 сек).
+    for (int i = 0; i < 40; i++) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      final snap = await userRef.get();
+      if (!snap.exists) throw StateError('User no longer exists');
+      final enrolled = List<String>.from(snap.data()?['enrolled'] ?? []);
+      if (enrolled.contains(course.id)) {
+        final updatedUser = UserModel.fromFirebase(snap);
+        updatedUser.enrolledCourses = enrolled;
+        return updatedUser;
+      }
+    }
+    throw StateError('Enrollment not confirmed');
   }
 
-  Future updateLessonMarkComplete(
+  /// Вебтегі `markLessonComplete`: жасалған кілттер курсты id және slug
+  /// бойынша жазылады (екі жүйеде де сабақтың өтуі бірдей көрінеді).
+  /// Қайта шақылғанда белгі алынып тасталады (toggle).
+  /// Сабақ жаңадан аяқталған болса true қайтарады.
+  Future<bool> updateLessonMarkComplete(
       UserModel user, Course course, Lesson lesson) async {
     final DocumentReference ref = firestore.collection('users').doc(user.id);
 
-    //course_id + lesson_id
-    final newlessonId = '${course.id}_${lesson.id}';
+    final List<String> aliases =
+        [course.id, course.slug]
+            .where((k) => k != null && k.isNotEmpty)
+            .cast<String>()
+            .toList();
+    final List<String> completedKeys = aliases
+        .map((key) => '${key}_${lesson.id}')
+        .toSet()
+        .toList();
+
     final List lessons = user.completedLessons ?? [];
-    if (lessons.contains(newlessonId)) {
+    final bool alreadyComplete =
+        completedKeys.any((key) => lessons.contains(key));
+
+    if (alreadyComplete) {
       await ref.update({
-        'completed_lessons': FieldValue.arrayRemove([newlessonId])
+        'completed_lessons': FieldValue.arrayRemove(completedKeys),
+        'updated_at': FieldValue.serverTimestamp(),
       });
+      return false;
     } else {
-      lessons.add(newlessonId);
-      await ref.update({'completed_lessons': FieldValue.arrayUnion(lessons)});
+      await ref.update({
+        'completed_lessons': FieldValue.arrayUnion(completedKeys),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+      return true;
     }
-  }
-
-  Future updateSubscription(UserModel user, Subscription subscription) async {
-    final DocumentReference ref = firestore.collection('users').doc(user.id);
-    final data = Subscription.getMap(subscription);
-    await ref.update({'subscription': data});
-  }
-
-  Future savePurchaseHistory(UserModel user, PurchaseHistory history) async {
-    final Map<String, dynamic> data = PurchaseHistory.getMap(history);
-    final DocumentReference ref = firestore.collection('purchases').doc();
-    await ref.set(data);
   }
 
   Future<List<UserModel>> getTopAuthors({int limit = 5}) async {
@@ -425,7 +429,7 @@ class FirebaseService {
         .limit(limit)
         .get()
         .then((QuerySnapshot? snapshot) {
-          data = snapshot!.docs.map((e) => UserModel.fromFirebase(e)).toList();
+          data = (snapshot?.docs ?? []).map((e) => UserModel.fromFirebase(e)).toList();
         });
     return data;
   }
@@ -437,7 +441,7 @@ class FirebaseService {
         .where('role', arrayContainsAny: ['author', 'admin'])
         .get()
         .then((QuerySnapshot? snapshot) {
-          data = snapshot!.docs.map((e) => UserModel.fromFirebase(e)).toList();
+          data = (snapshot?.docs ?? []).map((e) => UserModel.fromFirebase(e)).toList();
         });
     return data;
   }
@@ -638,17 +642,79 @@ class FirebaseService {
     return snapshot;
   }
 
-  Future<String?> uploadImageToHosting(XFile imageFile) async {
-    String? imageUrl;
-    final File image = File(imageFile.path);
-    final String imageName = imageFile.name;
+  /// Аватарды жүктеу: <=2 МБ тексереді, WebP-ке түрлендіреді (max 512px),
+  /// `user_images/{uid}/avatar.webp` тұрақты жолына жоғары-қойып жазады
+  /// (ескі фото автоматты толығымен жойылады) және legacy avatar_* файлдарды тазалайды.
+  Future<String?> uploadImageToHosting(
+    XFile imageFile, {
+    required String uid,
+    String? oldImageUrl,
+  }) async {
+    final bytes = await imageFile.readAsBytes();
+    if (bytes.length > 2 * 1024 * 1024) {
+      throw const FormatException('image_too_large');
+    }
+    final webpBytes = await _encodeWebp(bytes);
+    if (webpBytes == null) {
+      throw const FormatException('invalid_image');
+    }
+
     final Reference storageReference =
-        FirebaseStorage.instance.ref().child('user_images/$imageName');
-    final UploadTask uploadTask = storageReference.putFile(image);
-    await uploadTask.whenComplete(() async {
-      imageUrl = await storageReference.getDownloadURL();
-    });
+        FirebaseStorage.instance.ref().child('user_images/$uid/avatar.webp');
+    await storageReference.putData(
+      webpBytes,
+      SettableMetadata(
+        contentType: 'image/webp',
+        cacheControl: 'public,max-age=31536000,immutable',
+      ),
+    );
+    final imageUrl = await storageReference.getDownloadURL();
+
+    await _cleanupOldAvatars(storageReference, oldImageUrl);
     return imageUrl;
+  }
+
+  /// Рұқсат етілген кескінді WebP-ке айналдырады (max ені/биіктігі 512px,
+  /// quality 85, EXIF метадатасы алынып тасталады). Кескін емес болса null қайтарады.
+  Future<Uint8List?> _encodeWebp(Uint8List bytes) async {
+    try {
+      final List<int> result = await FlutterImageCompress.compressWithList(
+        bytes,
+        minWidth: 512,
+        minHeight: 512,
+        quality: 85,
+        format: CompressFormat.webp,
+        keepExif: false,
+      );
+      return Uint8List.fromList(result);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Мұралық (legacy) аватар файлдарын жою: uid папкасындағы avatar_*
+  /// және ескі image_url көрсеткен файл. Қателерді елемейді (best-effort).
+  Future<void> _cleanupOldAvatars(
+      Reference newAvatarRef, String? oldImageUrl) async {
+    try {
+      final folder =
+          FirebaseStorage.instance.ref().child('user_images/${newAvatarRef.parent!.name}');
+      final results = await folder.listAll();
+      for (final item in results.items) {
+        if (item.name != 'avatar.webp') {
+          try {
+            await item.delete();
+          } catch (_) {}
+        }
+      }
+    } catch (_) {}
+    if (oldImageUrl == null || oldImageUrl.isEmpty) return;
+    try {
+      final oldRef = FirebaseStorage.instance.refFromURL(oldImageUrl);
+      if (oldRef.fullPath != newAvatarRef.fullPath) {
+        await oldRef.delete();
+      }
+    } catch (_) {}
   }
 
   Future<int> getAuthorReviewsCount(String auhtorId) async {
@@ -680,7 +746,7 @@ class FirebaseService {
 
   Future<double> getCourseAverageRating(String courseId) async {
     double averageRating = 0.0;
-    final QuerySnapshot snapshot = await _courseReviews(courseId).get();
+    final QuerySnapshot snapshot = await _courseReviews(courseId).limit(200).get();
     final List<Review> reviews =
         snapshot.docs.map((e) => Review.fromFirebase(e)).toList();
 
@@ -711,30 +777,6 @@ class FirebaseService {
   Future updateUserStats() async {
     final String id = AppService.getTodaysID();
     final DocumentReference docRef = firestore.collection('user_stats').doc(id);
-    await firestore.runTransaction((transaction) {
-      return transaction.get(docRef).then((DocumentSnapshot snapshot) {
-        if (snapshot.exists) {
-          final ChartModel chartModel = ChartModel.fromFirestore(snapshot);
-          final newChartModel = ChartModel(
-              id: chartModel.id,
-              count: chartModel.count + 1,
-              timestamp: chartModel.timestamp);
-          final Map<String, dynamic> data = ChartModel.getMap(newChartModel);
-          transaction.set(docRef, data, SetOptions(merge: true));
-        } else {
-          final newChartModel =
-              ChartModel(id: id, count: 1, timestamp: DateTime.now().toUtc());
-          final Map<String, dynamic> data = ChartModel.getMap(newChartModel);
-          transaction.set(docRef, data, SetOptions(merge: true));
-        }
-      });
-    });
-  }
-
-  Future updatePurchaseStats() async {
-    final String id = AppService.getTodaysID();
-    final DocumentReference docRef =
-        firestore.collection('purchase_stats').doc(id);
     await firestore.runTransaction((transaction) {
       return transaction.get(docRef).then((DocumentSnapshot snapshot) {
         if (snapshot.exists) {

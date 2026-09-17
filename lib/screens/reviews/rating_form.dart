@@ -39,8 +39,19 @@ class _RatingFormState extends ConsumerState<RatingForm> {
     reviewCtlr.text = widget.review?.review ?? '';
   }
 
+  @override
+  void dispose() {
+    reviewCtlr.dispose();
+    _btnController.stop();
+    super.dispose();
+  }
+
   _handleSubmit() async {
-    final user = ref.read(userDataProvider)!;
+    final user = ref.read(userDataProvider);
+    if (user == null) {
+      if (mounted) openSnackbar(context, 'login-required'.tr());
+      return;
+    }
     final navigator = Navigator.of(context);
     if (_rating != 0.0) {
       _btnController.start();
@@ -73,7 +84,7 @@ class _RatingFormState extends ConsumerState<RatingForm> {
   }
 
   _updateUserReviewList (UserModel user) async {
-    if(!user.reviews!.contains(widget.course.id)){
+    if(!(user.reviews ?? []).contains(widget.course.id)){
       await FirebaseService().updateUserReviewList(user, widget.course);
       await ref.read(userDataProvider.notifier).getData();
     }

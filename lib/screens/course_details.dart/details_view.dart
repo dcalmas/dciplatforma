@@ -1,8 +1,6 @@
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lms_app/ads/ad_manager.dart';
-import 'package:lms_app/ads/banner_ad.dart';
 import 'package:lms_app/screens/course_details.dart/course_share_button.dart';
 import 'bookmark_button.dart';
 import '../../models/course.dart';
@@ -60,9 +58,6 @@ class CourseDetailsView extends ConsumerWidget {
         child: Wrap(
           alignment: WrapAlignment.center,
           children: [
-            AdManager.isBannerEnbaled(ref)
-                ? const BannerAdWidget()
-                : Container(),
             EnrollButton(course: course),
           ],
         ),
@@ -102,11 +97,11 @@ class CourseDetailsView extends ConsumerWidget {
             padding: const EdgeInsets.only(right: 14),
             child: Center(
               child: Container(
-                height: 40,
+                height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
                   color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
@@ -119,16 +114,16 @@ class CourseDetailsView extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
-                        width: 36,
-                        height: 36,
+                        width: 48,
+                        height: 48,
                         child: BookmarkButton(course: course, compact: true)),
                     SizedBox(
-                        width: 36,
-                        height: 36,
+                        width: 48,
+                        height: 48,
                         child: ReviewButton(course: course, compact: true)),
                     SizedBox(
-                        width: 36,
-                        height: 36,
+                        width: 48,
+                        height: 48,
                         child:
                             CourseShareButton(course: course, compact: true)),
                   ],

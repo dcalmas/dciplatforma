@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lms_app/models/author_info.dart';
-import 'package:lms_app/models/subscription.dart';
 
 class UserModel {
   final String id, email, name;
@@ -13,10 +12,19 @@ class UserModel {
   List? wishList;
   bool? isDisbaled;
   AuthorInfo? authorInfo;
-  Subscription? subscription;
   List? completedLessons;
   String? platform;
   List? reviews;
+
+  // ── Геймификация (вебтегі users/{uid} өрістері) ──
+  int? xp;
+  List? badges;
+  int? dailyStreak;
+  DateTime? lastLoginDate;
+  List? passedQuizzes;
+  List? rewardedCourses;
+  Map<String, dynamic>? enrolledExpirations;
+  Map<String, dynamic>? lastLesson;
 
   UserModel({
     required this.id,
@@ -31,10 +39,17 @@ class UserModel {
     this.createdAt,
     this.updatedAt,
     this.authorInfo,
-    this.subscription,
     this.completedLessons,
     this.platform,
     this.reviews,
+    this.xp,
+    this.badges,
+    this.dailyStreak,
+    this.lastLoginDate,
+    this.passedQuizzes,
+    this.rewardedCourses,
+    this.enrolledExpirations,
+    this.lastLesson,
   });
 
   factory UserModel.fromFirebase(DocumentSnapshot snap) {
@@ -60,11 +75,29 @@ class UserModel {
       authorInfo: d['author_info'] == null ? null : AuthorInfo.fromMap(d['author_info']),
       enrolledCourses: d['enrolled'] ?? [],
       wishList: d['wishlist'] ?? [],
-      subscription: d['subscription'] == null ? null : Subscription.fromFirestore(d['subscription']),
       completedLessons: d['completed_lessons'] ?? [],
       platform: d['platform'],
       reviews: d['reviews'] ?? [],
+      xp: (d['xp'] as num?)?.toInt() ?? 0,
+      badges: d['badges'] ?? [],
+      dailyStreak: (d['daily_streak'] as num?)?.toInt() ?? 0,
+      lastLoginDate: _toDate(d['last_login_date']),
+      passedQuizzes: d['passed_quizzes'] ?? [],
+      rewardedCourses: d['rewarded_courses'] ?? [],
+      enrolledExpirations: d['enrolled_expirations'] == null
+          ? null
+          : Map<String, dynamic>.from(d['enrolled_expirations'] as Map),
+      lastLesson: d['last_lesson'] == null
+          ? null
+          : Map<String, dynamic>.from(d['last_lesson'] as Map),
     );
+  }
+
+  static DateTime? _toDate(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    return null;
   }
 
   static Map<String, dynamic> getMap(UserModel user) {

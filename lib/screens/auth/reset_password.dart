@@ -15,6 +15,12 @@ class ResetPasswordState extends State<ResetPassword> {
   var emailCtrl = TextEditingController();
   bool isLoading = false;
 
+  @override
+  void dispose() {
+    emailCtrl.dispose();
+    super.dispose();
+  }
+
   _handleSubmit() async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();

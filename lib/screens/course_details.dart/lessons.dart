@@ -3,9 +3,7 @@ import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:lms_app/ads/ad_manager.dart';
 import 'package:lms_app/mixins/course_mixin.dart';
-import 'package:lms_app/mixins/user_mixin.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/user_model.dart';
 import 'package:lms_app/screens/article_lesson.dart';
@@ -21,8 +19,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/lesson.dart';
 import '../../providers/user_data_provider.dart';
+import '../../services/lesson_access_service.dart';
 
-class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
+class Lessons extends ConsumerWidget with CourseMixin {
   const Lessons({super.key, required this.course, required this.sectionId});
 
   final Course course;
@@ -52,8 +51,7 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
           itemBuilder: (context, index) {
             final Lesson lesson = lessons[index];
             final bool completed = isLessonCompleted(lesson, user, course.id);
-            final bool locked =
-                _isLockedByHomework(ref, course, lesson, user);
+            final LessonBlocker? blocker = _getBlocker(ref, course, lesson, user);
 
             return GestureDetector(
               onTap: () => _onTap(context, lesson, course, user, ref),
@@ -170,7 +168,7 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      _trailingIcon(lesson, user, primaryColor, locked: locked),
+                      _trailingIcon(lesson, user, primaryColor, locked: blocker != null),
                     ],
                   ),
                 ),
@@ -182,56 +180,54 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
     );
   }
 
-  /// Вебтегі getLessonBlocker: алдыңғы міндетті ДЗ тапсырылмаса құлыптау.
+  /// Вебтегі getLessonBlocker: sequential_unlock + міндетті ДЗ.
   /// [watch] true болса build ішінде (watch), false болса callback ішінде (read).
-  bool _isLockedByHomework(
+  LessonBlocker? _getBlocker(
       WidgetRef ref, Course course, Lesson lesson, UserModel? user,
       {bool watch = true}) {
-    if (user == null || isAdminUser(user)) return false;
+    if (user == null || isAdminUser(user)) return null;
     final flat = watch
         ? ref.watch(courseFlatLessonsProvider(course.id)).valueOrNull
         : ref.read(courseFlatLessonsProvider(course.id)).valueOrNull;
-    if (flat == null || flat.isEmpty) return false;
+    if (flat == null || flat.isEmpty) return null;
     final submissions = watch
         ? ref.watch(homeworkSubmissionsProvider(course.id)).valueOrNull ??
             const {}
         : ref.read(homeworkSubmissionsProvider(course.id)).valueOrNull ??
             const {};
-    final completedKeys = (user.completedLessons ?? [])
-        .map((e) => e.toString())
-        .toSet();
-    final blocker = HomeworkService.blockingHomeworkLessonId(
+    return LessonAccessService.getLessonBlocker(
+      course: course,
       flatLessons: flat,
       lessonId: lesson.id,
-      completedLessonKeys: completedKeys,
-      courseId: course.id,
+      user: user,
       submissions: submissions,
     );
-    return blocker != null && blocker != lesson.id;
   }
 
   void _onTap(BuildContext context, Lesson lesson, Course course,
       UserModel? user, WidgetRef ref) {
     if (user != null) {
-      bool enrolled = hasEnrolled(user, course);
-      bool isPremium = course.priceStatus != 'free';
-      bool isPremiumUser = UserMixin.isUserPremium(user);
-
-      if (!isPremium || enrolled || isPremiumUser) {
-        if (_isLockedByHomework(ref, course, lesson, user, watch: false)) {
-          openSnackbar(context, 'homework_blocked'.tr());
-          return;
-        }
-        _openLesson(context, lesson, ref);
-      } else {
-        openSnackbar(context, 'subscribe-to-access-features'.tr());
+      final bool enrolled =
+          user.enrolledCourses?.contains(course.id) ?? false;
+      // Платный курсқа тек админ жазған оқушы кіреді, тегін курс бәріне ашық.
+      if (course.priceStatus != 'free' && !enrolled) {
+        openSnackbar(context, 'enroll-to-view-curriculum'.tr());
+        return;
       }
+      final blocker = _getBlocker(ref, course, lesson, user, watch: false);
+      if (blocker != null) {
+        openSnackbar(context, blocker.isHomework
+            ? 'homework_blocked'.tr()
+            : 'sequential_blocked'.tr());
+        return;
+      }
+      _openLesson(context, lesson);
     } else {
       NextScreen.normal(context, const LoginScreen());
     }
   }
 
-  void _openLesson(BuildContext context, Lesson lesson, WidgetRef ref) {
+  void _openLesson(BuildContext context, Lesson lesson) {
     if (lesson.contentType == 'document' && lesson.attachmentUrl != null) {
       launchUrl(Uri.parse(lesson.attachmentUrl!),
           mode: LaunchMode.externalApplication);
@@ -243,7 +239,6 @@ class Lessons extends ConsumerWidget with CourseMixin, UserMixin {
     } else {
       NextScreen.iOS(context, QuizLesson(course: course, lesson: lesson));
     }
-    AdManager.initInterstitailAds(ref);
   }
 
   String _contentTypeLabel(Lesson lesson) {

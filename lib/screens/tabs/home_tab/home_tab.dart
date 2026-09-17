@@ -121,9 +121,27 @@ class _HomeTabState extends ConsumerState<HomeTab>
               child: coursesState.when(
                 loading: () => const Center(child: LoadingIndicatorWidget()),
                 error: (error, stack) => Center(
-                  child: Text(
-                    'error: $error',
-                    style: const TextStyle(color: Colors.red),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.cloud_off_outlined, size: 48, color: Colors.grey),
+                        const SizedBox(height: 12),
+                        Text(
+                          'error'.tr(),
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            ref.invalidate(allCoursesProvider);
+                            ref.invalidate(categoriesProvider);
+                          },
+                          child: Text('retry'.tr()),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 data: (courses) {

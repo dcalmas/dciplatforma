@@ -15,6 +15,8 @@ class Course {
   final CourseMeta courseMeta;
   final int lessonsCount;
   bool? isFeatured;
+  final bool sequentialUnlock;
+  final String? slug;
 
   Course({
     required this.name,
@@ -33,6 +35,8 @@ class Course {
     required this.courseMeta,
     required this.lessonsCount,
     this.isFeatured,
+    this.sequentialUnlock = false,
+    this.slug,
   });
 
   factory Course.fromFirestore(DocumentSnapshot snap) {
@@ -54,6 +58,8 @@ class Course {
       courseMeta: CourseMeta.fromMap(d['meta']),
       isFeatured: d['featured'] ?? false,
       lessonsCount: d['lessons_count'],
+      sequentialUnlock: d['sequential_unlock'] == true,
+      slug: d['slug'],
     );
   }
 }

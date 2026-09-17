@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lms_app/configs/features_config.dart';
 import 'package:lms_app/services/firebase_service.dart';
 import 'package:lms_app/utils/snackbars.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
@@ -19,7 +18,6 @@ class SocialLogins extends StatefulWidget {
 
 class _SocialLoginsState extends State<SocialLogins> {
   final googleCtlr = RoundedLoadingButtonController();
-  final fbController = RoundedLoadingButtonController();
   final appleController = RoundedLoadingButtonController();
 
   UserModel _userModel(UserCredential userCredential) {
@@ -59,8 +57,6 @@ class _SocialLoginsState extends State<SocialLogins> {
 
   Future<void> _handleGoogleSignIn() =>
       _handleSignIn(googleCtlr, () => AuthService().signInWithGoogle());
-  Future<void> _handleFacebookSignIn() =>
-      _handleSignIn(fbController, () => AuthService().signInWithFacebook());
   Future<void> _handleAppleSignIn() =>
       _handleSignIn(appleController, () => AuthService().signInWithApple());
 
@@ -94,25 +90,6 @@ class _SocialLoginsState extends State<SocialLogins> {
           ],
           label: 'Google',
         ),
-
-        // Facebook
-        if (isFacebookLoginEnabled) ...[
-          const SizedBox(height: 12),
-          _GradientBorderButton(
-            controller: fbController,
-            onPressed: () => _handleFacebookSignIn(),
-            isDarkMode: isDarkMode,
-            primaryColor: primaryColor,
-            cardBgColor: cardBgColor,
-            gradientColors: const [
-              Color(0xFF1877F2),
-              Color(0xFF42A5F5),
-            ],
-            icon: FontAwesomeIcons.facebook,
-            iconColors: const [Color(0xFF1877F2)],
-            label: 'Facebook',
-          ),
-        ],
 
         // Apple
         if (Platform.isIOS) ...[

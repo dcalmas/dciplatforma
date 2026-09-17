@@ -6,6 +6,7 @@ import 'package:lms_app/components/user_avatar.dart';
 import 'package:lms_app/screens/tabs/profile_tab/settings.dart';
 import '../../../providers/user_data_provider.dart';
 import '../../../utils/next_screen.dart';
+import 'gamification_card.dart';
 import 'guest_user.dart';
 
 class ProfileTab extends ConsumerWidget {
@@ -66,7 +67,11 @@ class ProfileTab extends ConsumerWidget {
                     )
                   else
                     const GuestUser(),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 10),
+                  if (user != null) ...[
+                    const GamificationCard(),
+                    const SizedBox(height: 10),
+                  ],
                   const AppSettings(),
                 ],
               ),
@@ -99,7 +104,7 @@ class ProfileTab extends ConsumerWidget {
                   const Icon(Icons.favorite, size: 16, color: _pink),
                   const SizedBox(width: 6),
                   Text(
-                    'Ваш аккаунт и настройки',
+                    'profile-subtitle'.tr(),
                     style: TextStyle(
                       fontSize: 13.5,
                       color: isDarkMode ? Colors.grey[400] : const Color(0xFF6B7280),
@@ -111,29 +116,29 @@ class ProfileTab extends ConsumerWidget {
           ),
         ),
         if (!isDarkMode)
-          const Padding(
-            padding: EdgeInsets.only(top: 4),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  'Развивай',
+                const Text(
+                  'profile-tagline-1',
                   style: TextStyle(
                     fontStyle: FontStyle.italic,
                     fontSize: 15,
                     color: _pink,
                     height: 1.1,
                   ),
-                ),
-                Text(
-                  'себя каждый день',
+                ).tr(),
+                const Text(
+                  'profile-tagline-2',
                   style: TextStyle(
                     fontStyle: FontStyle.italic,
                     fontSize: 13,
                     color: _pink,
                     height: 1.1,
                   ),
-                ),
+                ).tr(),
               ],
             ),
           ),

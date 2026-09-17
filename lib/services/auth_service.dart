@@ -5,7 +5,6 @@ import 'phone_identity_service.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lms_app/utils/snackbars.dart';
@@ -15,7 +14,14 @@ class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   Stream<User?> userSteam = FirebaseAuth.instance.authStateChanges();
   final user = FirebaseAuth.instance.currentUser;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+  static bool _googleInitialized = false;
+
+  static Future<void> _ensureGoogleInitialized() async {
+    if (!_googleInitialized) {
+      await GoogleSignIn.instance.initialize();
+      _googleInitialized = true;
+    }
+  }
 
   static const String phoneEmailDomain = PhoneIdentityService.phoneEmailDomain;
   static bool isEmail(String value) => PhoneIdentityService.isEmail(value);
@@ -97,24 +103,20 @@ class AuthService {
   }
 
   Future<UserCredential?> signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser == null) return null;
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
+    await _ensureGoogleInitialized();
+    late final GoogleSignInAccount googleUser;
+    try {
+      googleUser = await GoogleSignIn.instance.authenticate();
+    } on GoogleSignInException catch (e) {
+      // Пайдаланушы терезені жапса — бұл қате емес, жай шығамыз.
+      if (e.code == GoogleSignInExceptionCode.canceled) return null;
+      rethrow;
+    }
+    final GoogleSignInAuthentication googleAuth = googleUser.authentication;
     final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
     return await _firebaseAuth.signInWithCredential(credential);
-  }
-
-  Future<UserCredential?> signInWithFacebook() async {
-    final LoginResult loginResult = await FacebookAuth.instance.login();
-    if (loginResult.status != LoginStatus.success ||
-        loginResult.accessToken == null) return null;
-    final OAuthCredential facebookAuthCredential =
-        FacebookAuthProvider.credential(loginResult.accessToken!.token);
-    return await _firebaseAuth.signInWithCredential(facebookAuthCredential);
   }
 
   String generateNonce([int length = 32]) {
@@ -160,9 +162,11 @@ class AuthService {
   }
 
   Future googleLogout() async {
-    final bool isSignedIn = await googleSignIn.isSignedIn();
-    if (isSignedIn) {
-      await googleSignIn.signOut();
+    try {
+      await _ensureGoogleInitialized();
+      await GoogleSignIn.instance.signOut();
+    } catch (e) {
+      debugPrint('google logout: $e');
     }
   }
 
@@ -188,10 +192,11 @@ class AuthService {
   }
 
   Future sendEmailVerification() async {
-    if (_firebaseAuth.currentUser != null &&
+    final currentUser = _firebaseAuth.currentUser;
+    if (currentUser != null &&
         !PhoneIdentityService.isSyntheticEmail(
-            _firebaseAuth.currentUser!.email ?? '')) {
-      await _firebaseAuth.currentUser!
+            currentUser.email ?? '')) {
+      await currentUser
           .sendEmailVerification()
           .catchError((e) => debugPrint('Email sending failed'));
     }

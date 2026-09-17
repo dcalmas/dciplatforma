@@ -29,6 +29,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
   bool _initDone = false;
   bool _animDone = false;
   bool _navigating = false;
+  Timer? _fallbackTimer;
+  Timer? _hapticTimer;
 
   @override
   void initState() {
@@ -44,7 +46,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
     );
 
     _startInitialization();
-    Timer(const Duration(seconds: 5), () {
+    _fallbackTimer = Timer(const Duration(seconds: 5), () {
       if (!_animDone) {
         _animDone = true;
         _tryNavigate();
@@ -54,6 +56,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
 
   @override
   void dispose() {
+    _fallbackTimer?.cancel();
+    _hapticTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -103,6 +107,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
       NextScreen.replaceSlideAnimation(context, const Home());
     } else {
       final bool isGuestUser = await SPService().isGuestUser();
+      if (!mounted) return;
       if (settings?.license != LicenseType.none) {
         if (isGuestUser || settings?.onBoarding == false) {
           NextScreen.replaceSlideAnimation(context, const Home());
@@ -117,13 +122,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
     ));
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
       body: SafeArea(
         child: Center(
           child: FadeTransition(
@@ -153,7 +159,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
                         });
 
                       HapticFeedback.mediumImpact();
-                      Timer(
+                      _hapticTimer = Timer(
                         Duration(milliseconds: (composition.duration.inMilliseconds * 0.5).toInt()),
                         () => HapticFeedback.heavyImpact(),
                       );

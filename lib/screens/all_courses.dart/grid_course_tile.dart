@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:lms_app/components/price_tag.dart';
 import 'package:lms_app/components/rating_bar.dart';
 import 'package:lms_app/screens/all_courses.dart/courses_view.dart';
 import 'package:lms_app/screens/course_details.dart/details_view.dart';
@@ -54,7 +53,6 @@ class GridCourseTile extends StatelessWidget {
                   color: Colors.grey.shade100,
                   child: Hero(tag: heroTag, child: CustomCacheImage(imageUrl: course.thumbnailUrl, radius: 0)),
                 ),
-                PremiumTag(course: course)
               ],
             ),
             Padding(

@@ -3,8 +3,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lms_app/ads/ad_manager.dart';
-import 'package:lms_app/ads/banner_ad.dart';
 import 'package:lms_app/components/loading_grid_tile.dart';
 import 'package:lms_app/configs/app_assets.dart';
 import 'package:lms_app/constants/custom_colors.dart';
@@ -45,6 +43,7 @@ class _AllCoursesViewState extends ConsumerState<AllCoursesView> {
   List<Course> _courses = [];
   bool _hasData = false;
   bool _isLoading = true;
+  bool _isFetching = false;
   DocumentSnapshot? _lastDocument;
   late ScrollController _controller;
 
@@ -54,6 +53,13 @@ class _AllCoursesViewState extends ConsumerState<AllCoursesView> {
     _controller.addListener(_scrollListener);
     super.initState();
     _getData();
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_scrollListener);
+    _controller.dispose();
+    super.dispose();
   }
 
   _scrollListener() async {
@@ -82,30 +88,39 @@ class _AllCoursesViewState extends ConsumerState<AllCoursesView> {
   }
 
   _getData() async {
+    if (_isFetching) return;
+    _isFetching = true;
     if (_lastDocument == null) {
       await _getCourseQuery().then((QuerySnapshot snapshot) {
+        if (!mounted) return;
         _courses = snapshot.docs.map((e) => Course.fromFirestore(e)).toList();
-        _lastDocument = snapshot.docs.last;
+        _lastDocument = snapshot.docs.isEmpty ? null : snapshot.docs.last;
         _isLoading = false;
         setState(() {});
       }).catchError((e) => _handleError(e.toString()));
     } else {
       _hasData = true;
-      setState(() {});
+      if (mounted) setState(() {});
       await _getCourseQuery().then((QuerySnapshot? snapshot) {
-        _courses.addAll(snapshot!.docs.map((e) => Course.fromFirestore(e)).toList());
-        _lastDocument = snapshot.docs.last;
+        if (!mounted) return;
+        if (snapshot != null && snapshot.docs.isNotEmpty) {
+          _courses.addAll(snapshot.docs.map((e) => Course.fromFirestore(e)).toList());
+          _lastDocument = snapshot.docs.last;
+        }
         _hasData = false;
         setState(() {});
       }).catchError((e) => _handleError(e.toString()));
     }
+    _isFetching = false;
   }
 
   _handleError(String error) {
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       _hasData = false;
     });
+    _isFetching = false;
     debugPrint(error);
   }
 
@@ -137,7 +152,6 @@ class _AllCoursesViewState extends ConsumerState<AllCoursesView> {
           ),
         ],
       ),
-      bottomNavigationBar: AdManager.isBannerEnbaled(ref) ? const BannerAdWidget() : null,
       body: RefreshIndicator(
         onRefresh: () async => await _onRefresh(),
         child: SingleChildScrollView(

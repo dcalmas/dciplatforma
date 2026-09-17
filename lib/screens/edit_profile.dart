@@ -35,10 +35,21 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    nameCtlr.dispose();
+    _btnController.stop();
+    super.dispose();
+  }
+
   Future _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxHeight: 200, maxWidth: 200);
     if (image != null) {
+      if (await image.length() > 2 * 1024 * 1024) {
+        if (mounted) openSnackbarFailure(context, 'image-size-limit'.tr());
+        return;
+      }
       _selectedImageFile = image;
       setState(() {});
     }
@@ -46,7 +57,11 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
   Future<String?> _getUserImage() async {
     if (_selectedImageFile != null) {
-      final String? imageUrl = await FirebaseService().uploadImageToHosting(_selectedImageFile!);
+      final String? imageUrl = await FirebaseService().uploadImageToHosting(
+        _selectedImageFile!,
+        uid: widget.user.id,
+        oldImageUrl: widget.user.imageUrl,
+      );
       return imageUrl;
     } else {
       return widget.user.imageUrl;
@@ -68,13 +83,19 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
       _btnController.start();
-      final String? imageUrl = await _getUserImage();
-      await FirebaseService().updateUserProfile(_userData(imageUrl));
-      await ref.read(userDataProvider.notifier).getData();
-      _btnController.reset();
-      setState(() => _selectedImageFile = null);
-      if (!mounted) return;
-      openSnackbar(context, 'Profile updated');
+      try {
+        final String? imageUrl = await _getUserImage();
+        await FirebaseService().updateUserProfile(_userData(imageUrl ?? widget.user.imageUrl));
+        await ref.read(userDataProvider.notifier).getData();
+        _btnController.success();
+        if (!mounted) return;
+        setState(() => _selectedImageFile = null);
+        openSnackbar(context, 'Profile updated');
+      } catch (e) {
+        _btnController.reset();
+        if (!mounted) return;
+        openSnackbar(context, 'error');
+      }
     }
   }
 

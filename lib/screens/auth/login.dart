@@ -33,6 +33,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   var passwordCtrl = TextEditingController();
   bool isLoading = false;
 
+  @override
+  void dispose() {
+    emailCtlr.dispose();
+    passwordCtrl.dispose();
+    super.dispose();
+  }
+
   bool offsecureText = true;
   IconData lockIcon = LineIcons.lock;
 

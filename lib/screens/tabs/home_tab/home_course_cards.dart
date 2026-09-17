@@ -148,6 +148,7 @@ class HomeCourseCard extends StatelessWidget {
     final muted = dark ? Colors.grey.shade400 : const Color(0xFF777B8F);
     final progress = homeCourseProgress(course, user);
     final duration = course.courseMeta.duration;
+    final catName = categoryName;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(9),
@@ -179,25 +180,22 @@ class HomeCourseCard extends StatelessWidget {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                                color: primary.withValues(alpha: .1),
-                                borderRadius: BorderRadius.circular(9)),
-                            child: Text(
-                                categoryName ??
-                                    (course.priceStatus == 'free'
-                                            ? 'free'
-                                            : 'premium')
-                                        .tr(),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: primary,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600))),
-                        const SizedBox(height: 4),
+                        if (catName != null)
+                          Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                  color: primary.withValues(alpha: .1),
+                                  borderRadius: BorderRadius.circular(9)),
+                              child: Text(catName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: primary,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600))),
+                        if (catName != null)
+                          const SizedBox(height: 4),
                         Row(children: [
                           Expanded(
                               child: Text(course.name,

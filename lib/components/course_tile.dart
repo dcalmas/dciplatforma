@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:lms_app/components/price_tag.dart';
 import 'package:lms_app/components/rating_bar.dart';
 import 'package:lms_app/screens/course_details.dart/details_view.dart';
 import 'package:lms_app/utils/custom_cached_image.dart';
@@ -29,7 +28,6 @@ class CourseTile extends StatelessWidget {
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(3)),
                 child: Hero(tag: heroTag, child: CustomCacheImage(imageUrl: course.thumbnailUrl, radius: 3)),
               ),
-              PremiumTag(course: course),
             ],
           ),
           Expanded(

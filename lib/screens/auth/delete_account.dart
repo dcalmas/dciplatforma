@@ -84,16 +84,25 @@ class _DeleteDialog extends ConsumerWidget {
 
   void _handleDeleteAccount(context, WidgetRef ref, RoundedLoadingButtonController controller) async {
     controller.start();
-    final user = ref.read(userDataProvider);
-    await FirebaseService().deleteUserDatafromDatabase(user!.id);
-    await AuthService().deleteUserAuth();
-    await AuthService().googleLogout();
-    await AuthService().userLogOut();
-    await SPService().clearLocalData();
-    ref.invalidate(userDataProvider);
-    ref.invalidate(homeTabControllerProvider);
-    ref.invalidate(navBarIndexProvider);
-    controller.success();
-    NextScreen.closeOthersAnimation(context, const IntroScreen());
+    try {
+      final user = ref.read(userDataProvider);
+      if (user == null) {
+        controller.reset();
+        return;
+      }
+      await FirebaseService().deleteUserDatafromDatabase(user.id);
+      await AuthService().deleteUserAuth();
+      await AuthService().googleLogout();
+      await AuthService().userLogOut();
+      await SPService().clearLocalData();
+      ref.invalidate(userDataProvider);
+      ref.invalidate(homeTabControllerProvider);
+      ref.invalidate(navBarIndexProvider);
+      controller.success();
+      if (context.mounted) NextScreen.closeOthersAnimation(context, const IntroScreen());
+    } catch (e) {
+      controller.reset();
+      debugPrint('delete account error: $e');
+    }
   }
 }

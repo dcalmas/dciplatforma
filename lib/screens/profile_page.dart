@@ -52,6 +52,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxHeight: 200, maxWidth: 200);
     if (image != null) {
+      if (await image.length() > 2 * 1024 * 1024) {
+        if (mounted) openSnackbarFailure(context, 'image-size-limit'.tr());
+        return;
+      }
       setState(() => _selectedImageFile = image);
     }
   }
@@ -61,13 +65,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     setState(() => _isUpdatingName = true);
 
     try {
-      String? imageUrl = _imageUrl;
-      if (_selectedImageFile != null) {
-        imageUrl = await FirebaseService().uploadImageToHosting(_selectedImageFile!);
-      }
-
       final user = ref.read(userDataProvider);
       if (user == null) return;
+
+      String? imageUrl = _imageUrl;
+      if (_selectedImageFile != null) {
+        imageUrl = await FirebaseService().uploadImageToHosting(
+          _selectedImageFile!,
+          uid: user.id,
+          oldImageUrl: _imageUrl,
+        );
+      }
 
       final updatedUser = UserModel(
         id: user.id,

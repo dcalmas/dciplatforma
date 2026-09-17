@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:lms_app/components/price_tag.dart';
 import 'package:lms_app/models/course.dart';
 import 'rating_bar.dart';
 import '../screens/course_details.dart/details_view.dart';
@@ -42,7 +41,6 @@ class HorizontalCourseTile extends StatelessWidget {
                         radius: 0,
                       ),
                     )),
-                PremiumTag(course: course),
               ],
             ),
             const SizedBox(

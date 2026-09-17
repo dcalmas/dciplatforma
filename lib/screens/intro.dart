@@ -11,7 +11,11 @@ import 'package:lms_app/services/sp_service.dart';
 import 'package:lms_app/utils/next_screen.dart';
 import '../providers/app_settings_provider.dart';
 
-final introPageController = Provider.autoDispose((ref) => PageController(initialPage: 0));
+final introPageController = Provider.autoDispose((ref) {
+  final controller = PageController(initialPage: 0);
+  ref.onDispose(() => controller.dispose());
+  return controller;
+});
 
 class IntroScreen extends ConsumerStatefulWidget {
   const IntroScreen({super.key});
@@ -41,9 +45,9 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
     final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE);
 
     final List<_IntroPage> pages = [
-      _IntroPage(image: introImage1),
-      _IntroPage(image: introImage2),
-      _IntroPage(image: introImage3),
+      _IntroPage(image: introImage1, titleKey: 'intro-title1'),
+      _IntroPage(image: introImage2, titleKey: 'intro-title2'),
+      _IntroPage(image: introImage3, titleKey: 'intro-title3'),
     ];
 
     return Scaffold(
@@ -212,8 +216,9 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
 
 class _IntroPage {
   final String image;
+  final String titleKey;
 
-  const _IntroPage({required this.image});
+  const _IntroPage({required this.image, required this.titleKey});
 }
 
 class _IntroPageView extends StatelessWidget {
@@ -239,6 +244,17 @@ class _IntroPageView extends StatelessWidget {
             width: double.infinity,
             fit: BoxFit.contain,
           ),
+          const SizedBox(height: 24),
+          Text(
+            page.titleKey,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              height: 1.4,
+              color: isDarkMode ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ).tr(),
           const Spacer(flex: 1),
         ],
       ),

@@ -2,10 +2,8 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:lms_app/configs/app_assets.dart';
 import 'package:lms_app/configs/app_config.dart';
 import 'package:lms_app/models/review.dart';
 import 'package:lms_app/models/user_model.dart';
@@ -163,17 +161,8 @@ class AppService {
   }
 
   static void svgPrecacheImage() {
-
-    // SVG Images
-    const svgImages = [
-      introImage1,
-      introImage2,
-      introImage3,
-    ];
-
-    for (String element in svgImages) {
-      var loader = SvgAssetLoader(element);
-      svg.cache.putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
-    }
+    // Intro суреттері PNG — SVG парсермен precache жасалмайды
+    // (бұрын XmlParserException беріп, unhandled exception шығатын).
+    // Image.asset өз кэшін қолданады, қосымша precache қажет емес.
   }
 }

@@ -1,11 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lms_app/ads/ad_manager.dart';
-import 'package:lms_app/iAP/iap_config.dart';
-import 'package:lms_app/models/app_settings_model.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/user_model.dart';
-import 'package:lms_app/providers/app_settings_provider.dart';
 import 'package:lms_app/screens/curricullam_screen.dart';
 import 'package:lms_app/screens/home/home_bottom_bar.dart';
 import 'package:lms_app/screens/home/home_view.dart';
@@ -16,7 +13,6 @@ import 'package:lms_app/services/auth_service.dart';
 import 'package:lms_app/services/firebase_service.dart';
 import 'package:lms_app/utils/next_screen.dart';
 import 'package:lms_app/utils/snackbars.dart';
-import '../iAP/iap_screen.dart';
 import '../providers/user_data_provider.dart';
 
 mixin UserMixin {
@@ -43,34 +39,6 @@ mixin UserMixin {
     }
   }
 
-  static bool isExpired(UserModel user) {
-    if (user.subscription == null) return true;
-
-    final DateTime expireDate = user.subscription!.expireAt;
-    final DateTime now = DateTime.now().toUtc();
-    final difference = expireDate.difference(now).inDays;
-    if (difference >= 0) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  static bool isUserPremium(UserModel? user) {
-    return user != null && user.subscription != null && isExpired(user) == false
-        ? true
-        : false;
-  }
-
-  int remainingDays(UserModel user) {
-    if (user.subscription == null) return 0;
-
-    final DateTime expireDate = user.subscription!.expireAt;
-    final DateTime now = DateTime.now().toUtc();
-    final difference = expireDate.difference(now).inDays;
-    return difference;
-  }
-
   Future handleEnrollment(
     BuildContext context, {
     required UserModel? user,
@@ -82,26 +50,14 @@ mixin UserMixin {
         if (hasEnrolled(user, course)) {
           NextScreen.iOS(context, CurriculamScreen(course: course));
         } else {
-          AdManager.initInterstitailAds(ref);
           await _comfirmEnrollment(context, user, course, ref);
         }
       } else {
-        if ((user.subscription != null && !isExpired(user)) ||
-            hasEnrolled(user, course)) {
-          if (hasEnrolled(user, course)) {
-            NextScreen.iOS(context, CurriculamScreen(course: course));
-          } else {
-            await _comfirmEnrollment(context, user, course, ref);
-          }
+        // Платный курс: өздігінен жазылу жоқ, доступты админ береді.
+        if (hasEnrolled(user, course)) {
+          NextScreen.iOS(context, CurriculamScreen(course: course));
         } else {
-          final settings = ref.read(appSettingsProvider);
-          if (IAPConfig.iAPEnabled &&
-              settings?.license == LicenseType.extended) {
-            NextScreen.openBottomSheet(context, const IAPScreen(),
-                isDismissable: false);
-          } else {
-            openSnackbarFailure(context, 'Extended license required!');
-          }
+          openSnackbar(context, 'enroll-to-view-curriculum'.tr());
         }
       }
     } else {
@@ -111,11 +67,17 @@ mixin UserMixin {
 
   Future _comfirmEnrollment(BuildContext context, UserModel user, Course course,
       WidgetRef ref) async {
-    final updatedUser = await FirebaseService().updateEnrollment(user, course);
-    if (!context.mounted) return;
-    ref.read(userDataProvider.notifier).applyEnrollment(updatedUser);
-    ref.invalidate(sectionsProvider(course.id));
-    openSnackbar(context, 'Enrolled Succesfully');
+    try {
+      final updatedUser = await FirebaseService().updateEnrollment(user, course);
+      if (!context.mounted) return;
+      ref.read(userDataProvider.notifier).applyEnrollment(updatedUser);
+      ref.invalidate(sectionsProvider(course.id));
+      openSnackbar(context, 'Enrolled Succesfully');
+    } catch (e) {
+      debugPrint('enrollment error: $e');
+      if (!context.mounted) return;
+      openSnackbarFailure(context, e.toString());
+    }
   }
 
   Future handleOpenCourse(

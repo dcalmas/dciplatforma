@@ -19,13 +19,13 @@ class ReviewData extends StateNotifier<List<Review>> {
     if (lastDocument == null) {
       await FirebaseService().getReviewsSnapshot(courseId: courseId).then((QuerySnapshot snapshot) {
         state = snapshot.docs.map((e) => Review.fromFirebase(e)).toList();
-        lastDocument = snapshot.docs.last;
+        lastDocument = snapshot.docs.isEmpty ? null : snapshot.docs.last;
         ref.read(isReviewsLoadingProvider.notifier).update((state) => false);
       }).catchError((e) => _handleError(ref, e.toString()));
     } else {
       ref.read(hasReviewsProvider.notifier).update((state) => true);
       await FirebaseService().getReviewsSnapshot(courseId: courseId, lastDocument: lastDocument).then((QuerySnapshot? snapshot) {
-        if (snapshot != null) {
+        if (snapshot != null && snapshot.docs.isNotEmpty) {
           final newReviews = snapshot.docs.map((e) => Review.fromFirebase(e)).toList();
           state = [...state, ...newReviews];
           lastDocument = snapshot.docs.last;

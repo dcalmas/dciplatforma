@@ -13,6 +13,3 @@ const String introImage3 = 'assets/images/intro_3.png';
 const String emptyAnimation = 'assets/animations/empty.json';
 const String notificationAnimation = 'assets/animations/notification.json';
 const String splashAnimation = 'assets/animations/splash_animation.json'; // Жаңадан қосылды
-
-// Premium Course Icon Image
-const String premiumImage = 'assets/images/premium.png';

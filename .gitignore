@@ -47,6 +47,9 @@ app.*.map.json
 **/.env
 **/.env.local
 **/.env.production
+*.jks
+.artifacts/
+android/build/
 
 # iOS related - Codemagic үшін маңызды
 # Біз кейбір файлдарды ИГНОР ЕТПЕЙМІЗ

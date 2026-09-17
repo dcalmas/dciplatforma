@@ -2,13 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lms_app/mixins/user_mixin.dart';
 import 'package:lms_app/models/course.dart';
 import 'package:lms_app/models/lesson.dart';
 import 'package:lms_app/providers/user_data_provider.dart';
 import 'package:lms_app/screens/article_lesson.dart';
 import 'package:lms_app/screens/auth/login.dart';
-import 'package:lms_app/screens/course_details.dart/details_view.dart';
 import 'package:lms_app/screens/quiz_lesson/quiz_screen.dart';
 import 'package:lms_app/screens/video_lesson.dart';
 import 'package:lms_app/services/firebase_service.dart';
@@ -76,7 +74,7 @@ final homeworkTasksProvider =
   return tasks;
 });
 
-class AssignmentsTab extends ConsumerWidget with UserMixin {
+class AssignmentsTab extends ConsumerWidget {
   const AssignmentsTab({super.key});
 
   @override
@@ -170,11 +168,10 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
                 final lesson = item.lesson;
                 final submitted = HomeworkService.hasSubmittedHomework(
                     item.submission);
-                final enrolled = hasEnrolled(user, course);
-                final isPremium = course.priceStatus != 'free';
-                final isPremiumUser = UserMixin.isUserPremium(user);
+                final enrolled =
+                    user.enrolledCourses?.contains(course.id) ?? false;
                 final hasAccess =
-                    !isPremium || enrolled || isPremiumUser;
+                    course.priceStatus == 'free' || enrolled;
 
                 return Container(
                   decoration: BoxDecoration(
@@ -277,11 +274,7 @@ class AssignmentsTab extends ConsumerWidget with UserMixin {
                     onTap: () {
                       if (!hasAccess) {
                         openSnackbar(context,
-                            'subscribe-to-access-features'.tr());
-                        NextScreen.iOS(
-                            context,
-                            CourseDetailsView(
-                                course: course, heroTag: UniqueKey()));
+                            'enroll-to-view-curriculum'.tr());
                         return;
                       }
                       _openLesson(context, course, lesson);
