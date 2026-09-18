@@ -104,7 +104,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     final isDarkMode = ref.watch(themeProvider).isDarkMode;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+        iconTheme: IconThemeData(color: isDarkMode ? Colors.white : const Color(0xFF1B1E2E)),
+        leading: IconButton(icon: Icon(Icons.close, color: isDarkMode ? Colors.white : const Color(0xFF1B1E2E)), onPressed: () => Navigator.pop(context)),
       ),
       bottomNavigationBar: BottomAppBar(
         child: RoundedLoadingButton(

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'phone_identity_service.dart';
 import 'package:crypto/crypto.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -221,9 +222,15 @@ class AuthService {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) return false;
+      final email = user.email;
+      if (email == null || email.isEmpty) {
+        if (context.mounted) openSnackbarFailure(context, 'error'.tr());
+        return false;
+      }
+      if (currentPassword.isEmpty || newPassword.isEmpty) return false;
 
       final credential = EmailAuthProvider.credential(
-        email: user.email!,
+        email: email,
         password: currentPassword,
       );
       await user.reauthenticateWithCredential(credential);
@@ -232,7 +239,7 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       debugPrint('Error changing password: $e');
       if (!context.mounted) return false;
-      openSnackbarFailure(context, e.message);
+      openSnackbarFailure(context, e.message ?? 'error'.tr());
       return false;
     }
   }

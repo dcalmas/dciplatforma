@@ -8,6 +8,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../services/certificate_service.dart';
 import '../../utils/snackbars.dart';
 
+const _pink = Color(0xFFF50078);
+const _lightBg = Color(0xFFFFF8FC);
+const _darkBg = Color(0xFF0F111A);
+
 /// Бір сертификатты көрсету: код, тексеру/бөлісу сілтемелері.
 class CertificatePreview extends ConsumerWidget {
   const CertificatePreview({super.key, required this.certificate});
@@ -17,35 +21,42 @@ class CertificatePreview extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).primaryColor;
     final siteUrl = ref.watch(certificateSiteUrlProvider).valueOrNull ??
         CertificateService.fallbackSiteUrl;
     final link = CertificateService.verifyUrl(siteUrl, certificate.code);
 
     return Scaffold(
-      backgroundColor: isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE),
+      backgroundColor: isDarkMode ? _darkBg : _lightBg,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor:
-            isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFF8F9FE),
-        title: Text('my-certificate'.tr()),
+        backgroundColor: isDarkMode ? _darkBg : _lightBg,
+        iconTheme: IconThemeData(
+          color: isDarkMode ? Colors.white : const Color(0xFF1B1E2E),
+        ),
+        title: Text(
+          'my-certificate'.tr(),
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: isDarkMode ? Colors.white : const Color(0xFF1B1E2E),
+          ),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
         children: [
-          // Certificate card
+          // Certificate card with pink gradient
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [primaryColor, primaryColor.withValues(alpha: 0.75)],
+              gradient: const LinearGradient(
+                colors: [Color(0xFFF50078), Color(0xFFFF6B8B)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: primaryColor.withValues(alpha: 0.35),
+                  color: _pink.withValues(alpha: 0.35),
                   blurRadius: 28,
                   offset: const Offset(0, 12),
                 ),
@@ -53,8 +64,7 @@ class CertificatePreview extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                const Text('🎓',
-                    style: TextStyle(fontSize: 52)),
+                const Text('🎓', style: TextStyle(fontSize: 52)),
                 const SizedBox(height: 8),
                 Text(
                   'certificate-of-completion'.tr(),
@@ -148,6 +158,11 @@ class CertificatePreview extends ConsumerWidget {
                   mode: LaunchMode.externalApplication);
               if (!ok && context.mounted) openSnackbar(context, 'error'.tr());
             },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: _pink,
+              side: BorderSide(color: _pink.withValues(alpha: 0.6)),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
             icon: const Icon(Icons.verified_rounded),
             label: Text(
               'verify-certificate'.tr(),
@@ -163,7 +178,7 @@ class CertificatePreview extends ConsumerWidget {
               );
             },
             style: FilledButton.styleFrom(
-              backgroundColor: primaryColor,
+              backgroundColor: _pink,
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
             icon: const Icon(Icons.share_rounded),
