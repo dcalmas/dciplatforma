@@ -38,11 +38,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
     _controller = AnimationController(vsync: this);
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 1.0, curve: Curves.easeIn)),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 1.0, curve: Curves.linear)),
     );
 
     _startInitialization();
@@ -127,49 +127,86 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
     ));
+    final bgColor = isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFFFF8FC);
 
     return Scaffold(
-      backgroundColor: isDarkMode ? const Color(0xFF0F111A) : Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(
-                    logo,
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.contain,
+      backgroundColor: bgColor,
+      body: Stack(
+        children: [
+          // Бұлыңғыр қызғылт дөңгелек фон әдемілік үшін (басқа беттермен стиль бірдей болуы үшін)
+          if (!isDarkMode)
+            Positioned(
+              top: -40,
+              right: -40,
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      const Color(0xFFF50078).withValues(alpha: 0.12),
+                      const Color(0xFFF50078).withValues(alpha: 0.0),
+                    ],
+                    stops: const [0.0, 1.0],
                   ),
-                  const SizedBox(height: 28),
-                  Lottie.asset(
-                    splashAnimation,
-                    controller: _controller,
-                    width: 160,
-                    fit: BoxFit.contain,
-                    onLoaded: (composition) {
-                      _controller
-                        ..duration = composition.duration
-                        ..forward().whenComplete(() {
-                          _onAnimComplete();
-                        });
+                ),
+              ),
+            ),
+          Center(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 110,
+                      height: 110,
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFF50078).withValues(alpha: isDarkMode ? 0.15 : 0.08),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      child: Image.asset(
+                        logo,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Lottie.asset(
+                      splashAnimation,
+                      controller: _controller,
+                      width: 140,
+                      fit: BoxFit.contain,
+                      onLoaded: (composition) {
+                        _controller
+                          ..duration = composition.duration
+                          ..forward().whenComplete(() {
+                            _onAnimComplete();
+                          });
 
-                      HapticFeedback.mediumImpact();
-                      _hapticTimer = Timer(
-                        Duration(milliseconds: (composition.duration.inMilliseconds * 0.5).toInt()),
-                        () => HapticFeedback.heavyImpact(),
-                      );
-                    },
-                  ),
-                ],
+                        HapticFeedback.mediumImpact();
+                        _hapticTimer = Timer(
+                          Duration(milliseconds: (composition.duration.inMilliseconds * 0.5).toInt()),
+                          () => HapticFeedback.heavyImpact(),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

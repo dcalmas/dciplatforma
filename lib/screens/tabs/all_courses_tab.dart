@@ -76,24 +76,45 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
     final isGrid = ref.watch(allCoursesViewStyleProvider);
     final isDarkMode = ref.watch(themeProvider).isDarkMode;
     final bgColor =
-        isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFFFF8FC);
+    isDarkMode ? const Color(0xFF0F111A) : const Color(0xFFFFF8FC);
     final categories =
         ref.watch(categoriesProvider).valueOrNull ?? <Category>[];
     final categoryName = _categoryId == null
         ? null
         : categories
-            .where((c) => c.id == _categoryId)
-            .map((c) => c.name)
-            .firstOrNull;
+        .where((c) => c.id == _categoryId)
+        .map((c) => c.name)
+        .firstOrNull;
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: SafeArea(
-        child: Column(
-          children: [
+      body: Stack(
+        children: [
+          // Бұлыңғыр қызғылт дөңгелек (2-ші фотодағыдай артқы фон)
+          Positioned(
+            top: -50,
+            right: -30,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    _pink.withValues(alpha: isDarkMode ? 0.08 : 0.15),
+                    _pink.withValues(alpha: 0.0),
+                  ],
+                  stops: const [0.0, 1.0],
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
             // Header: title + promo
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -104,8 +125,8 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
                         Text(
                           'courses'.tr(),
                           style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 28,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 26,
                             letterSpacing: -0.5,
                             color: isDarkMode ? Colors.white : _navy,
                           ),
@@ -114,7 +135,7 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
                         Text(
                           'courses-subtitle'.tr(),
                           style: TextStyle(
-                            fontSize: 12.5,
+                            fontSize: 12,
                             color: isDarkMode
                                 ? Colors.grey[400]
                                 : const Color(0xFF9CA3AF),
@@ -124,27 +145,31 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Icon(
-                        FeatherIcons.heart,
-                        size: 15,
-                        color: _pink,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'invest-in-yourself'.tr(),
-                        textAlign: TextAlign.right,
-                        style: GoogleFonts.caveat(
-                          fontSize: 17,
-                          height: 1.05,
-                          fontWeight: FontWeight.w600,
-                          fontStyle: FontStyle.italic,
+                  SizedBox(
+                    width: 118,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Icon(
+                          FeatherIcons.heart,
+                          size: 14,
                           color: _pink,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 1),
+                        Text(
+                          'invest-in-yourself'.tr(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.right,
+                          style: GoogleFonts.caveat(
+                            fontSize: 16,
+                            height: 0.95,
+                            fontWeight: FontWeight.w600,
+                            color: _pink,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -152,7 +177,7 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
 
             // Search field
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 2, 16, 10),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
               child: TextField(
                 controller: _searchCtrl,
                 onChanged: (v) => setState(() => _query = v.trim()),
@@ -170,7 +195,7 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
                   ),
                   prefixIcon: Icon(
                     FeatherIcons.search,
-                    size: 19,
+                    size: 18,
                     color: isDarkMode
                         ? Colors.grey[500]
                         : const Color(0xFF9CA3AF),
@@ -178,73 +203,78 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
                   suffixIcon: _query.isEmpty
                       ? null
                       : IconButton(
-                          icon: const Icon(Icons.close_rounded, size: 18),
-                          color: const Color(0xFF9CA3AF),
-                          onPressed: () {
-                            _searchCtrl.clear();
-                            setState(() => _query = '');
-                          },
-                        ),
+                    icon: const Icon(Icons.close_rounded, size: 18),
+                    color: const Color(0xFF9CA3AF),
+                    onPressed: () {
+                      _searchCtrl.clear();
+                      setState(() => _query = '');
+                    },
+                  ),
                   filled: true,
                   fillColor:
-                      isDarkMode ? const Color(0xFF1E202C) : Colors.white,
+                  isDarkMode ? const Color(0xFF1E202C) : Colors.white,
                   contentPadding: const EdgeInsets.symmetric(vertical: 13),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(15),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(15),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(15),
                     borderSide:
-                        const BorderSide(color: _pink, width: 1.5),
+                    const BorderSide(color: _pink, width: 1.5),
                   ),
                 ),
               ),
             ),
 
-            // Filters row: category + sort + view toggle
+            // Filters row: responsive — no RenderFlex overflow on narrow phones.
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
               child: Row(
                 children: [
-                  _FilterChip(
-                    icon: Icons.filter_list_rounded,
-                    label: categoryName ?? 'all-categories'.tr(),
-                    isDarkMode: isDarkMode,
-                    onTap: () => NextScreen.openBottomSheet(
-                      context,
-                      _CategorySheet(
-                        categories: categories,
-                        selectedId: _categoryId,
-                        onPick: (id) =>
-                            setState(() => _categoryId = id),
+                  Expanded(
+                    flex: 11,
+                    child: _FilterChip(
+                      icon: Icons.filter_list_rounded,
+                      label: categoryName ?? 'all-categories'.tr(),
+                      isDarkMode: isDarkMode,
+                      onTap: () => NextScreen.openBottomSheet(
+                        context,
+                        _CategorySheet(
+                          categories: categories,
+                          selectedId: _categoryId,
+                          onPick: (id) => setState(() => _categoryId = id),
+                        ),
+                        maxHeight: 0.6,
                       ),
-                      maxHeight: 0.6,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    icon: Icons.swap_vert_rounded,
-                    label: _sort == CourseSortOption.none
-                        ? 'sort-by'.tr()
-                        : _sortLabel(_sort),
-                    isDarkMode: isDarkMode,
-                    onTap: () => NextScreen.openBottomSheet(
-                      context,
-                      _SortSheet(
-                        selected: _sort,
-                        onPick: (s) => setState(() => _sort = s),
+                  const SizedBox(width: 7),
+                  Expanded(
+                    flex: 10,
+                    child: _FilterChip(
+                      icon: Icons.swap_vert_rounded,
+                      label: _sort == CourseSortOption.none
+                          ? 'sort-by'.tr()
+                          : _sortLabel(_sort),
+                      isDarkMode: isDarkMode,
+                      onTap: () => NextScreen.openBottomSheet(
+                        context,
+                        _SortSheet(
+                          selected: _sort,
+                          onPick: (s) => setState(() => _sort = s),
+                        ),
+                        maxHeight: 0.55,
                       ),
-                      maxHeight: 0.55,
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 7),
                   Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
                       color: isDarkMode
                           ? const Color(0xFF1E202C)
@@ -283,7 +313,7 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
                 onRefresh: () async => ref.invalidate(allCoursesProvider),
                 child: coursesState.when(
                   loading: () =>
-                      const Center(child: LoadingIndicatorWidget()),
+                  const Center(child: LoadingIndicatorWidget()),
                   error: (error, stack) => Center(
                     child: Text('error: $error',
                         style: const TextStyle(color: Colors.red)),
@@ -293,7 +323,7 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
                     if (list.isEmpty) {
                       return ListView(
                         physics:
-                            const AlwaysScrollableScrollPhysics(),
+                        const AlwaysScrollableScrollPhysics(),
                         children: [
                           SizedBox(
                               height: MediaQuery.of(context).size.height *
@@ -317,11 +347,11 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
                     if (isGrid) {
                       return GridView.builder(
                         padding:
-                            const EdgeInsets.fromLTRB(14, 4, 14, 90),
+                        const EdgeInsets.fromLTRB(14, 4, 14, 90),
                         physics: const BouncingScrollPhysics(
                             parent: AlwaysScrollableScrollPhysics()),
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           childAspectRatio: 0.68,
                           crossAxisSpacing: 12,
@@ -349,6 +379,8 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
           ],
         ),
       ),
+        ],
+      ),
     );
   }
 
@@ -374,7 +406,7 @@ class _AllCoursesTabState extends ConsumerState<AllCoursesTab> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(7),
         decoration: BoxDecoration(
           color: isActive ? _pink : Colors.transparent,
           borderRadius: BorderRadius.circular(9),
@@ -410,8 +442,8 @@ class _FilterChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
         decoration: BoxDecoration(
           color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -476,7 +508,7 @@ class _CategorySheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
         borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(15)),
+        const BorderRadius.vertical(top: Radius.circular(15)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -571,7 +603,7 @@ class _SortSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E202C) : Colors.white,
         borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(15)),
+        const BorderRadius.vertical(top: Radius.circular(15)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -617,12 +649,12 @@ class _SortSheet extends StatelessWidget {
 }
 
 Widget _sheetOption(
-  BuildContext context, {
-  required String title,
-  required bool selected,
-  required bool isDarkMode,
-  required VoidCallback onTap,
-}) {
+    BuildContext context, {
+      required String title,
+      required bool selected,
+      required bool isDarkMode,
+      required VoidCallback onTap,
+    }) {
   return InkWell(
     onTap: onTap,
     borderRadius: BorderRadius.circular(12),
@@ -636,7 +668,7 @@ Widget _sheetOption(
               style: TextStyle(
                 fontSize: 14.5,
                 fontWeight:
-                    selected ? FontWeight.w800 : FontWeight.w500,
+                selected ? FontWeight.w800 : FontWeight.w500,
                 color: selected
                     ? const Color(0xFFF50078)
                     : (isDarkMode ? Colors.white : const Color(0xFF0F172A)),
@@ -651,3 +683,4 @@ Widget _sheetOption(
     ),
   );
 }
+

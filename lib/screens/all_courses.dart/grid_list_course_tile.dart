@@ -123,8 +123,8 @@ class GridListCourseTile extends ConsumerWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14.5,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
                               height: 1.2,
                               color: isDarkMode ? Colors.white : _navy,
                             ),
@@ -164,37 +164,41 @@ class GridListCourseTile extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 7),
-                    // Stats row
-                    Row(
-                      children: [
-                        _stat(
-                          context,
-                          icon: Icons.person_outline_rounded,
-                          text:
-                              '${course.studentsCount} ${_studentsWord(context, course.studentsCount)}',
-                          isDarkMode: isDarkMode,
-                        ),
-                        _dot(isDarkMode),
-                        _stat(
-                          context,
-                          icon: Icons.menu_book_outlined,
-                          text:
-                              '${course.lessonsCount} ${_lessonsWord(context, course.lessonsCount)}',
-                          isDarkMode: isDarkMode,
-                        ),
-                        if ((course.courseMeta.duration ?? '')
-                            .trim()
-                            .isNotEmpty) ...[
+                    // Stats row - Wrapped in FittedBox to scale down and prevent overflow on all devices
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          _stat(
+                            context,
+                            icon: Icons.person_outline_rounded,
+                            text:
+                                '${course.studentsCount} ${_studentsWord(context, course.studentsCount)}',
+                            isDarkMode: isDarkMode,
+                          ),
                           _dot(isDarkMode),
                           _stat(
                             context,
-                            icon: Icons.access_time_rounded,
+                            icon: Icons.menu_book_outlined,
                             text:
-                                course.courseMeta.duration!.trim(),
+                                '${course.lessonsCount} ${_lessonsWord(context, course.lessonsCount)}',
                             isDarkMode: isDarkMode,
                           ),
+                          if ((course.courseMeta.duration ?? '')
+                              .trim()
+                              .isNotEmpty) ...[
+                            _dot(isDarkMode),
+                            _stat(
+                              context,
+                              icon: Icons.access_time_rounded,
+                              text:
+                                  course.courseMeta.duration!.trim(),
+                              isDarkMode: isDarkMode,
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 7),
                     Row(
@@ -218,8 +222,8 @@ class GridListCourseTile extends ConsumerWidget {
                                 Text(
                                   'start-short'.tr(),
                                   style: const TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w800,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
                                     color: _pink,
                                   ),
                                 ),
